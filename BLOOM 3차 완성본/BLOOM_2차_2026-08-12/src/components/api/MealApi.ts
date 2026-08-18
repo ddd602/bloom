@@ -1,4 +1,5 @@
 import { apiFetch } from './ApiClient'
+
 import {
   getDailyDiary,
 } from './DiaryApi'
@@ -148,63 +149,88 @@ function toMealItem(
 //
 // GET /api/v1/diary/daily
 // 응답의 meals 사용
+//
+// 해당 날짜 다이어리가 없으면
+// 빈 식단으로 처리
 // ==============================
 
 export async function getMealsByDate(
   date: string,
 ): Promise<DailyMeals> {
-  const daily =
-    await getDailyDiary(
-      date,
+  try {
+    const daily =
+      await getDailyDiary(
+        date,
+      )
+
+    const meals =
+      createEmptyMeals()
+
+    daily.meals.forEach(
+      (meal) => {
+        const serverMeal =
+          meal as MealResponse
+
+        const item =
+          toMealItem(
+            serverMeal,
+          )
+
+        if (
+          serverMeal.mealType ===
+          'BREAKFAST'
+        ) {
+          meals.breakfast.items.push(
+            item,
+          )
+        }
+
+        if (
+          serverMeal.mealType ===
+          'LUNCH'
+        ) {
+          meals.lunch.items.push(
+            item,
+          )
+        }
+
+        if (
+          serverMeal.mealType ===
+          'DINNER'
+        ) {
+          meals.dinner.items.push(
+            item,
+          )
+        }
+      },
     )
 
-  const meals =
-    createEmptyMeals()
+    return {
+      date:
+        daily.date,
 
-  daily.meals.forEach(
-    (meal) => {
-      const serverMeal =
-        meal as MealResponse
-
-      const item =
-        toMealItem(
-          serverMeal,
-        )
-
-      if (
-        serverMeal.mealType ===
-        'BREAKFAST'
-      ) {
-        meals.breakfast.items.push(
-          item,
-        )
+      meals,
+    }
+  } catch (error) {
+    // 신규 사용자처럼
+    // 해당 날짜 다이어리가 없는 경우는
+    // 정상적인 빈 식단으로 처리
+    if (
+      error instanceof Error &&
+      error.message.includes(
+        'DIARY_NOT_FOUND',
+      )
+    ) {
+      return {
+        date,
+        meals:
+          createEmptyMeals(),
       }
+    }
 
-      if (
-        serverMeal.mealType ===
-        'LUNCH'
-      ) {
-        meals.lunch.items.push(
-          item,
-        )
-      }
-
-      if (
-        serverMeal.mealType ===
-        'DINNER'
-      ) {
-        meals.dinner.items.push(
-          item,
-        )
-      }
-    },
-  )
-
-  return {
-    date:
-      daily.date,
-
-    meals,
+    // 500, 네트워크 오류 등
+    // 실제 오류는 그대로 전달
+    throw error
   }
 }
 
@@ -524,4 +550,3 @@ export function totalMealCalories(
     )
   )
 }
-
