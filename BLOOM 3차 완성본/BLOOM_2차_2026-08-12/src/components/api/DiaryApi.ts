@@ -129,27 +129,150 @@ export type DailyDiaryResponse = {
   activities: ActivityResponse[]
 }
 
+// ==============================
+// 일일 기록 조회 캐시
+//
+// 같은 날짜 데이터를 여러 컴포넌트에서
+// 동시에 요청하더라도 실제 서버 요청은
+// 한 번만 보내도록 한다.
+// ==============================
+
+type DiaryCacheEntry = {
+  data: DailyDiaryResponse
+  createdAt: number
+}
+
+const diaryCache =
+  new Map<string, DiaryCacheEntry>()
+
+const pendingDiaryRequests =
+  new Map<
+    string,
+    Promise<DailyDiaryResponse>
+  >()
+
+// 같은 날짜 데이터는 30초 동안 재사용
+const CACHE_TTL = 30_000
+
+// ==============================
+// 일일 기록 조회
+// ==============================
+
 export async function getDailyDiary(
   date?: string,
 ): Promise<DailyDiaryResponse> {
+  const key =
+    date ?? '__today__'
+
+  // ------------------------------
+  // 1. 최근 조회한 데이터가 있으면
+  // 서버 요청 없이 캐시 사용
+  // ------------------------------
+
+  const cached =
+    diaryCache.get(key)
+
+  if (
+    cached &&
+    Date.now() -
+      cached.createdAt <
+      CACHE_TTL
+  ) {
+    return cached.data
+  }
+
+  // ------------------------------
+  // 2. 같은 날짜 요청이 이미 진행 중이면
+  // 새 요청을 만들지 않고 기존 Promise 사용
+  // ------------------------------
+
+  const pending =
+    pendingDiaryRequests.get(
+      key,
+    )
+
+  if (pending) {
+    return pending
+  }
+
+  // ------------------------------
+  // 3. 실제 서버 요청
+  // ------------------------------
+
   const query =
     date
-      ? `?date=${encodeURIComponent(date)}`
+      ? `?date=${encodeURIComponent(
+          date,
+        )}`
       : ''
 
-  return apiFetch<DailyDiaryResponse>(
-    `/api/v1/diary/daily${query}`,
+  const request =
+    apiFetch<DailyDiaryResponse>(
+      `/api/v1/diary/daily${query}`,
+    )
+      .then((data) => {
+        diaryCache.set(
+          key,
+          {
+            data,
+            createdAt:
+              Date.now(),
+          },
+        )
+
+        return data
+      })
+      .finally(() => {
+        pendingDiaryRequests.delete(
+          key,
+        )
+      })
+
+  pendingDiaryRequests.set(
+    key,
+    request,
   )
+
+  return request
 }
+
+// ==============================
+// 일일 기록 저장
+// ==============================
 
 export async function saveDailyDiary(
   data: DailyDiaryPatchRequest,
 ): Promise<DailyDiaryResponse> {
-  return apiFetch<DailyDiaryResponse>(
-    '/api/v1/diary/daily',
+  const saved =
+    await apiFetch<DailyDiaryResponse>(
+      '/api/v1/diary/daily',
+      {
+        method: 'PATCH',
+        body: JSON.stringify(
+          data,
+        ),
+      },
+    )
+
+  // ------------------------------
+  // 저장 성공 후 해당 날짜 캐시도
+  // 서버에서 받은 최신 데이터로 갱신
+  // ------------------------------
+
+  diaryCache.set(
+    data.date,
     {
-      method: 'PATCH',
-      body: JSON.stringify(data),
+      data: saved,
+      createdAt:
+        Date.now(),
     },
   )
+
+  // 날짜 없이 조회한 오늘 데이터가
+  // 이전 값일 수 있으므로 제거
+  diaryCache.delete(
+    '__today__',
+  )
+
+  return saved
 }
