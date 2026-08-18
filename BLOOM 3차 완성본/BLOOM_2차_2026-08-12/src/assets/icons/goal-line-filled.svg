@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="319 901 84 84"><defs xmlns="http://www.w3.org/2000/svg"><style>
+      .st0 {
+        fill: none;
+      }
+
+      .st1 {
+        fill: #7a7a7a;
+      }
+
+      .st2 {
+        fill: #47b86a;
+      }
+
+      .st3 {
+        clip-path: url(#clippath-17);
+      }
+
+      .st4 {
+        clip-path: url(#clippath-19);
+      }
+
+      .st5 {
+        clip-path: url(#clippath-11);
+      }
+
+      .st6 {
+        clip-path: url(#clippath-16);
+      }
+
+      .st7 {
+        clip-path: url(#clippath-18);
+      }
+
+      .st8 {
+        clip-path: url(#clippath-10);
+      }
+
+      .st9 {
+        clip-path: url(#clippath-15);
+      }
+
+      .st10 {
+        clip-path: url(#clippath-13);
+      }
+
+      .st11 {
+        clip-path: url(#clippath-14);
+      }
+
+      .st12 {
+        clip-path: url(#clippath-12);
+      }
+
+      .st13 {
+        clip-path: url(#clippath-1);
+      }
+
+      .st14 {
+        clip-path: url(#clippath-3);
+      }
+
+      .st15 {
+        clip-path: url(#clippath-4);
+      }
+
+      .st16 {
+        clip-path: url(#clippath-2);
+      }
+
+      .st17 {
+        clip-path: url(#clippath-7);
+      }
+
+      .st18 {
+        clip-path: url(#clippath-6);
+      }
+
+      .st19 {
+        clip-path: url(#clippath-9);
+      }
+
+      .st20 {
+        clip-path: url(#clippath-8);
+      }
+
+      .st21 {
+        clip-path: url(#clippath-5);
+      }
+
+      .st22 {
+        clip-path: url(#clippath);
+      }
+    </style><clipPath id="clippath"><rect class="st0" x="325.39" y="151.21" width="72" height="72" /></clipPath><clipPath id="clippath-1"><rect class="st0" x="109.39" y="151.21" width="72" height="72" /></clipPath><clipPath id="clippath-2"><rect class="st0" x="757.39" y="151.21" width="72" height="72" /></clipPath><clipPath id="clippath-3"><rect class="st0" x="973.39" y="151.21" width="72" height="72" /></clipPath><clipPath id="clippath-4"><rect class="st0" x="541.39" y="151.21" width="72" height="72" /></clipPath><clipPath id="clippath-5"><rect class="st0" x="541.39" y="348.43" width="72" height="72" /></clipPath><clipPath id="clippath-6"><rect class="st0" x="973.39" y="348.43" width="72" height="72" /></clipPath><clipPath id="clippath-7"><rect class="st0" x="109.39" y="348.43" width="72" height="72" /></clipPath><clipPath id="clippath-8"><rect class="st0" x="757.39" y="348.43" width="72" height="72" /></clipPath><clipPath id="clippath-9"><rect class="st0" x="325.39" y="348.43" width="72" height="72" /></clipPath><clipPath id="clippath-10"><rect class="st0" x="102.52" y="1121.03" width="72" height="72" /></clipPath><clipPath id="clippath-11"><rect class="st0" x="102.52" y="1352.03" width="72" height="72" /></clipPath><clipPath id="clippath-12"><rect class="st0" x="102.52" y="659.03" width="72" height="72" /></clipPath><clipPath id="clippath-13"><rect class="st0" x="102.52" y="890.03" width="72" height="72" /></clipPath><clipPath id="clippath-14"><rect class="st0" x="325.39" y="1138.02" width="72" height="72" /></clipPath><clipPath id="clippath-15"><rect class="st0" x="325.39" y="1369.02" width="69.93" height="72" /></clipPath><clipPath id="clippath-16"><rect class="st0" x="325.39" y="676.02" width="72" height="72" /></clipPath><clipPath id="clippath-17"><rect class="st0" x="325.39" y="907.02" width="72" height="72" /></clipPath><clipPath id="clippath-18"><rect class="st0" x="1615.58" y="1410.81" width="72" height="72" /></clipPath><clipPath id="clippath-19"><rect class="st0" x="1800.53" y="1410.45" width="72" height="72" /></clipPath></defs><g class="st3" xmlns="http://www.w3.org/2000/svg"><path class="st2" d="M356.14,936.28l12.56-12.56,12,12-12.56,12.56-12-12ZM351.89,940.52l-24,24c-1.19,1.19-2,2.7-2.32,4.34-.33,1.65-.16,3.35.48,4.9s1.73,2.88,3.13,3.81c1.39.93,3.04,1.43,4.71,1.43,1.12,0,2.22-.22,3.25-.64,1.03-.43,1.97-1.05,2.75-1.84l24-24-12-12ZM381.4,958.92l4,7.99,4-7.99,8-4.01-8-4-4-8-4,8-8,4,8,4.01ZM345.4,923.04l4,7.99,4-8,8-4-8-4-4-8-4,8-8,4,8,4.01ZM383.39,921.04l3.5,6.98,3.5-7,7-3.5-7-3.5-3.5-7-3.5,7-7,3.5,7,3.52Z" /></g></svg>

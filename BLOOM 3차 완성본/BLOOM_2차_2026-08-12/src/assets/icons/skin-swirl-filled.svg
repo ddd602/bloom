@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="1792 946 84 84"><defs xmlns="http://www.w3.org/2000/svg"><style>
+      .st0 {
+        fill: none;
+      }
+
+      .st1 {
+        fill: #7a7a7a;
+      }
+
+      .st2 {
+        fill: #47b86a;
+      }
+
+      .st3 {
+        clip-path: url(#clippath-17);
+      }
+
+      .st4 {
+        clip-path: url(#clippath-19);
+      }
+
+      .st5 {
+        clip-path: url(#clippath-11);
+      }
+
+      .st6 {
+        clip-path: url(#clippath-16);
+      }
+
+      .st7 {
+        clip-path: url(#clippath-18);
+      }
+
+      .st8 {
+        clip-path: url(#clippath-10);
+      }
+
+      .st9 {
+        clip-path: url(#clippath-15);
+      }
+
+      .st10 {
+        clip-path: url(#clippath-13);
+      }
+
+      .st11 {
+        clip-path: url(#clippath-14);
+      }
+
+      .st12 {
+        clip-path: url(#clippath-12);
+      }
+
+      .st13 {
+        clip-path: url(#clippath-1);
+      }
+
+      .st14 {
+        clip-path: url(#clippath-3);
+      }
+
+      .st15 {
+        clip-path: url(#clippath-4);
+      }
+
+      .st16 {
+        clip-path: url(#clippath-2);
+      }
+
+      .st17 {
+        clip-path: url(#clippath-7);
+      }
+
+      .st18 {
+        clip-path: url(#clippath-6);
+      }
+
+      .st19 {
+        clip-path: url(#clippath-9);
+      }
+
+      .st20 {
+        clip-path: url(#clippath-8);
+      }
+
+      .st21 {
+        clip-path: url(#clippath-5);
+      }
+
+      .st22 {
+        clip-path: url(#clippath);
+      }
+    </style><clipPath id="clippath"><rect class="st0" x="325.39" y="151.21" width="72" height="72" /></clipPath><clipPath id="clippath-1"><rect class="st0" x="109.39" y="151.21" width="72" height="72" /></clipPath><clipPath id="clippath-2"><rect class="st0" x="757.39" y="151.21" width="72" height="72" /></clipPath><clipPath id="clippath-3"><rect class="st0" x="973.39" y="151.21" width="72" height="72" /></clipPath><clipPath id="clippath-4"><rect class="st0" x="541.39" y="151.21" width="72" height="72" /></clipPath><clipPath id="clippath-5"><rect class="st0" x="541.39" y="348.43" width="72" height="72" /></clipPath><clipPath id="clippath-6"><rect class="st0" x="973.39" y="348.43" width="72" height="72" /></clipPath><clipPath id="clippath-7"><rect class="st0" x="109.39" y="348.43" width="72" height="72" /></clipPath><clipPath id="clippath-8"><rect class="st0" x="757.39" y="348.43" width="72" height="72" /></clipPath><clipPath id="clippath-9"><rect class="st0" x="325.39" y="348.43" width="72" height="72" /></clipPath><clipPath id="clippath-10"><rect class="st0" x="102.52" y="1121.03" width="72" height="72" /></clipPath><clipPath id="clippath-11"><rect class="st0" x="102.52" y="1352.03" width="72" height="72" /></clipPath><clipPath id="clippath-12"><rect class="st0" x="102.52" y="659.03" width="72" height="72" /></clipPath><clipPath id="clippath-13"><rect class="st0" x="102.52" y="890.03" width="72" height="72" /></clipPath><clipPath id="clippath-14"><rect class="st0" x="325.39" y="1138.02" width="72" height="72" /></clipPath><clipPath id="clippath-15"><rect class="st0" x="325.39" y="1369.02" width="69.93" height="72" /></clipPath><clipPath id="clippath-16"><rect class="st0" x="325.39" y="676.02" width="72" height="72" /></clipPath><clipPath id="clippath-17"><rect class="st0" x="325.39" y="907.02" width="72" height="72" /></clipPath><clipPath id="clippath-18"><rect class="st0" x="1615.58" y="1410.81" width="72" height="72" /></clipPath><clipPath id="clippath-19"><rect class="st0" x="1800.53" y="1410.45" width="72" height="72" /></clipPath></defs><g xmlns="http://www.w3.org/2000/svg"><path class="st2" d="M1869.55,960.83v.2l-4.61,4.43c-3.03,3.01-4.52,6.95-4.34,11.22.25,5.85-2.27,12.48-5.38,17.45-3.8,6.1-8.93,11.21-15.03,15.01-5.03,3.13-11.55,5.58-17.49,5.37-3.91-.14-7.76.95-10.56,3.73l-5.19,5.2h-.2l-9.22-9.34,5.15-5.18c2.78-2.8,3.99-6.69,3.77-10.62-.07-6.48,2.43-12.96,5.95-18.32,3.52-5.37,7.7-9.55,12.79-13.05,5.56-3.82,12.37-6.58,19.19-6.5,3.9.22,7.77-.95,10.55-3.7l5.27-5.21,9.34,9.29h0ZM1818.07,995.94c3.63-7.87,8.59-14.3,15.58-19.15,2.66-1.86,5.39-3.38,8.36-4.75l-1.76-3.82c-3.2,1.49-6.22,3.17-9.13,5.21-4.57,3.21-8.46,7.08-11.67,11.65-2.05,2.91-3.72,5.91-5.21,9.12l3.84,1.75ZM1818.25,1005.75l33.57-33.53-2.98-3-33.57,33.53,2.98,3h0ZM1826.83,1006.77c3.21-1.49,6.22-3.16,9.13-5.21,4.58-3.21,8.46-7.08,11.67-11.66,2.05-2.9,3.72-5.92,5.22-9.12l-3.83-1.76c-1.38,2.97-2.9,5.7-4.76,8.35-3.01,4.31-6.66,7.94-10.99,10.93-2.61,1.81-5.28,3.28-8.19,4.64l1.76,3.82Z" /><path class="st2" d="M1842.94,1023.45h-.25l-2.39-8.77,3.35-.03-.94-3.46,4.08-1.1,2.41,8.78h-3.34s.92,3.48.92,3.48l-3.83,1.1Z" /><path class="st2" d="M1869.55,996.65v.26l-1.11,3.8-3.46-.93v3.35s-8.81-2.41-8.81-2.41l1.11-4.07,3.46.94.02-3.35,8.79,2.41Z" /><path class="st2" d="M1824.38,963.78l-4.07,1.13-2.41-8.8h3.35s-.94-3.46-.94-3.46l4.08-1.11,2.41,8.78h-3.35s.95,3.46.95,3.46Z" /><path class="st2" d="M1806.33,980.74l-8.79-2.4,1.11-4.07,3.46.94v-3.35s8.81,2.41,8.81,2.41l-1.11,4.07-3.47-.93-.02,3.34Z" /><path class="st2" d="M1813.91,970.76l-7.94-4.52,2.37-2.37-3.11-1.78,2.07-3.67,7.95,4.53-2.38,2.37,3.11,1.77-2.07,3.68Z" /><path class="st2" d="M1858.99,1015.77l-1.79-3.1-2.38,2.36-4.52-7.94,3.67-2.07,1.78,3.1,2.37-2.37,4.53,7.93-3.66,2.09Z" /></g></svg>
