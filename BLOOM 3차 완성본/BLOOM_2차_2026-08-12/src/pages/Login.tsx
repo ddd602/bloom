@@ -1,9 +1,16 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import {
+  useLocation,
+  useNavigate,
+} from 'react-router-dom'
 
 import {
   login,
 } from '../components/api/AuthApi'
+
+import {
+  getProfile,
+} from '../components/api/OnboardingApi'
 
 import {
   IconChevronLeft,
@@ -14,8 +21,17 @@ import loginLogoUrl from '../assets/brand/login-logo.svg'
 
 export default function Login() {
   const navigate = useNavigate()
+  const location = useLocation()
 
-  const [showLoginForm, setShowLoginForm] = useState(false)
+  const [
+    showLoginForm,
+    setShowLoginForm,
+  ] = useState(
+    () =>
+      !!location.state
+        ?.openLoginForm,
+  )
+
   const [id, setId] = useState('')
   const [pw, setPw] = useState('')
   const [showPw, setShowPw] = useState(false)
@@ -42,9 +58,20 @@ export default function Login() {
         password: pw,
       })
 
-      navigate('/home', {
-        replace: true,
-      })
+      const profile =
+        await getProfile()
+
+      if (
+        profile.onboardingCompleted
+      ) {
+        navigate('/home', {
+          replace: true,
+        })
+      } else {
+        navigate('/onboarding', {
+          replace: true,
+        })
+      }
     } catch (error) {
       if (error instanceof Error) {
         setError(

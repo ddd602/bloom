@@ -47,8 +47,11 @@ export default function Signup() {
         nickname: name.trim(),
       })
 
-      navigate('/', {
+      navigate('/login', {
         replace: true,
+        state: {
+          openLoginForm: true,
+        },
       })
     } catch (error) {
       console.error(
@@ -114,11 +117,12 @@ export default function Signup() {
             <input
               type="email"
               value={email}
-              onChange={(e) =>
+              onChange={(e) => {
                 setEmail(
                   e.target.value,
                 )
-              }
+                setError('')
+              }}
               placeholder="email@example.com"
               className="ml-3 min-w-0 flex-1 bg-transparent text-[10px] text-gray-700 outline-none placeholder:text-[#777]"
             />
@@ -137,11 +141,12 @@ export default function Signup() {
                   : 'password'
               }
               value={pw}
-              onChange={(e) =>
+              onChange={(e) => {
                 setPw(
                   e.target.value,
                 )
-              }
+                setError('')
+              }}
               placeholder="비밀번호를 입력해주세요"
               className="ml-3 min-w-0 flex-1 bg-transparent text-[10px] text-gray-700 outline-none placeholder:text-[#777]"
             />
@@ -168,11 +173,12 @@ export default function Signup() {
 
             <input
               value={name}
-              onChange={(e) =>
+              onChange={(e) => {
                 setName(
                   e.target.value,
                 )
-              }
+                setError('')
+              }}
               placeholder="이름을 입력해주세요"
               className="ml-3 min-w-0 flex-1 bg-transparent text-[10px] text-gray-700 outline-none placeholder:text-[#777]"
             />
