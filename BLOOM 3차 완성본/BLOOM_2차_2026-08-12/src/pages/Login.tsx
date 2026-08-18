@@ -1,8 +1,5 @@
 import { useState } from 'react'
-import {
-  useLocation,
-  useNavigate,
-} from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import {
   login,
@@ -18,7 +15,6 @@ import {
 
 export default function Login() {
   const navigate = useNavigate()
-  const location = useLocation()
 
   const [id, setId] = useState('')
   const [pw, setPw] = useState('')
