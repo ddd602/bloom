@@ -25,5 +25,12 @@
     "oxlint": "^1.75.0",
     "typescript": "~6.0.2",
     "vite": "^8.2.0"
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }
+
