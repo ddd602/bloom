@@ -1,8 +1,12 @@
-import { useEffect, useState } from 'react'
+import {
+  useEffect,
+  useState,
+} from 'react'
 
 import ScreenHeader from '../../components/ScreenHeader'
 
 import {
+  deleteNudeBodyPhoto,
   getNudeBodyPhotos,
   type NudeBodyPhoto,
 } from '../../components/api/NudeBodyApi'
@@ -16,10 +20,21 @@ type DisplayPhoto = {
   imageUrl: string
 }
 
-function formatWeek(dateKey: string) {
-  const date = new Date(`${dateKey}T00:00:00`)
-  const month = date.getMonth() + 1
-  const week = Math.ceil(date.getDate() / 7)
+function formatWeek(
+  dateKey: string,
+) {
+  const date =
+    new Date(
+      `${dateKey}T00:00:00`,
+    )
+
+  const month =
+    date.getMonth() + 1
+
+  const week =
+    Math.ceil(
+      date.getDate() / 7,
+    )
 
   return `${month}월 ${week}주차`
 }
@@ -29,12 +44,23 @@ function NudeBodyGalleryPage() {
     photos,
     setPhotos,
   ] =
-    useState<DisplayPhoto[]>([])
+    useState<
+      DisplayPhoto[]
+    >([])
+
+  const [
+    deletingId,
+    setDeletingId,
+  ] =
+    useState<
+      string | null
+    >(null)
 
   useEffect(() => {
     let cancelled = false
 
-    const objectUrls: string[] = []
+    const objectUrls:
+      string[] = []
 
     const loadPhotos =
       async () => {
@@ -112,13 +138,83 @@ function NudeBodyGalleryPage() {
     }
   }, [])
 
+  const handleDelete =
+    async (
+      id: string,
+    ) => {
+      if (
+        deletingId !== null
+      ) {
+        return
+      }
+
+      const confirmed =
+        window.confirm(
+          '이 눈바디 기록을 삭제할까요?',
+        )
+
+      if (!confirmed) {
+        return
+      }
+
+      try {
+        setDeletingId(id)
+
+        await deleteNudeBodyPhoto(
+          id,
+        )
+
+        setPhotos(
+          (prev) => {
+            const target =
+              prev.find(
+                ({
+                  photo,
+                }) =>
+                  photo.id ===
+                  id,
+              )
+
+            if (
+              target?.imageUrl.startsWith(
+                'blob:',
+              )
+            ) {
+              URL.revokeObjectURL(
+                target.imageUrl,
+              )
+            }
+
+            return prev.filter(
+              ({
+                photo,
+              }) =>
+                photo.id !==
+                id,
+            )
+          },
+        )
+      } catch (error) {
+        console.error(
+          '눈바디 사진을 삭제하지 못했습니다.',
+          error,
+        )
+
+        window.alert(
+          '눈바디 사진 삭제에 실패했어요.',
+        )
+      } finally {
+        setDeletingId(
+          null,
+        )
+      }
+    }
+
   return (
     <div className="flex h-full flex-col bg-white">
-
       <ScreenHeader title="눈바디 갤러리" />
 
       <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-8 pt-7">
-
         <h2 className="text-[14px] font-bold text-gray-900">
           눈바디 변화 갤러리
         </h2>
@@ -134,7 +230,6 @@ function NudeBodyGalleryPage() {
           </div>
         ) : (
           <div className="mt-5 grid grid-cols-3 gap-x-2 gap-y-4">
-
             {photos.map(
               ({
                 photo,
@@ -146,7 +241,6 @@ function NudeBodyGalleryPage() {
                   }
                 >
                   <div className="aspect-[3/4] overflow-hidden rounded-lg bg-[#D9D9D9]">
-
                     <img
                       src={
                         imageUrl
@@ -154,7 +248,6 @@ function NudeBodyGalleryPage() {
                       alt="눈바디 기록"
                       className="h-full w-full object-cover"
                     />
-
                   </div>
 
                   <p className="mt-2 text-center text-[9px] font-medium text-gray-600">
@@ -162,13 +255,38 @@ function NudeBodyGalleryPage() {
                       photo.date,
                     )}
                   </p>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      void handleDelete(
+                        photo.id,
+                      )
+                    }
+                    disabled={
+                      deletingId ===
+                      photo.id
+                    }
+                    className={
+                      'mt-1 w-full text-center text-[8px] ' +
+                      (
+                        deletingId ===
+                        photo.id
+                          ? 'text-gray-300'
+                          : 'text-red-400'
+                      )
+                    }
+                  >
+                    {deletingId ===
+                    photo.id
+                      ? '삭제 중...'
+                      : '삭제'}
+                  </button>
                 </div>
               ),
             )}
-
           </div>
         )}
-
       </div>
     </div>
   )

@@ -90,6 +90,18 @@ function NudeBodySection({ to }: { to: string }) {
     }
   }, [])
 
+  const handleOpenCamera =
+    () => {
+      navigate(
+        to,
+        {
+          state: {
+            openCamera: true,
+          },
+        },
+      )
+    }
+
   return (
     <section>
       <Link
@@ -111,25 +123,13 @@ function NudeBodySection({ to }: { to: string }) {
 
       <div className="mt-4 flex justify-center">
         <div className="flex w-full max-w-[220px] flex-col items-center">
-          <button
-            type="button"
-            onClick={() =>
-              navigate(
-                to,
-                {
-                  state: {
-                    openCamera: true,
-                  },
-                },
-              )
-            }
-            aria-label="눈바디 촬영"
-            className="flex aspect-[3/4] w-full flex-col items-center justify-center overflow-hidden rounded-lg bg-[#CFCFCF] text-white"
-          >
+
+          {/* 현재 눈바디 사진 */}
+          <div className="flex aspect-[3/4] w-full flex-col items-center justify-center overflow-hidden rounded-lg bg-[#CFCFCF] text-white">
             {photoUrl ? (
               <img
                 src={photoUrl}
-                alt="눈바디 사진"
+                alt="현재 눈바디"
                 className="h-full w-full object-cover"
               />
             ) : (
@@ -153,13 +153,13 @@ function NudeBodySection({ to }: { to: string }) {
                 </svg>
 
                 <span className="mt-2 text-center text-[8px] leading-[11px] text-white/80">
-                  이주의 눈바디를
+                  아직 기록된
                   <br />
-                  촬영해 주세요!
+                  눈바디가 없어요
                 </span>
               </>
             )}
-          </button>
+          </div>
 
           <p className="mt-2 text-[10px] font-bold text-gray-900">
             현재 눈바디
@@ -167,9 +167,22 @@ function NudeBodySection({ to }: { to: string }) {
 
           <p className="mt-0.5 text-[8px] text-gray-400">
             {latest
-              ? '현재 기록된 눈바디'
+              ? '가장 최근에 기록한 눈바디'
               : '눈바디를 촬영해 주세요'}
           </p>
+
+          {/* 촬영 버튼 */}
+          <button
+            type="button"
+            onClick={
+              handleOpenCamera
+            }
+            className="mt-3 w-full rounded-full bg-[#31C66B] py-2.5 text-[11px] font-bold text-white transition-colors active:bg-[#29B760]"
+          >
+            {latest
+              ? '새로 촬영하기'
+              : '눈바디 촬영하기'}
+          </button>
         </div>
       </div>
     </section>
