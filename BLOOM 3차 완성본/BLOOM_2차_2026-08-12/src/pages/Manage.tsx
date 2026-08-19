@@ -74,7 +74,7 @@ function Manage() {
         {/* 스토어 및 시술 내역 */}
         <div className="mt-8">
           <Link
-            to="/my-page/store"
+            to="/manage/store"
             className="flex items-center justify-between"
           >
             <h2 className="text-[14px] font-bold text-gray-900">

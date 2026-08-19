@@ -21,6 +21,11 @@ import {
 
 import profileUrl from '../assets/brand/profile-yellow.svg'
 
+import {
+  pickGoalVariant,
+  PROFILE_BY_GOAL,
+} from '../utils/characterVariant'
+
 const FOCUS_LABELS:
   Record<string, string> = {
   abdomen: '복부',
@@ -152,6 +157,16 @@ function ProfileSettings() {
     void load()
   }, [])
 
+  // 온보딩에서 고른 목표에 맞는 캐릭터로 프로필 사진을 자동 설정
+  const avatarUrl =
+    profile
+      ? PROFILE_BY_GOAL[
+          pickGoalVariant(
+            profile.beautyGoals,
+          )
+        ]
+      : profileUrl
+
   const focusLabel =
     FOCUS_LABELS[
       onboarding
@@ -189,7 +204,7 @@ function ProfileSettings() {
         <div className="flex flex-col items-center">
           <div className="flex h-[64px] w-[64px] items-center justify-center overflow-hidden rounded-full bg-[#F1F8F3]">
             <img
-              src={profileUrl}
+              src={avatarUrl}
               alt="프로필"
               className="h-full w-full object-cover"
             />

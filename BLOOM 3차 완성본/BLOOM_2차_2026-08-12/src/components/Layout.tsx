@@ -61,8 +61,15 @@ function Layout() {
   const location = useLocation()
   const navigate = useNavigate()
 
-  const onCalendar = location.pathname === '/calendar'
-  const onWeekly = location.pathname === '/weeklyCalendar'
+  const pathname = location.pathname
+
+  const onCalendar = pathname === '/calendar'
+  const onWeekly = pathname === '/weeklyCalendar'
+
+  // 스토어는 관리 메뉴 소속으로 취급
+  const onStore =
+    pathname.startsWith('/manage/store') ||
+    pathname.startsWith('/my-page/store')
 
   const toggleCalendar = () => {
     if (onCalendar) {
@@ -70,6 +77,24 @@ function Layout() {
     } else {
       navigate('/calendar')
     }
+  }
+
+  const isNavActive = (to: string) => {
+    if (to === '/manage') {
+      return pathname === '/manage' ||
+        pathname.startsWith('/manage/') ||
+        onStore
+    }
+
+    if (to === '/my-page') {
+      return (
+        (pathname === '/my-page' ||
+          pathname.startsWith('/my-page/')) &&
+        !onStore
+      )
+    }
+
+    return pathname === to
   }
 
   return (
@@ -82,9 +107,7 @@ function Layout() {
       <main
         className={
           'min-h-0 flex-1 overflow-y-auto ' +
-          (location.pathname === '/home'
-            ? ''
-            : 'pt-4')
+          (pathname === '/home' ? '' : 'pt-4')
         }
       >
         <Outlet />
@@ -114,25 +137,21 @@ function Layout() {
               )
             }
 
+            const isActive = isNavActive(to)
+
             return (
               <NavLink
                 key={to}
                 to={to}
-                className={({ isActive }) =>
-                  itemClass(isActive)
-                }
+                className={itemClass(isActive)}
               >
-                {({ isActive }) => (
-                  <>
-                    <img
-                      src={isActive ? active : inactive}
-                      alt=""
-                      className="h-6 w-6"
-                    />
+                <img
+                  src={isActive ? active : inactive}
+                  alt=""
+                  className="h-6 w-6"
+                />
 
-                    <span>{label}</span>
-                  </>
-                )}
+                <span>{label}</span>
               </NavLink>
             )
           })}

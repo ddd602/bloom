@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="-15.001 32.78 758.81 806.99"><defs xmlns="http://www.w3.org/2000/svg"><style>
+      .cls-1 {
+        fill: #b8ffe9;
+      }
+
+      .cls-2 {
+        fill: url(#linear-gradient-4);
+      }
+
+      .cls-3 {
+        fill: url(#linear-gradient-3);
+      }
+
+      .cls-4 {
+        fill: url(#linear-gradient-2);
+      }
+
+      .cls-5 {
+        fill: url(#linear-gradient);
+      }
+
+      .cls-6 {
+        fill: #eaf8ec;
+      }
+
+      .cls-7 {
+        fill: #60947b;
+      }
+
+      .cls-8 {
+        fill: none;
+        stroke: #000;
+        stroke-linecap: round;
+        stroke-miterlimit: 10;
+        stroke-width: 10px;
+      }
+    </style><linearGradient id="linear-gradient" x1="562.08" y1="192.54" x2="74.17" y2="680.44" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#71ee97" /><stop offset="1" stop-color="#33c16a" /></linearGradient><linearGradient id="linear-gradient-2" x1="1676.78" y1="226.16" x2="1230.93" y2="672.01" xlink:href="#linear-gradient" xmlns:xlink="http://www.w3.org/1999/xlink" /><linearGradient id="linear-gradient-3" x1="2871.62" y1="169.85" x2="2344.95" y2="696.51" xlink:href="#linear-gradient" xmlns:xlink="http://www.w3.org/1999/xlink" /><linearGradient id="linear-gradient-4" x1="3981.78" y1="194.41" x2="3508.25" y2="667.95" xlink:href="#linear-gradient" xmlns:xlink="http://www.w3.org/1999/xlink" /></defs><g id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg"><g><path class="cls-5" d="M594.08,434.12c-5.42-5.07-11.04-9.74-16.83-14.02,16.21-8.04,32.02-18.65,46.71-31.76,66.58-59.44,87.79-150.69,40.51-197.27-70.87-69.82-134.01-41.46-200.58,17.98-26.91,24.03-45.91,52.78-56.07,81.78-5.12-19.02-10.49-38.95-15.78-59.69C358.41,99.14,282.61,17.3,195.84,58.5c-71.19,33.8-63.24,119.38-22.81,220.09-8.32.11-16.8.67-25.37,1.72C59.06,291.09-6.8,348.84.56,409.31c7.25,59.57,82.85,99.55,169.8,90.42-57.98,58.56-76.72,136.22-38.67,176.36,50.01,52.76,124.75,31.09,191.33-28.35,19.83-17.7,35.72-37.55,47.24-57.86,9.05,16.27,20.93,31.67,35.58,45.38,65.16,60.98,160.13,65.39,212.11,9.85,51.98-55.55,41.3-150.01-23.87-211Z" /><rect class="cls-1" x="233.5" y="266.28" width="116.18" height="186.64" rx="58.09" ry="58.09" /><rect class="cls-1" x="360.81" y="266.28" width="116.18" height="186.64" rx="58.09" ry="58.09" /><rect class="cls-6" x="233.5" y="266.28" width="116.18" height="186.64" rx="58.09" ry="58.09" /><path d="M316.35,422.91c-15.49,0-28.09-12.6-28.09-28.09v-70.45c0-15.49,12.6-28.09,28.09-28.09s28.09,12.6,28.09,28.09v70.45c0,15.49-12.6,28.09-28.09,28.09Z" /><rect class="cls-6" x="360.81" y="266.28" width="116.18" height="186.64" rx="58.09" ry="58.09" /><path d="M443.65,422.91c-15.49,0-28.09-12.6-28.09-28.09v-70.45c0-15.49,12.6-28.09,28.09-28.09s28.09,12.6,28.09,28.09v70.45c0,15.49-12.6,28.09-28.09,28.09Z" /><path class="cls-8" d="M345,484.28s5.5,22,34,22,36-22,36-22" /><path class="cls-7" d="M345,824.78c0-40.32-32.68-73-73-73s-73,32.68-73,73h146Z" /><path class="cls-7" d="M516.65,824.78c0-40.32-32.68-73-73-73s-73,32.68-73,73h146Z" /><circle class="cls-7" cx="667.31" cy="525.28" r="61.5" /><circle class="cls-7" cx="111.85" cy="525.28" r="61.5" /></g></g></svg>

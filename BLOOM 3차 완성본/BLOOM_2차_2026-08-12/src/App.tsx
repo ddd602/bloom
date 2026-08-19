@@ -98,6 +98,12 @@ export default function App() {
           element={<NudeBodyDetail />}
         />
 
+        {/* 관리 → 스토어 */}
+        <Route
+          path="/manage/store"
+          element={<StoreScreen />}
+        />
+
         <Route
           path="/calendar"
           element={<Calendar />}
@@ -167,30 +173,10 @@ export default function App() {
           }
         />
 
+        {/* 기존 주소 호환용 */}
         <Route
           path="/my-page/store"
           element={<StoreScreen />}
-        />
-
-        <Route
-          path="/my-page/store/products"
-          element={
-            <PlaceholderScreen title="맞춤 제품 추천" />
-          }
-        />
-
-        <Route
-          path="/my-page/store/procedures"
-          element={
-            <PlaceholderScreen title="맞춤 시술 추천" />
-          }
-        />
-
-        <Route
-          path="/my-page/store/ranking"
-          element={
-            <PlaceholderScreen title="실시간 랭킹" />
-          }
         />
 
         <Route
