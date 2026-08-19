@@ -7,7 +7,6 @@ import NudeBodyCamera from '../components/Manage/NudeBodyCamera'
 import {
   createNudeBodyPhotoRecord,
   getLatestNudeBodyPhoto,
-  requestNudeBodyAnalysis,
   type NudeBodyPhoto,
 } from '../components/api/NudeBodyApi'
 
@@ -30,8 +29,6 @@ export default function NudeBodyDetail() {
   const [photo, setPhoto] =
     useState<string | null>(null)
 
-  const [expectedPhoto, setExpectedPhoto] =
-    useState<string | null>(null)
 
   const [cameraOpen, setCameraOpen] =
     useState(
@@ -46,11 +43,6 @@ export default function NudeBodyDetail() {
   const [saveMessage, setSaveMessage] =
     useState('')
 
-  const [analyzing, setAnalyzing] =
-    useState(false)
-
-  const [analysisMessage, setAnalysisMessage] =
-    useState('')
 
   const [
     recommendations,
@@ -81,9 +73,6 @@ export default function NudeBodyDetail() {
       | string
       | null = null
 
-    let expectedObjectUrl:
-      | string
-      | null = null
 
     const loadPhoto =
       async () => {
@@ -119,33 +108,6 @@ export default function NudeBodyDetail() {
             setPhoto(null)
           }
 
-          if (
-            latest
-              ?.expectedImageUrl
-          ) {
-            const displayUrl =
-              await getPrivateImageUrl(
-                latest
-                  .expectedImageUrl,
-              )
-
-            if (
-              displayUrl.startsWith(
-                'blob:',
-              )
-            ) {
-              expectedObjectUrl =
-                displayUrl
-            }
-
-            if (!cancelled) {
-              setExpectedPhoto(
-                displayUrl,
-              )
-            }
-          } else {
-            setExpectedPhoto(null)
-          }
 
           if (
             location.state
@@ -173,11 +135,6 @@ export default function NudeBodyDetail() {
         )
       }
 
-      if (expectedObjectUrl) {
-        URL.revokeObjectURL(
-          expectedObjectUrl,
-        )
-      }
     }
   }, [
     location.state,
@@ -229,7 +186,6 @@ export default function NudeBodyDetail() {
           )
 
         setRecord(created)
-        setExpectedPhoto(null)
 
         // 새 눈바디를 저장하면 이전 추천 결과는 초기화
         setRecommendations([])
@@ -251,71 +207,6 @@ export default function NudeBodyDetail() {
         )
       } finally {
         setUploading(false)
-      }
-    }
-
-  // ==============================
-  // AI 예상 이미지 분석
-  // ==============================
-
-  const analyze =
-    async () => {
-      if (
-        !record ||
-        analyzing
-      ) {
-        return
-      }
-
-      try {
-        setAnalyzing(true)
-        setAnalysisMessage('')
-
-        const result =
-          await requestNudeBodyAnalysis(
-            record.id,
-          )
-
-        setRecord(result)
-
-        if (
-          result
-            .expectedImageUrl
-        ) {
-          const displayUrl =
-            await getPrivateImageUrl(
-              result
-                .expectedImageUrl,
-            )
-
-          if (
-            expectedPhoto
-              ?.startsWith(
-                'blob:',
-              )
-          ) {
-            URL.revokeObjectURL(
-              expectedPhoto,
-            )
-          }
-
-          setExpectedPhoto(
-            displayUrl,
-          )
-        }
-      } catch (error) {
-        console.error(
-          '눈바디 AI 분석 요청에 실패했습니다.',
-          error,
-        )
-
-        setAnalysisMessage(
-          error instanceof Error
-            ? error.message
-            : 'AI 분석 요청에 실패했어요.',
-        )
-      } finally {
-        setAnalyzing(false)
       }
     }
 
@@ -376,19 +267,6 @@ export default function NudeBodyDetail() {
       }
     }
 
-  const analysisStatusText =
-    record?.analysisStatus ===
-    'COMPLETED'
-      ? 'AI 분석 완료'
-      : record
-            ?.analysisStatus ===
-          'ANALYZING'
-        ? 'AI 분석 중'
-        : record
-              ?.analysisStatus ===
-            'FAILED'
-          ? 'AI 분석 실패'
-          : 'AI 분석 전'
 
   return (
     <div className="relative flex h-full flex-col bg-white">
@@ -400,23 +278,19 @@ export default function NudeBodyDetail() {
         </h2>
 
         <p className="mt-1 text-[9px] text-gray-400">
-          사진 분석 결과는 AI 추정치이며, 실제와 차이가 있을 수 있어요
+          눈바디 사진을 기록하고 현재 상태에 맞는 추천 관리를 확인해 보세요
         </p>
 
-        <div className="mt-5 grid grid-cols-2 gap-3">
+        <div className="mt-5">
           <div className="flex flex-col items-center">
             {photo ? (
               <button
                 type="button"
                 onClick={() =>
-                  setCameraOpen(
-                    true,
-                  )
+                  setCameraOpen(true)
                 }
-                disabled={
-                  uploading
-                }
-                className="aspect-[3/4] w-full overflow-hidden rounded-lg bg-gray-200 disabled:opacity-60"
+                disabled={uploading}
+                className="aspect-[3/4] w-full max-w-[220px] overflow-hidden rounded-lg bg-gray-200 disabled:opacity-60"
                 aria-label="눈바디 다시 촬영"
               >
                 <img
@@ -429,22 +303,16 @@ export default function NudeBodyDetail() {
               <button
                 type="button"
                 onClick={() =>
-                  setCameraOpen(
-                    true,
-                  )
+                  setCameraOpen(true)
                 }
-                disabled={
-                  uploading
-                }
-                className="flex aspect-[3/4] w-full flex-col items-center justify-center rounded-lg bg-[#D1D1D1] text-white disabled:opacity-60"
+                disabled={uploading}
+                className="flex aspect-[3/4] w-full max-w-[220px] flex-col items-center justify-center rounded-lg bg-[#D1D1D1] text-white disabled:opacity-60"
               >
                 <svg
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
-                  strokeWidth={
-                    1.4
-                  }
+                  strokeWidth={1.4}
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   className="h-8 w-8"
@@ -466,10 +334,7 @@ export default function NudeBodyDetail() {
             )}
 
             <p className="mt-2 text-[11px] font-bold text-gray-900">
-              Before{' '}
-              <span className="font-normal text-gray-400">
-                Now
-              </span>
+              현재 눈바디
             </p>
 
             <p className="mt-0.5 text-[8px] text-gray-400">
@@ -480,37 +345,6 @@ export default function NudeBodyDetail() {
                   : '눈바디를 촬영해 주세요'}
             </p>
           </div>
-
-          <div className="flex flex-col items-center">
-            <div className="flex aspect-[3/4] w-full items-center justify-center overflow-hidden rounded-lg bg-[#E5E5E5]">
-              {expectedPhoto ? (
-                <img
-                  src={
-                    expectedPhoto
-                  }
-                  alt="AI 예상 눈바디"
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <span className="text-[9px] text-gray-400">
-                  AI 예상 이미지
-                </span>
-              )}
-            </div>
-
-            <p className="mt-2 text-[11px] font-bold text-gray-900">
-              After{' '}
-              <span className="font-normal text-gray-400">
-                AI
-              </span>
-            </p>
-
-            <p className="mt-0.5 text-[8px] text-[#31C66B]">
-              {
-                analysisStatusText
-              }
-            </p>
-          </div>
         </div>
 
         {saveMessage && (
@@ -519,42 +353,6 @@ export default function NudeBodyDetail() {
           </p>
         )}
 
-        {record &&
-          !expectedPhoto && (
-            <button
-              type="button"
-              onClick={analyze}
-              disabled={
-                analyzing ||
-                uploading ||
-                record
-                  .analysisStatus ===
-                  'ANALYZING'
-              }
-              className="mt-4 w-full rounded-full bg-[#31C66B] py-3 text-[12px] font-semibold text-white disabled:opacity-50"
-            >
-              {analyzing ||
-              record
-                .analysisStatus ===
-                'ANALYZING'
-                ? 'AI 분석 중...'
-                : 'AI 예상 이미지 분석하기'}
-            </button>
-          )}
-
-        {analysisMessage && (
-          <p className="mt-3 text-center text-[9px] text-red-500">
-            {
-              analysisMessage
-            }
-          </p>
-        )}
-
-        <div className="mt-4 flex justify-center gap-1.5">
-          <span className="h-1.5 w-1.5 rounded-full bg-gray-700" />
-          <span className="h-1.5 w-1.5 rounded-full bg-gray-200" />
-          <span className="h-1.5 w-1.5 rounded-full bg-gray-200" />
-        </div>
 
         <section className="mt-8">
           <h2 className="text-[14px] font-bold text-gray-900">

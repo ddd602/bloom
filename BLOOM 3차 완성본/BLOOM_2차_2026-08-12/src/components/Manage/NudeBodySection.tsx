@@ -27,20 +27,10 @@ function NudeBodySection({ to }: { to: string }) {
   ] =
     useState<string | null>(null)
 
-  const [
-    expectedPhotoUrl,
-    setExpectedPhotoUrl,
-  ] =
-    useState<string | null>(null)
-
   useEffect(() => {
     let cancelled = false
 
     let originalObjectUrl:
-      | string
-      | null = null
-
-    let expectedObjectUrl:
       | string
       | null = null
 
@@ -54,18 +44,9 @@ function NudeBodySection({ to }: { to: string }) {
             return
           }
 
-          setLatest(
-            result,
-          )
+          setLatest(result)
 
-          // ==============================
-          // 현재 눈바디 이미지
-          // 보호된 이미지이므로 Blob URL 변환
-          // ==============================
-
-          if (
-            result?.image
-          ) {
+          if (result?.image) {
             const displayUrl =
               await getPrivateImageUrl(
                 result.image,
@@ -80,51 +61,13 @@ function NudeBodySection({ to }: { to: string }) {
                 displayUrl
             }
 
-            if (
-              !cancelled
-            ) {
+            if (!cancelled) {
               setPhotoUrl(
                 displayUrl,
               )
             }
           } else {
-            setPhotoUrl(
-              null,
-            )
-          }
-
-          // ==============================
-          // AI 예상 이미지
-          // ==============================
-
-          if (
-            result?.expectedImageUrl
-          ) {
-            const displayUrl =
-              await getPrivateImageUrl(
-                result.expectedImageUrl,
-              )
-
-            if (
-              displayUrl.startsWith(
-                'blob:',
-              )
-            ) {
-              expectedObjectUrl =
-                displayUrl
-            }
-
-            if (
-              !cancelled
-            ) {
-              setExpectedPhotoUrl(
-                displayUrl,
-              )
-            }
-          } else {
-            setExpectedPhotoUrl(
-              null,
-            )
+            setPhotoUrl(null)
           }
         } catch (error) {
           console.error(
@@ -137,22 +80,11 @@ function NudeBodySection({ to }: { to: string }) {
     void loadPhoto()
 
     return () => {
-      cancelled =
-        true
+      cancelled = true
 
-      if (
-        originalObjectUrl
-      ) {
+      if (originalObjectUrl) {
         URL.revokeObjectURL(
           originalObjectUrl,
-        )
-      }
-
-      if (
-        expectedObjectUrl
-      ) {
-        URL.revokeObjectURL(
-          expectedObjectUrl,
         )
       }
     }
@@ -170,16 +102,15 @@ function NudeBodySection({ to }: { to: string }) {
           </h2>
 
           <p className="mt-1 text-[8px] text-gray-400">
-            사진 분석 결과는 AI 추정치이며, 실제와 차이가 있을 수 있어요
+            눈바디 사진을 기록하고 변화 과정을 확인해보세요
           </p>
         </div>
 
         <IconChevronRight className="h-6 w-6 text-gray-400" />
       </Link>
 
-      <div className="mt-4 grid grid-cols-2 gap-3">
-        <div className="flex flex-col items-center">
-
+      <div className="mt-4 flex justify-center">
+        <div className="flex w-full max-w-[220px] flex-col items-center">
           <button
             type="button"
             onClick={() =>
@@ -187,8 +118,7 @@ function NudeBodySection({ to }: { to: string }) {
                 to,
                 {
                   state: {
-                    openCamera:
-                      true,
+                    openCamera: true,
                   },
                 },
               )
@@ -198,9 +128,7 @@ function NudeBodySection({ to }: { to: string }) {
           >
             {photoUrl ? (
               <img
-                src={
-                  photoUrl
-                }
+                src={photoUrl}
                 alt="눈바디 사진"
                 className="h-full w-full object-cover"
               />
@@ -210,9 +138,7 @@ function NudeBodySection({ to }: { to: string }) {
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
-                  strokeWidth={
-                    1.4
-                  }
+                  strokeWidth={1.4}
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   className="h-7 w-7"
@@ -236,57 +162,14 @@ function NudeBodySection({ to }: { to: string }) {
           </button>
 
           <p className="mt-2 text-[10px] font-bold text-gray-900">
-            Before{' '}
-            <span className="font-normal text-gray-400">
-              Now
-            </span>
+            현재 눈바디
           </p>
 
           <p className="mt-0.5 text-[8px] text-gray-400">
-            현재 눈바디
+            {latest
+              ? '현재 기록된 눈바디'
+              : '눈바디를 촬영해 주세요'}
           </p>
-        </div>
-
-        <div className="flex flex-col items-center">
-
-          <div className="flex aspect-[3/4] w-full items-center justify-center overflow-hidden rounded-lg bg-[#E5E5E5]">
-
-            {expectedPhotoUrl ? (
-              <img
-                src={
-                  expectedPhotoUrl
-                }
-                alt="AI 예상 이미지"
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <span className="text-[9px] text-gray-400">
-                AI 예상 이미지
-              </span>
-            )}
-
-          </div>
-
-          <p className="mt-2 text-[10px] font-bold text-gray-900">
-            After{' '}
-            <span className="font-normal text-gray-400">
-              AI
-            </span>
-          </p>
-
-          <p className="mt-0.5 text-[8px] text-[#31C66B]">
-            {latest?.analysisStatus ===
-            'COMPLETED'
-              ? 'AI 분석 완료'
-              : latest?.analysisStatus ===
-                'ANALYZING'
-                ? 'AI 분석 중'
-                : latest?.analysisStatus ===
-                  'FAILED'
-                  ? 'AI 분석 실패'
-                  : 'AI 분석 전'}
-          </p>
-
         </div>
       </div>
     </section>
