@@ -18,49 +18,18 @@ import {
 } from '../components/api/ProfileApi'
 
 import {
-  IconBell,
-  IconChevronRight,
-} from '../components/icons'
+  getMileageBalance,
+  getMileageHistory,
+  type MileageHistoryResponse,
+} from '../components/api/MileageApi'
+
 
 import loginLogoUrl from '../assets/brand/login-logo.svg'
 import profileUrl from '../assets/brand/profile.svg'
 
-const menus = [
-  {
-    label: '공지/이벤트',
-    to: '/my-page/notice',
-  },
-  {
-    label: '스토어 및 시술 예약',
-    to: '/my-page/store',
-  },
-  {
-    label: 'AI 대화체 설정',
-    to: '/my-page/ai-style',
-  },
-  {
-    label: '캐릭터 설정',
-    to: '/my-page/character',
-  },
-  {
-    label: '고객센터',
-    to: '/my-page/support',
-  },
-  {
-    label: '자주 묻는 질문',
-    to: '/my-page/faq',
-  },
-  {
-    label: '1:1 상담',
-    to: '/my-page/inquiry',
-  },
-  {
-    label: '약관 및 정책',
-    to: '/my-page/terms',
-  },
-]
-
-function maskEmail(email: string) {
+function maskEmail(
+  email: string,
+) {
   if (!email) return ''
 
   const [local, domain] =
@@ -70,11 +39,77 @@ function maskEmail(email: string) {
     return email
   }
 
-  if (local.length <= 2) {
+  if (
+    local.length <= 2
+  ) {
     return `${local[0] ?? ''}***@${domain}`
   }
 
   return `${local.slice(0, 2)}***@${domain}`
+}
+
+
+function toSeoulDateString(
+  value: Date,
+) {
+  const parts =
+    new Intl.DateTimeFormat(
+      'en-US',
+      {
+        timeZone:
+          'Asia/Seoul',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      },
+    ).formatToParts(
+      value,
+    )
+
+  const year =
+    parts.find(
+      (part) =>
+        part.type ===
+        'year',
+    )?.value
+
+  const month =
+    parts.find(
+      (part) =>
+        part.type ===
+        'month',
+    )?.value
+
+  const day =
+    parts.find(
+      (part) =>
+        part.type ===
+        'day',
+    )?.value
+
+  return `${year}-${month}-${day}`
+}
+
+function shiftDate(
+  date: string,
+  days: number,
+) {
+  const value =
+    new Date(
+      `${date}T00:00:00Z`,
+    )
+
+  value.setUTCDate(
+    value.getUTCDate() +
+      days,
+  )
+
+  return value
+    .toISOString()
+    .slice(
+      0,
+      10,
+    )
 }
 
 function MyPage() {
@@ -90,23 +125,56 @@ function MyPage() {
     )
 
   const [
+    mileage,
+    setMileage,
+  ] =
+    useState<
+      number | null
+    >(null)
+
+
+  const [
+    mileageHistory,
+    setMileageHistory,
+  ] =
+    useState<
+      MileageHistoryResponse[]
+    >([])
+
+  const [
     loading,
     setLoading,
   ] = useState(true)
 
   useEffect(() => {
-    const loadProfile =
+    const loadPage =
       async () => {
         try {
-          const data =
-            await getProfile()
+          const [
+            profileData,
+            mileageData,
+            mileageHistoryData,
+          ] =
+            await Promise.all([
+              getProfile(),
+              getMileageBalance(),
+              getMileageHistory(),
+            ])
 
           setProfile(
-            data,
+            profileData,
+          )
+
+          setMileage(
+            mileageData.balance,
+          )
+
+          setMileageHistory(
+            mileageHistoryData,
           )
         } catch (error) {
           console.error(
-            '프로필을 불러오지 못했습니다.',
+            '마이페이지 정보를 불러오지 못했습니다.',
             error,
           )
         } finally {
@@ -116,7 +184,7 @@ function MyPage() {
         }
       }
 
-    loadProfile()
+    void loadPage()
   }, [])
 
   const handleLogout =
@@ -137,6 +205,52 @@ function MyPage() {
         )
       }
     }
+
+  const attendanceDates =
+    new Set(
+      mileageHistory
+        .filter(
+          (item) =>
+            item.reason ===
+            'ATTENDANCE',
+        )
+        .map(
+          (item) =>
+            toSeoulDateString(
+              new Date(
+                item.createdAt,
+              ),
+            ),
+        ),
+    )
+
+  const today =
+    toSeoulDateString(
+      new Date(),
+    )
+
+  const attendanceDays =
+    Array.from(
+      {
+        length: 5,
+      },
+      (
+        _,
+        index,
+      ) =>
+        shiftDate(
+          today,
+          index - 4,
+        ),
+    )
+
+  const attendanceCount =
+    attendanceDays.filter(
+      (date) =>
+        attendanceDates.has(
+          date,
+        ),
+    ).length
 
   const summary = [
     {
@@ -159,7 +273,9 @@ function MyPage() {
       label:
         '포인트',
       value:
-        '-',
+        mileage === null
+          ? '-'
+          : `${mileage.toLocaleString()}P`,
       to:
         '/my-page/points',
     },
@@ -180,8 +296,7 @@ function MyPage() {
             'calc(env(safe-area-inset-top) + 20px)',
         }}
       >
-        {/* 상단 로고 + 알림 */}
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6 flex items-center">
           <img
             src={loginLogoUrl}
             alt="BLOOM"
@@ -192,47 +307,80 @@ function MyPage() {
             "
           />
 
-          <button
-            type="button"
-            aria-label="알림"
-            className="
-              flex
-              h-6
-              w-6
-              items-center
-              justify-center
-              text-gray-600
-            "
-          >
-            <IconBell className="h-[18px] w-[18px]" />
-          </button>
         </div>
 
-        {/* 프로필 */}
         <div className="mb-5 flex items-center">
-          <div
+          <button
+            type="button"
+            onClick={() =>
+              navigate(
+                '/my-page/profile-settings',
+              )
+            }
+            aria-label="내 정보 설정"
             className="
-              flex
+              relative
               h-[58px]
               w-[58px]
               shrink-0
-              items-center
-              justify-center
-              overflow-hidden
               rounded-full
-              bg-[#F1F8F3]
+              focus:outline-none
             "
           >
-            <img
-              src={profileUrl}
-              alt="프로필"
+            <span
               className="
-                h-full
-                w-full
-                object-cover
+                flex
+                h-[58px]
+                w-[58px]
+                items-center
+                justify-center
+                overflow-hidden
+                rounded-full
+                bg-[#F1F8F3]
               "
-            />
-          </div>
+            >
+              <img
+                src={profileUrl}
+                alt="프로필"
+                className="
+                  h-full
+                  w-full
+                  object-cover
+                "
+              />
+            </span>
+
+            <span
+              className="
+                absolute
+                bottom-[-1px]
+                right-[-1px]
+                flex
+                h-[18px]
+                w-[18px]
+                items-center
+                justify-center
+                rounded-full
+                border
+                border-gray-100
+                bg-white
+                shadow-sm
+              "
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.8}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-[10px] w-[10px] text-gray-500"
+              >
+                <path d="M12 20h9" />
+                <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z" />
+              </svg>
+            </span>
+          </button>
 
           <div className="ml-4 min-w-0 flex-1">
             <p className="text-[12px] font-bold text-gray-900">
@@ -271,7 +419,6 @@ function MyPage() {
           </button>
         </div>
 
-        {/* 현재 플랜 */}
         <div
           className="
             mb-2
@@ -310,7 +457,6 @@ function MyPage() {
           </Link>
         </div>
 
-        {/* 사용자 요약 */}
         <div className="mb-7 grid grid-cols-3 bg-[#EAF8EC]">
           {summary.map(
             (
@@ -349,49 +495,94 @@ function MyPage() {
           )}
         </div>
 
-        {/* 메뉴 */}
-        <ul>
-          {menus.map(
-            (menu) => (
-              <li
-                key={
-                  menu.to
-                }
-              >
-                <Link
-                  to={
-                    menu.to
-                  }
-                  className="
-                    flex
-                    min-h-[38px]
-                    w-full
-                    items-center
-                    justify-between
-                    text-left
-                    text-[10px]
-                    font-medium
-                    text-gray-700
-                  "
-                >
-                  <span>
-                    {
-                      menu.label
-                    }
-                  </span>
+        {/* 출석 현황 */}
+        <section className="mt-2 rounded-2xl bg-[#F8F8F8] px-4 pb-5 pt-4">
+          <div className="flex items-end justify-between">
+            <div>
+              <p className="text-[9px] text-gray-500">
+                출석 현황
+              </p>
 
-                  <IconChevronRight
-                    className="
-                      h-4
-                      w-4
-                      text-gray-300
-                    "
-                  />
-                </Link>
-              </li>
-            ),
-          )}
-        </ul>
+              <div className="mt-1 flex items-end gap-1">
+                <span className="text-[22px] font-extrabold text-[#31C66B]">
+                  {attendanceCount}
+                </span>
+
+                <span className="pb-[2px] text-[12px] font-semibold text-gray-500">
+                  /5
+                </span>
+              </div>
+            </div>
+
+            <p className="pb-1 text-[9px] text-[#31B76A]">
+              {attendanceCount === 5
+                ? '5일 모두 출석했어요!'
+                : `${5 - attendanceCount}일 더 출석해보세요!`}
+            </p>
+          </div>
+
+          <div className="mt-4 flex items-start justify-between">
+            {attendanceDays.map(
+              (
+                date,
+                index,
+              ) => {
+                const active =
+                  attendanceDates.has(
+                    date,
+                  )
+
+                return (
+                  <div
+                    key={
+                      date
+                    }
+                    className="flex flex-col items-center"
+                  >
+                    <div
+                      className={
+                        'flex h-[42px] w-[42px] items-center justify-center rounded-full border-2 ' +
+                        (
+                          active
+                            ? 'border-[#31C66B] bg-[#EAF8EC]'
+                            : 'border-[#D7D7D7] bg-[#F1F1F1]'
+                        )
+                      }
+                    >
+                      <div
+                        className={
+                          'flex h-[25px] w-[25px] items-center justify-center rounded-full text-[13px] font-black ' +
+                          (
+                            active
+                              ? 'bg-[#31C66B] text-white'
+                              : 'bg-[#D9D9D9] text-white'
+                          )
+                        }
+                      >
+                        {active
+                          ? '✓'
+                          : '·'}
+                      </div>
+                    </div>
+
+                    <span
+                      className={
+                        'mt-1.5 text-[8px] font-medium ' +
+                        (
+                          active
+                            ? 'text-[#31B76A]'
+                            : 'text-gray-300'
+                        )
+                      }
+                    >
+                      {index + 1}일
+                    </span>
+                  </div>
+                )
+              },
+            )}
+          </div>
+        </section>
       </div>
     </div>
   )

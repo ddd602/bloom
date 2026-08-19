@@ -24,64 +24,33 @@ import {
 export default function NudeBodyDetail() {
   const location = useLocation()
 
-  const [
-    record,
-    setRecord,
-  ] =
-    useState<NudeBodyPhoto | null>(
-      null,
-    )
+  const [record, setRecord] =
+    useState<NudeBodyPhoto | null>(null)
 
-  const [
-    photo,
-    setPhoto,
-  ] =
-    useState<string | null>(
-      null,
-    )
+  const [photo, setPhoto] =
+    useState<string | null>(null)
 
-  const [
-    expectedPhoto,
-    setExpectedPhoto,
-  ] =
-    useState<string | null>(
-      null,
-    )
+  const [expectedPhoto, setExpectedPhoto] =
+    useState<string | null>(null)
 
-  const [
-    cameraOpen,
-    setCameraOpen,
-  ] =
+  const [cameraOpen, setCameraOpen] =
     useState(
       () =>
         !!location.state
           ?.openCamera,
     )
 
-  const [
-    uploading,
-    setUploading,
-  ] =
+  const [uploading, setUploading] =
     useState(false)
 
-  const [
-    saveMessage,
-    setSaveMessage,
-  ] =
+  const [saveMessage, setSaveMessage] =
     useState('')
 
-  const [
-    analyzing,
-    setAnalyzing,
-  ] =
+  const [analyzing, setAnalyzing] =
     useState(false)
 
-  const [
-    analysisMessage,
-    setAnalysisMessage,
-  ] =
+  const [analysisMessage, setAnalysisMessage] =
     useState('')
-
 
   const [
     recommendations,
@@ -106,8 +75,7 @@ export default function NudeBodyDetail() {
   // ==============================
 
   useEffect(() => {
-    let cancelled =
-      false
+    let cancelled = false
 
     let photoObjectUrl:
       | string
@@ -123,25 +91,13 @@ export default function NudeBodyDetail() {
           const latest =
             await getLatestNudeBodyPhoto()
 
-          if (
-            cancelled
-          ) {
+          if (cancelled) {
             return
           }
 
-          setRecord(
-            latest,
-          )
+          setRecord(latest)
 
-          // ==============================
-          // Before 이미지
-          // 인증이 필요한 서버 이미지이므로
-          // Blob URL로 변환
-          // ==============================
-
-          if (
-            latest?.image
-          ) {
+          if (latest?.image) {
             const displayUrl =
               await getPrivateImageUrl(
                 latest.image,
@@ -156,23 +112,12 @@ export default function NudeBodyDetail() {
                 displayUrl
             }
 
-            if (
-              !cancelled
-            ) {
-              setPhoto(
-                displayUrl,
-              )
+            if (!cancelled) {
+              setPhoto(displayUrl)
             }
           } else {
-            setPhoto(
-              null,
-            )
+            setPhoto(null)
           }
-
-          // ==============================
-          // After AI 예상 이미지
-          // 이것도 인증 이미지면 Blob으로 변환
-          // ==============================
 
           if (
             latest
@@ -193,17 +138,13 @@ export default function NudeBodyDetail() {
                 displayUrl
             }
 
-            if (
-              !cancelled
-            ) {
+            if (!cancelled) {
               setExpectedPhoto(
                 displayUrl,
               )
             }
           } else {
-            setExpectedPhoto(
-              null,
-            )
+            setExpectedPhoto(null)
           }
 
           if (
@@ -211,9 +152,7 @@ export default function NudeBodyDetail() {
               ?.openCamera &&
             latest
           ) {
-            setCameraOpen(
-              false,
-            )
+            setCameraOpen(false)
           }
         } catch (error) {
           console.error(
@@ -228,17 +167,13 @@ export default function NudeBodyDetail() {
     return () => {
       cancelled = true
 
-      if (
-        photoObjectUrl
-      ) {
+      if (photoObjectUrl) {
         URL.revokeObjectURL(
           photoObjectUrl,
         )
       }
 
-      if (
-        expectedObjectUrl
-      ) {
+      if (expectedObjectUrl) {
         URL.revokeObjectURL(
           expectedObjectUrl,
         )
@@ -250,11 +185,6 @@ export default function NudeBodyDetail() {
 
   // ==============================
   // 사진 촬영
-  //
-  // 1. 미리보기
-  // 2. 이미지 서버 업로드
-  // 3. imageUrl 받기
-  // 4. BodyCheck 생성
   // ==============================
 
   const onCapture =
@@ -262,9 +192,7 @@ export default function NudeBodyDetail() {
       file: File,
       previewUrl: string,
     ) => {
-      if (
-        uploading
-      ) {
+      if (uploading) {
         URL.revokeObjectURL(
           previewUrl,
         )
@@ -282,53 +210,31 @@ export default function NudeBodyDetail() {
         )
       }
 
-      setPhoto(
-        previewUrl,
-      )
-
-      setCameraOpen(
-        false,
-      )
-
+      setPhoto(previewUrl)
+      setCameraOpen(false)
       setSaveMessage(
         '사진 저장 중...',
       )
-
-      setUploading(
-        true,
-      )
+      setUploading(true)
 
       try {
-        // ==============================
-        // 1. 이미지 파일 업로드
-        // ==============================
-
         const uploaded =
           await uploadImage(
             file,
             'BODY_CHECK',
           )
 
-        // ==============================
-        // 2. 업로드된 URL로 BodyCheck 생성
-        // ==============================
-
         const created =
           await createNudeBodyPhotoRecord(
             uploaded.imageUrl,
           )
 
-        // ==============================
-        // 3. 현재 눈바디 기록 갱신
-        // ==============================
+        setRecord(created)
+        setExpectedPhoto(null)
 
-        setRecord(
-          created,
-        )
-
-        setExpectedPhoto(
-          null,
-        )
+        // 새 눈바디를 저장하면 이전 추천 결과는 초기화
+        setRecommendations([])
+        setRecommendationMessage('')
 
         setSaveMessage(
           '눈바디 사진이 저장됐어요.',
@@ -345,9 +251,7 @@ export default function NudeBodyDetail() {
             : '눈바디 사진 저장에 실패했어요.',
         )
       } finally {
-        setUploading(
-          false,
-        )
+        setUploading(false)
       }
     }
 
@@ -365,26 +269,15 @@ export default function NudeBodyDetail() {
       }
 
       try {
-        setAnalyzing(
-          true,
-        )
-
-        setAnalysisMessage(
-          '',
-        )
+        setAnalyzing(true)
+        setAnalysisMessage('')
 
         const result =
           await requestNudeBodyAnalysis(
             record.id,
           )
 
-        setRecord(
-          result,
-        )
-
-        // ==============================
-        // AI 예상 이미지가 바로 반환된 경우
-        // ==============================
+        setRecord(result)
 
         if (
           result
@@ -423,71 +316,66 @@ export default function NudeBodyDetail() {
             : 'AI 분석 요청에 실패했어요.',
         )
       } finally {
-        setAnalyzing(
+        setAnalyzing(false)
+      }
+    }
+
+  // ==============================
+  // 추천 시술
+  // 자동 호출하지 않고 사용자가 버튼을 눌렀을 때만 요청
+  // ==============================
+
+  const requestRecommendations =
+    async () => {
+      if (
+        !record ||
+        recommendationLoading
+      ) {
+        return
+      }
+
+      try {
+        setRecommendationLoading(
+          true,
+        )
+        setRecommendationMessage('')
+
+        const result =
+          await getProcedureRecommendations(
+            record.id,
+          )
+
+        setRecommendations(
+          result.recommendations ??
+            [],
+        )
+
+        if (
+          !result.recommendations ||
+          result.recommendations.length ===
+            0
+        ) {
+          setRecommendationMessage(
+            '추천 시술 결과가 없어요.',
+          )
+        }
+      } catch (error) {
+        console.error(
+          '추천 시술을 불러오지 못했습니다.',
+          error,
+        )
+
+        setRecommendations([])
+
+        setRecommendationMessage(
+          '추천 시술 기능을 아직 사용할 수 없어요.',
+        )
+      } finally {
+        setRecommendationLoading(
           false,
         )
       }
     }
-
-  // ==============================
-  // 추천 시술 조회
-  // ==============================
-
-  useEffect(() => {
-    if (!record) {
-      setRecommendations([])
-      setRecommendationMessage('')
-      return
-    }
-
-    let cancelled = false
-
-    const loadRecommendations =
-      async () => {
-        try {
-          setRecommendationLoading(true)
-          setRecommendationMessage('')
-
-          const result =
-            await getProcedureRecommendations(
-              record.id,
-            )
-
-          if (cancelled) {
-            return
-          }
-
-          setRecommendations(
-            result.recommendations ?? [],
-          )
-        } catch (error) {
-          if (cancelled) {
-            return
-          }
-
-          console.error(
-            '추천 시술을 불러오지 못했습니다.',
-            error,
-          )
-
-          setRecommendations([])
-
-          setRecommendationMessage(
-            '추천 시술 기능을 아직 사용할 수 없어요.',
-          )
-        } finally {
-          if (!cancelled) {
-            setRecommendationLoading(false)
-          }
-        }
-      }
-
-    void loadRecommendations()
-
-    return () => {
-      cancelled = true
-    }
-  }, [record?.id])
 
   const analysisStatusText =
     record?.analysisStatus ===
@@ -505,11 +393,9 @@ export default function NudeBodyDetail() {
 
   return (
     <div className="relative flex h-full flex-col bg-white">
-
       <ScreenHeader title="AI 눈바디 변화 측정" />
 
       <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-10 pt-7">
-
         <h2 className="text-[14px] font-bold text-gray-900">
           AI 눈바디 변화 측정
         </h2>
@@ -519,13 +405,7 @@ export default function NudeBodyDetail() {
         </p>
 
         <div className="mt-5 grid grid-cols-2 gap-3">
-
-          {/* ==============================
-              Before
-          ============================== */}
-
           <div className="flex flex-col items-center">
-
             {photo ? (
               <button
                 type="button"
@@ -541,9 +421,7 @@ export default function NudeBodyDetail() {
                 aria-label="눈바디 다시 촬영"
               >
                 <img
-                  src={
-                    photo
-                  }
+                  src={photo}
                   alt="현재 눈바디"
                   className="h-full w-full object-cover"
                 />
@@ -573,7 +451,6 @@ export default function NudeBodyDetail() {
                   className="h-8 w-8"
                 >
                   <path d="M4 8.5h3l1.5-2h7L17 8.5h3a1 1 0 0 1 1 1V18a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5a1 1 0 0 1 1-1Z" />
-
                   <circle
                     cx="12"
                     cy="13"
@@ -603,17 +480,10 @@ export default function NudeBodyDetail() {
                   ? '현재 기록된 눈바디'
                   : '눈바디를 촬영해 주세요'}
             </p>
-
           </div>
 
-          {/* ==============================
-              After
-          ============================== */}
-
           <div className="flex flex-col items-center">
-
             <div className="flex aspect-[3/4] w-full items-center justify-center overflow-hidden rounded-lg bg-[#E5E5E5]">
-
               {expectedPhoto ? (
                 <img
                   src={
@@ -627,7 +497,6 @@ export default function NudeBodyDetail() {
                   AI 예상 이미지
                 </span>
               )}
-
             </div>
 
             <p className="mt-2 text-[11px] font-bold text-gray-900">
@@ -642,30 +511,20 @@ export default function NudeBodyDetail() {
                 analysisStatusText
               }
             </p>
-
           </div>
-
         </div>
-
-        {/* 저장 메시지 */}
 
         {saveMessage && (
           <p className="mt-3 rounded-lg bg-[#F7F7F7] px-3 py-2 text-[9px] leading-[14px] text-gray-500">
-            {
-              saveMessage
-            }
+            {saveMessage}
           </p>
         )}
-
-        {/* AI 분석 버튼 */}
 
         {record &&
           !expectedPhoto && (
             <button
               type="button"
-              onClick={
-                analyze
-              }
+              onClick={analyze}
               disabled={
                 analyzing ||
                 uploading ||
@@ -698,10 +557,7 @@ export default function NudeBodyDetail() {
           <span className="h-1.5 w-1.5 rounded-full bg-gray-200" />
         </div>
 
-        {/* 추천 시술 */}
-
         <section className="mt-8">
-
           <h2 className="text-[14px] font-bold text-gray-900">
             추천 시술
           </h2>
@@ -710,7 +566,32 @@ export default function NudeBodyDetail() {
             현재 눈바디를 기반으로 추천하는 관리예요
           </p>
 
-          {recommendationLoading ? (
+          {record && (
+            <button
+              type="button"
+              onClick={
+                requestRecommendations
+              }
+              disabled={
+                recommendationLoading ||
+                uploading
+              }
+              className="mt-4 w-full rounded-full border border-[#31C66B] py-3 text-[11px] font-semibold text-[#31C66B] disabled:opacity-50"
+            >
+              {recommendationLoading
+                ? '추천 시술 분석 중...'
+                : recommendations.length >
+                    0
+                  ? '추천 시술 다시 분석하기'
+                  : '추천 시술 분석하기'}
+            </button>
+          )}
+
+          {!record ? (
+            <div className="mt-4 flex min-h-[90px] items-center justify-center rounded-xl bg-[#F8F8F8] px-4 text-center text-[9px] leading-[14px] text-gray-400">
+              눈바디 사진을 먼저 기록해 주세요.
+            </div>
+          ) : recommendationLoading ? (
             <div className="mt-4 flex h-[90px] items-center justify-center rounded-xl bg-[#F8F8F8] text-[9px] text-gray-400">
               추천 시술을 불러오는 중...
             </div>
@@ -776,12 +657,10 @@ export default function NudeBodyDetail() {
           ) : (
             <div className="mt-4 flex min-h-[90px] items-center justify-center rounded-xl bg-[#F8F8F8] px-4 text-center text-[9px] leading-[14px] text-gray-400">
               {recommendationMessage ||
-                '추천 시술 결과가 없어요.'}
+                '추천 시술 분석 버튼을 눌러주세요.'}
             </div>
           )}
-
         </section>
-
       </div>
 
       {cameraOpen && (
@@ -796,7 +675,6 @@ export default function NudeBodyDetail() {
           }
         />
       )}
-
     </div>
   )
 }

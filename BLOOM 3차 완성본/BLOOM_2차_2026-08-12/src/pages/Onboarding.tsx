@@ -1,14 +1,18 @@
 import {
+  useEffect,
   useState,
   type ReactNode,
 } from 'react'
 
 import {
   useNavigate,
+  useSearchParams,
 } from 'react-router-dom'
 
 import {
+  getOnboarding,
   saveOnboarding,
+  updateOnboarding,
 } from '../components/api/OnboardingApi'
 
 import {
@@ -458,6 +462,15 @@ export default function Onboarding() {
     useNavigate()
 
   const [
+    searchParams,
+  ] = useSearchParams()
+
+  const isEditMode =
+    searchParams.get(
+      'mode',
+    ) === 'edit'
+
+  const [
     step,
     setStep,
   ] = useState(0)
@@ -559,6 +572,129 @@ export default function Onboarding() {
     useState<
       string | null
     >(null)
+
+  useEffect(() => {
+    if (!isEditMode) {
+      return
+    }
+
+    let cancelled = false
+
+    const loadExisting =
+      async () => {
+        try {
+          const data =
+            await getOnboarding()
+
+          if (cancelled) {
+            return
+          }
+
+          const [
+            birthYear,
+            birthMonth,
+            birthDay,
+          ] =
+            data.birthDate
+              .split('-')
+              .map(Number)
+
+          const [
+            deliveryYear,
+            deliveryMonth,
+            deliveryDay,
+          ] =
+            data.dueDate
+              .split('-')
+              .map(Number)
+
+          if (
+            birthYear &&
+            birthMonth &&
+            birthDay
+          ) {
+            setYear(
+              birthYear,
+            )
+
+            setMonth(
+              birthMonth,
+            )
+
+            setDay(
+              birthDay,
+            )
+
+            setBirthTouched(
+              true,
+            )
+          }
+
+          if (
+            deliveryYear &&
+            deliveryMonth &&
+            deliveryDay
+          ) {
+            setDueYear(
+              deliveryYear,
+            )
+
+            setDueMonth(
+              deliveryMonth,
+            )
+
+            setDueDay(
+              deliveryDay,
+            )
+
+            setDueTouched(
+              true,
+            )
+          }
+
+          setHeight(
+            data.height,
+          )
+
+          setWeight(
+            data.weight,
+          )
+
+          setAnswers({
+            goal:
+              data.goals ?? [],
+            focus:
+              data.focusAreas ?? [],
+            recover:
+              data.recoveryAreas ?? [],
+            condition:
+              data.conditions ?? [],
+            skin:
+              data.skinConcerns ?? [],
+          })
+
+          // 프로필 수정에서는 기존 생리 기록을 새로 생성하지 않음
+          setPStart(
+            null,
+          )
+
+          setPEnd(
+            null,
+          )
+        } catch (error) {
+          console.error(
+            '기존 프로필 정보를 불러오지 못했습니다.',
+            error,
+          )
+        }
+      }
+
+    void loadExisting()
+
+    return () => {
+      cancelled = true
+    }
+  }, [isEditMode])
 
   const toggle = (
     key: string,
@@ -782,7 +918,7 @@ export default function Onboarding() {
   const finish =
     async () => {
       try {
-        await saveOnboarding({
+        const profileData = {
           birthDate:
             makeDateKey(
               year,
@@ -819,7 +955,17 @@ export default function Onboarding() {
           skinConcerns:
             answers.skin ??
             [],
-        })
+        }
+
+        if (isEditMode) {
+          await updateOnboarding(
+            profileData,
+          )
+        } else {
+          await saveOnboarding(
+            profileData,
+          )
+        }
 
         // 현재 배포 Swagger에는 이미지 파일 업로드 API가 없습니다.
         // pendingPhotoFile은 온보딩 중 미리보기 용도로만 유지하고,
@@ -827,6 +973,7 @@ export default function Onboarding() {
         void pendingPhotoFile
 
         if (
+          !isEditMode &&
           pStart
         ) {
           await addPeriod({
@@ -840,7 +987,9 @@ export default function Onboarding() {
         }
 
         navigate(
-          '/home',
+          isEditMode
+            ? '/my-page/profile-settings'
+            : '/home',
           {
             replace:
               true,
@@ -902,7 +1051,9 @@ export default function Onboarding() {
       if (
         step === 9
       ) {
-        return !!pStart
+        return isEditMode
+          ? true
+          : !!pStart
       }
 
       return true
@@ -1624,11 +1775,15 @@ export default function Onboarding() {
             "
           >
             <h1 className="text-[21px] font-bold text-[#111]">
-              설정이 완료 됐어요!
+              {isEditMode
+                ? '정보 수정이 완료됐어요!'
+                : '설정이 완료 됐어요!'}
             </h1>
 
             <p className="mt-2 text-[11px] text-gray-500">
-              이제 나를 위한 시간을 시작해보세요!
+              {isEditMode
+                ? '변경한 정보가 프로필에 반영됐어요.'
+                : '이제 나를 위한 시간을 시작해보세요!'}
             </p>
 
             <img
@@ -1654,7 +1809,9 @@ export default function Onboarding() {
               }
               className="h-[48px] w-full rounded-full bg-[#31C66B] text-[14px] font-semibold text-white"
             >
-              관리 시작하기
+              {isEditMode
+                ? '수정 완료'
+                : '관리 시작하기'}
             </button>
           </footer>
         </>

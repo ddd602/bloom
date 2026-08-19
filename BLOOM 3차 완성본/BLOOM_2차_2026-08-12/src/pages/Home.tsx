@@ -30,9 +30,19 @@ import {
 } from '../components/api/GoalApi'
 
 import {
-  getAiReport,
-  type AiReportData,
+  createAiReport,
+  getLatestAiReport,
+  type AiReportResponse,
 } from '../components/api/AiReportApi'
+
+import {
+  claimAttendanceReward,
+  checkRoutineStreakReward,
+  getMileageHistory,
+  type MileageHistoryResponse,
+} from '../components/api/MileageApi'
+
+import AttendanceRewardModal from '../components/mileage/AttendanceRewardModal'
 
 import characterUrl from '../assets/brand/character.svg'
 
@@ -59,6 +69,156 @@ function getTodayDate() {
     )
 
   return `${year}-${month}-${day}`
+}
+
+function getSevenDaysAgoDate() {
+  const date = new Date()
+
+  date.setDate(
+    date.getDate() - 6,
+  )
+
+  const year =
+    date.getFullYear()
+
+  const month =
+    String(
+      date.getMonth() + 1,
+    ).padStart(
+      2,
+      '0',
+    )
+
+  const day =
+    String(
+      date.getDate(),
+    ).padStart(
+      2,
+      '0',
+    )
+
+  return `${year}-${month}-${day}`
+}
+
+
+function toSeoulDateString(
+  value: Date,
+) {
+  const parts =
+    new Intl.DateTimeFormat(
+      'en-US',
+      {
+        timeZone:
+          'Asia/Seoul',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      },
+    ).formatToParts(
+      value,
+    )
+
+  const year =
+    parts.find(
+      (part) =>
+        part.type ===
+        'year',
+    )?.value
+
+  const month =
+    parts.find(
+      (part) =>
+        part.type ===
+        'month',
+    )?.value
+
+  const day =
+    parts.find(
+      (part) =>
+        part.type ===
+        'day',
+    )?.value
+
+  return `${year}-${month}-${day}`
+}
+
+function shiftDate(
+  date: string,
+  days: number,
+) {
+  const value =
+    new Date(
+      `${date}T00:00:00Z`,
+    )
+
+  value.setUTCDate(
+    value.getUTCDate() +
+      days,
+  )
+
+  return value
+    .toISOString()
+    .slice(
+      0,
+      10,
+    )
+}
+
+function attendanceDateSet(
+  history:
+    MileageHistoryResponse[],
+) {
+  return new Set(
+    history
+      .filter(
+        (item) =>
+          item.reason ===
+          'ATTENDANCE',
+      )
+      .map(
+        (item) =>
+          toSeoulDateString(
+            new Date(
+              item.createdAt,
+            ),
+          ),
+      ),
+  )
+}
+
+function getNextAttendanceStreak(
+  history:
+    MileageHistoryResponse[],
+) {
+  const dates =
+    attendanceDateSet(
+      history,
+    )
+
+  const today =
+    toSeoulDateString(
+      new Date(),
+    )
+
+  let streak = 1
+
+  for (
+    let date =
+      shiftDate(
+        today,
+        -1,
+      );
+    dates.has(date);
+    date =
+      shiftDate(
+        date,
+        -1,
+      )
+  ) {
+    streak += 1
+  }
+
+  return streak
 }
 
 function Home() {
@@ -88,7 +248,7 @@ function Home() {
     setAiReport,
   ] =
     useState<
-      AiReportData | null
+      AiReportResponse | null
     >(null)
 
   const [
@@ -100,6 +260,59 @@ function Home() {
     aiReportError,
     setAiReportError,
   ] = useState('')
+
+
+  const [
+    rewardOpen,
+    setRewardOpen,
+  ] = useState(false)
+
+  const [
+    rewardType,
+    setRewardType,
+  ] =
+    useState<
+      'ATTENDANCE' | 'ROUTINE'
+    >('ATTENDANCE')
+
+  const [
+    rewardStage,
+    setRewardStage,
+  ] =
+    useState<
+      'READY' | 'DONE'
+    >('READY')
+
+  const [
+    rewardStreak,
+    setRewardStreak,
+  ] = useState(1)
+
+  const [
+    rewardAmount,
+    setRewardAmount,
+  ] = useState(0)
+
+  const [
+    rewardBalance,
+    setRewardBalance,
+  ] =
+    useState<
+      number | null
+    >(null)
+
+  const [
+    rewardLoading,
+    setRewardLoading,
+  ] = useState(false)
+
+  const [
+    pendingRoutineMilestone,
+    setPendingRoutineMilestone,
+  ] =
+    useState<
+      3 | 7 | 14 | null
+    >(null)
 
   useEffect(() => {
     const loadHomeStats =
@@ -113,6 +326,7 @@ function Home() {
             meal,
             goal,
             streak,
+            mileageHistory,
           ] =
             await Promise.all([
               getActivityByDate(
@@ -123,11 +337,116 @@ function Home() {
               ),
               getGoal(),
               getExerciseStreak(),
+              getMileageHistory(),
             ])
 
           setRoutineStreak(
             streak,
           )
+
+          const attendanceDates =
+            attendanceDateSet(
+              mileageHistory,
+            )
+
+          const seoulToday =
+            toSeoulDateString(
+              new Date(),
+            )
+
+          const attendanceNeeded =
+            !attendanceDates.has(
+              seoulToday,
+            )
+
+          const claimedReasons =
+            new Set(
+              mileageHistory.map(
+                (item) =>
+                  item.reason,
+              ),
+            )
+
+          const routineMilestone:
+            | 3
+            | 7
+            | 14
+            | null =
+            streak >= 14 &&
+            !claimedReasons.has(
+              'ROUTINE_STREAK_14',
+            )
+              ? 14
+              : streak >= 7 &&
+                  !claimedReasons.has(
+                    'ROUTINE_STREAK_7',
+                  )
+                ? 7
+                : streak >= 3 &&
+                    !claimedReasons.has(
+                      'ROUTINE_STREAK_3',
+                    )
+                  ? 3
+                  : null
+
+          setPendingRoutineMilestone(
+            routineMilestone,
+          )
+
+          if (
+            attendanceNeeded
+          ) {
+            setRewardType(
+              'ATTENDANCE',
+            )
+
+            setRewardStreak(
+              getNextAttendanceStreak(
+                mileageHistory,
+              ),
+            )
+
+            setRewardAmount(
+              100,
+            )
+
+            setRewardStage(
+              'READY',
+            )
+
+            setRewardOpen(
+              true,
+            )
+          } else if (
+            routineMilestone !==
+            null
+          ) {
+            setRewardType(
+              'ROUTINE',
+            )
+
+            setRewardStreak(
+              routineMilestone,
+            )
+
+            setRewardAmount(
+              routineMilestone ===
+              14
+                ? 500
+                : routineMilestone ===
+                    7
+                  ? 300
+                  : 100,
+            )
+
+            setRewardStage(
+              'READY',
+            )
+
+            setRewardOpen(
+              true,
+            )
+          }
 
           setBurnedCalories(
             activity.kcal,
@@ -209,7 +528,7 @@ function Home() {
 
         try {
           const data =
-            await getAiReport()
+            await getLatestAiReport()
 
           setAiReport(
             data,
@@ -233,62 +552,290 @@ function Home() {
   }, [])
 
   const homeReport =
-    aiReport
+    aiReport &&
+    aiReport.status === 'COMPLETED'
       ? [
           {
-            label:
-              '관리 목표',
+            label: '관리 목표',
             heading:
-              aiReport
-                .priority[0]
-                ?.heading ??
+              aiReport.priorities[0]?.title ??
               '맞춤 관리 목표',
             body:
-              aiReport
-                .priority[0]
-                ?.body ?? '',
+              aiReport.priorities[0]?.description ?? '',
           },
           {
-            label:
-              '추천 운동',
+            label: '추천 관리',
             heading:
-              aiReport
-                .method[0]
-                ?.heading ??
-              '맞춤 운동 관리',
+              aiReport.methods[0]?.title ??
+              '맞춤 관리 방법',
             body:
-              aiReport
-                .method[0]
-                ?.body ?? '',
+              aiReport.methods[0]?.description ?? '',
           },
           {
-            label:
-              '추천 식단',
+            label: '추천 관리',
             heading:
-              aiReport
-                .method[1]
-                ?.heading ??
-              '맞춤 식단 관리',
+              aiReport.methods[1]?.title ??
+              '맞춤 관리 방법',
             body:
-              aiReport
-                .method[1]
-                ?.body ?? '',
+              aiReport.methods[1]?.description ?? '',
           },
           {
-            label:
-              '추천 케어',
+            label: '추천 관리',
             heading:
-              aiReport
-                .method[2]
-                ?.heading ??
-              '맞춤 생활 관리',
+              aiReport.methods[2]?.title ??
+              '맞춤 관리 방법',
             body:
-              aiReport
-                .method[2]
-                ?.body ?? '',
+              aiReport.methods[2]?.description ?? '',
           },
         ]
       : []
+
+  const handleOpenAiReport =
+    async () => {
+      if (aiReportLoading) {
+        return
+      }
+
+      try {
+        setAiReportLoading(true)
+        setAiReportError('')
+
+        const report =
+          await createAiReport({
+            from:
+              getSevenDaysAgoDate(),
+            to: getTodayDate(),
+          })
+
+        setAiReport(report)
+
+        navigate('/home/report')
+      } catch (error) {
+        console.error(
+          'AI 분석 리포트를 생성하지 못했습니다.',
+          error,
+        )
+
+        if (
+          error instanceof Error &&
+          error.message.includes(
+            'AI_SERVICE_UNAVAILABLE',
+          )
+        ) {
+          setAiReportError(
+            'AI 서비스를 현재 사용할 수 없어요.',
+          )
+        } else {
+          setAiReportError(
+            'AI 분석 리포트를 생성하지 못했어요.',
+          )
+        }
+      } finally {
+        setAiReportLoading(false)
+      }
+    }
+
+  const showRoutineReward =
+    (
+      milestone:
+        3 | 7 | 14,
+    ) => {
+      setRewardType(
+        'ROUTINE',
+      )
+
+      setRewardStreak(
+        milestone,
+      )
+
+      setRewardAmount(
+        milestone === 14
+          ? 500
+          : milestone === 7
+            ? 300
+            : 100,
+      )
+
+      setRewardBalance(
+        null,
+      )
+
+      setRewardStage(
+        'READY',
+      )
+
+      setRewardOpen(
+        true,
+      )
+    }
+
+  const moveToNextReward =
+    () => {
+      if (
+        rewardType ===
+          'ATTENDANCE' &&
+        pendingRoutineMilestone !==
+          null
+      ) {
+        const milestone =
+          pendingRoutineMilestone
+
+        setPendingRoutineMilestone(
+          null,
+        )
+
+        showRoutineReward(
+          milestone,
+        )
+
+        return
+      }
+
+      setRewardOpen(
+        false,
+      )
+    }
+
+  const handleClaimReward =
+    async () => {
+      if (
+        rewardLoading
+      ) {
+        return
+      }
+
+      try {
+        setRewardLoading(
+          true,
+        )
+
+        const result =
+          rewardType ===
+          'ATTENDANCE'
+            ? await claimAttendanceReward()
+            : await checkRoutineStreakReward()
+
+        if (
+          result.rewarded
+        ) {
+          setRewardAmount(
+            result.amount,
+          )
+
+          setRewardBalance(
+            result.balance,
+          )
+
+          setRewardStreak(
+            result.streak ??
+              rewardStreak,
+          )
+
+          setRewardStage(
+            'DONE',
+          )
+
+          return
+        }
+
+        if (
+          rewardType ===
+            'ATTENDANCE' &&
+          result.reason ===
+            'ALREADY_REWARDED'
+        ) {
+          moveToNextReward()
+          return
+        }
+
+        if (
+          rewardType ===
+            'ROUTINE' &&
+          result.reason ===
+            'NO_NEW_REWARD'
+        ) {
+          setRewardOpen(
+            false,
+          )
+        }
+      } catch (error) {
+        console.error(
+          rewardType ===
+            'ATTENDANCE'
+            ? '출석 포인트 지급에 실패했습니다.'
+            : '루틴 포인트 지급에 실패했습니다.',
+          error,
+        )
+      } finally {
+        setRewardLoading(
+          false,
+        )
+      }
+    }
+
+  const handleRewardClose =
+    () => {
+      if (
+        rewardStage ===
+        'DONE'
+      ) {
+        moveToNextReward()
+        return
+      }
+
+      if (
+        rewardType ===
+          'ATTENDANCE' &&
+        pendingRoutineMilestone !==
+          null
+      ) {
+        const milestone =
+          pendingRoutineMilestone
+
+        setPendingRoutineMilestone(
+          null,
+        )
+
+        showRoutineReward(
+          milestone,
+        )
+
+        return
+      }
+
+      setRewardOpen(
+        false,
+      )
+    }
+
+  const handleRewardPrimary =
+    () => {
+      if (
+        rewardStage ===
+        'READY'
+      ) {
+        void handleClaimReward()
+        return
+      }
+
+      if (
+        rewardType ===
+          'ATTENDANCE' &&
+        pendingRoutineMilestone !==
+          null
+      ) {
+        moveToNextReward()
+        return
+      }
+
+      setRewardOpen(
+        false,
+      )
+
+      navigate(
+        '/my-page',
+      )
+    }
 
   const stats = [
     {
@@ -932,10 +1479,8 @@ function Home() {
             ) =>
               e.stopPropagation()
             }
-            onClick={() =>
-              navigate(
-                '/home/report',
-              )
+            onClick={
+              handleOpenAiReport
             }
             className="
               mt-5
@@ -1084,6 +1629,28 @@ function Home() {
           )}
         </div>
       </section>
+
+      <AttendanceRewardModal
+        open={rewardOpen}
+        rewardType={rewardType}
+        stage={rewardStage}
+        streak={rewardStreak}
+        amount={rewardAmount}
+        balance={rewardBalance}
+        loading={rewardLoading}
+        hasNextReward={
+          rewardType ===
+            'ATTENDANCE' &&
+          pendingRoutineMilestone !==
+            null
+        }
+        onPrimary={
+          handleRewardPrimary
+        }
+        onClose={
+          handleRewardClose
+        }
+      />
     </main>
   )
 }

@@ -32,49 +32,18 @@ import {
 } from '../api/PeriodApi'
 import {
   expandPeriods,
-  periodStatus,
-  type PeriodTone,
 } from './periodUtils'
 
-// 생리 단계별 색상
-const TAG_CLASS: Record<PeriodTone, string> = {
-  green: 'bg-[#32C878] text-white',
-  yellow: 'bg-[#FCE7A6] text-[#B7860B]',
-  gray: 'bg-gray-200 text-gray-600',
-}
-
-const CARD_CLASS: Record<PeriodTone, string> = {
-  green: 'bg-[#EAF8EF]',
-  yellow: 'bg-[#FDF6E3]',
-  gray: 'bg-gray-50',
-}
-
-const WEEKDAYS = [
+// Date.getDay() 인덱스(0=일요일) 순서의 요일 라벨
+const WEEKDAY_LABELS_BY_DAY = [
+  'SUN',
   'MON',
   'TUE',
   'WED',
   'THU',
   'FRI',
   'SAT',
-  'SUN',
 ]
-
-function getTodayDate() {
-  const today = new Date()
-
-  const year =
-    today.getFullYear()
-
-  const month = String(
-    today.getMonth() + 1,
-  ).padStart(2, '0')
-
-  const day = String(
-    today.getDate(),
-  ).padStart(2, '0')
-
-  return `${year}-${month}-${day}`
-}
 
 // 선택 날짜의 전날 구하기
 function getPreviousDate(
@@ -190,7 +159,8 @@ export default function WeeklyCalendar() {
 
   const selectedDateFromMonthly =
     location.state?.selectedDate ??
-    getTodayDate()
+    '2026-08-11'
+
 
   const [
     selectedDate,
@@ -201,7 +171,8 @@ export default function WeeklyCalendar() {
     )
 
   // 선택한 날짜를 현재 히스토리 항목에도 반영
-  // 다른 상세 화면으로 이동했다가 돌아와도 선택 날짜 유지
+  // (생리 세부기록 등으로 이동했다가 뒤로가기로
+  //  돌아왔을 때 선택 날짜가 유지되도록)
   useEffect(() => {
     navigate(
       location.pathname,
@@ -212,11 +183,7 @@ export default function WeeklyCalendar() {
         },
       },
     )
-  }, [
-    selectedDate,
-    navigate,
-    location.pathname,
-  ])
+  }, [selectedDate])
 
   // 오늘 식사 총칼로리
   const [
@@ -331,30 +298,27 @@ export default function WeeklyCalendar() {
 
     loadConditionData()
   }, [selectedDate])
-
   // ============================
   // 생리 기록 불러오기
   // ============================
 
   useEffect(() => {
-    const loadPeriods =
-      async () => {
-        try {
-          const data =
-            await getPeriods()
+    const loadPeriods = async () => {
+      try {
+        const data =
+          await getPeriods()
 
-          setPeriods(data)
-        } catch (error) {
-          console.error(
-            '생리 기록을 불러오지 못했습니다.',
-            error,
-          )
-        }
+        setPeriods(data)
+      } catch (error) {
+        console.error(
+          '생리 기록을 불러오지 못했습니다.',
+          error,
+        )
       }
+    }
 
     loadPeriods()
   }, [])
-
   // ============================
   // 식사 데이터 불러오기
   // 오늘 + 어제
@@ -474,15 +438,12 @@ export default function WeeklyCalendar() {
   }, [selectedDate])
 
   // ============================
-  // 활동 데이터 불러오기
+  // 운동 데이터 불러오기
   // 선택 날짜 + 전날
-  //
-  // 운동 완료 결과가 Activity API에 저장되므로
-  // 서버 Activity 합계만 사용한다.
   // ============================
 
   useEffect(() => {
-    const loadActivityData =
+    const loadExerciseData =
       async () => {
         try {
           const yesterday =
@@ -491,34 +452,59 @@ export default function WeeklyCalendar() {
             )
 
           const [
-            todayActivity,
-            yesterdayActivity,
+            todayRecord,
+            yesterdayRecord,
           ] =
             await Promise.all([
-              getActivityByDate(
+              getCompletedExercisesByDate(
                 selectedDate,
               ),
 
-              getActivityByDate(
+              getCompletedExercisesByDate(
                 yesterday,
               ),
             ])
 
+          const todayTotal =
+            todayRecord.routines.reduce(
+              (
+                sum,
+                routine,
+              ) =>
+                sum +
+                (Number(
+                  routine.kcal,
+                ) || 0),
+              0,
+            )
+
+          const yesterdayTotal =
+            yesterdayRecord.routines.reduce(
+              (
+                sum,
+                routine,
+              ) =>
+                sum +
+                (Number(
+                  routine.kcal,
+                ) || 0),
+              0,
+            )
+
           setActivityTotal(
-            todayActivity.kcal,
+            todayTotal,
           )
 
-          const hasYesterdayActivity =
-            yesterdayActivity.steps > 0 ||
-            yesterdayActivity.kcal > 0 ||
-            yesterdayActivity.exerciseMinutes > 0
+          const hasYesterdayExercise =
+            yesterdayRecord.routines
+              .length > 0
 
           if (
-            hasYesterdayActivity
+            hasYesterdayExercise
           ) {
             setActivityDifference(
-              todayActivity.kcal -
-                yesterdayActivity.kcal,
+              todayTotal -
+                yesterdayTotal,
             )
           } else {
             setActivityDifference(
@@ -527,7 +513,7 @@ export default function WeeklyCalendar() {
           }
         } catch (error) {
           console.error(
-            '활동 데이터를 불러오지 못했습니다.',
+            '운동 데이터를 불러오지 못했습니다.',
             error,
           )
 
@@ -539,7 +525,7 @@ export default function WeeklyCalendar() {
         }
       }
 
-    loadActivityData()
+    loadExerciseData()
   }, [selectedDate])
 
   // ============================
@@ -732,21 +718,48 @@ export default function WeeklyCalendar() {
               : 0
 
           // 평균 활동량:
-          // 운동 완료 결과가 이미 서버 Activity에 저장되므로
-          // 서버의 Activity kcal만 사용한다.
+          // 걸음 kcal + 완료 운동 kcal
+          // 실제 기록이 있는 날짜만 평균
           const activityTotals =
-            lastWeekActivities
-              .map((activity) => {
+            lastWeekDates
+              .map((_, index) => {
+                const activity =
+                  lastWeekActivities[
+                    index
+                  ]
+
+                const exercise =
+                  lastWeekExercises[
+                    index
+                  ]
+
+                const exerciseKcal =
+                  exercise.routines.reduce(
+                    (
+                      sum,
+                      routine,
+                    ) =>
+                      sum +
+                      (Number(
+                        routine.kcal,
+                      ) || 0),
+                    0,
+                  )
+
                 const hasActivity =
                   activity.steps > 0 ||
                   activity.kcal > 0 ||
-                  activity.exerciseMinutes > 0
+                  exercise.routines
+                    .length > 0
 
                 if (!hasActivity) {
                   return null
                 }
 
-                return activity.kcal
+                return (
+                  activity.kcal +
+                  exerciseKcal
+                )
               })
               .filter(
                 (
@@ -867,20 +880,45 @@ export default function WeeklyCalendar() {
               : 0
 
           // 2주 전 평균 활동량
-          // 서버 Activity kcal만 사용한다.
           const twoWeeksAgoActivityTotals =
-            twoWeeksAgoActivities
-              .map((activity) => {
+            twoWeeksAgoDates
+              .map((_, index) => {
+                const activity =
+                  twoWeeksAgoActivities[
+                    index
+                  ]
+
+                const exercise =
+                  twoWeeksAgoExercises[
+                    index
+                  ]
+
+                const exerciseKcal =
+                  exercise.routines.reduce(
+                    (
+                      sum,
+                      routine,
+                    ) =>
+                      sum +
+                      (Number(
+                        routine.kcal,
+                      ) || 0),
+                    0,
+                  )
+
                 const hasActivity =
                   activity.steps > 0 ||
                   activity.kcal > 0 ||
-                  activity.exerciseMinutes > 0
+                  exercise.routines.length > 0
 
                 if (!hasActivity) {
                   return null
                 }
 
-                return activity.kcal
+                return (
+                  activity.kcal +
+                  exerciseKcal
+                )
               })
               .filter(
                 (
@@ -1080,33 +1118,19 @@ export default function WeeklyCalendar() {
           selectedDate,
         )
 
-      const dayOfWeek =
-        selected.getDay()
-
-      const diffToMonday =
-        dayOfWeek === 0
-          ? -6
-          : 1 - dayOfWeek
-
-      const monday =
-        new Date(selected)
-
-      monday.setDate(
-        selected.getDate() +
-        diffToMonday,
-      )
-
+      // 선택한 날짜가 항상 가운데(index 3)에 오도록
+      // 앞뒤 3일씩 포함한 7일 구간을 만듦
       return Array.from(
         { length: 7 },
         (_, index) => {
           const date =
             new Date(
-              monday,
+              selected,
             )
 
           date.setDate(
-            monday.getDate() +
-            index,
+            selected.getDate() +
+            (index - 3),
           )
 
           return date
@@ -1316,11 +1340,6 @@ export default function WeeklyCalendar() {
     )
   }
 
-  const todayPeriodStatus =
-    periodStatus(
-      selectedDate,
-      periods,
-    )
 
   return (
     <main className="relative flex h-[calc(100dvh-64px)] flex-col overflow-hidden bg-white">
@@ -1421,58 +1440,19 @@ export default function WeeklyCalendar() {
 
         {/* 주간 날짜 */}
         <div className="mt-9 grid grid-cols-7 text-center">
-          {WEEKDAYS.map(
-            (
-              weekday,
-              index,
-            ) => {
-              const date =
-                weekDates[
-                index
+          {weekDates.map(
+            (date, dateIndex) => {
+              const weekday =
+                WEEKDAY_LABELS_BY_DAY[
+                date.getDay()
                 ]
-
-              const dateKey =
-                `${date.getFullYear()}-${String(
-                  date.getMonth() +
-                  1,
-                ).padStart(
-                  2,
-                  '0',
-                )}-${String(
-                  date.getDate(),
-                ).padStart(
-                  2,
-                  '0',
-                )}`
-
-              const isSelected =
-                selectedDate ===
-                dateKey
-
-              const isPeriod =
-                periodSet.has(
-                  dateKey,
-                )
-
-              const prevDate =
-                index > 0
-                  ? weekDates[
-                      index - 1
-                    ]
-                  : null
-
-              const nextDate =
-                index < 6
-                  ? weekDates[
-                      index + 1
-                    ]
-                  : null
 
               const toDateKey = (
                 d: Date,
               ) =>
                 `${d.getFullYear()}-${String(
-                  d.getMonth() + 1,
+                  d.getMonth() +
+                  1,
                 ).padStart(
                   2,
                   '0',
@@ -1483,19 +1463,35 @@ export default function WeeklyCalendar() {
                   '0',
                 )}`
 
+              const dateKey =
+                toDateKey(date)
+
+              const isSelected =
+                selectedDate ===
+                dateKey
+
+              const isPeriod =
+                periodSet.has(
+                  dateKey,
+                )
+
               const prevIsPeriod =
-                prevDate !== null &&
+                dateIndex > 0 &&
                 periodSet.has(
                   toDateKey(
-                    prevDate,
+                    weekDates[
+                    dateIndex - 1
+                    ],
                   ),
                 )
 
               const nextIsPeriod =
-                nextDate !== null &&
+                dateIndex < 6 &&
                 periodSet.has(
                   toDateKey(
-                    nextDate,
+                    weekDates[
+                    dateIndex + 1
+                    ],
                   ),
                 )
 
@@ -1511,7 +1507,7 @@ export default function WeeklyCalendar() {
               return (
                 <div
                   key={
-                    weekday
+                    dateKey
                   }
                   className="relative flex flex-col items-center"
                 >
@@ -1539,7 +1535,7 @@ export default function WeeklyCalendar() {
                         dateKey,
                       )
                     }
-                    className="relative z-10 mt-2 flex h-[28px] w-full items-center justify-center text-[15px]"
+                    className="relative mt-2 flex h-[28px] w-full items-center justify-center text-[15px]"
                   >
                     {isPeriod && (
                       <span
@@ -1568,6 +1564,8 @@ export default function WeeklyCalendar() {
         </div>
       </header>
 
+      {/* 메모 */}
+
       {/* 바텀 시트 */}
       <section
         ref={sheetRef}
@@ -1586,7 +1584,7 @@ export default function WeeklyCalendar() {
           flex-1
           overflow-hidden
           rounded-t-[20px]
-          bg-[#F8F8F8]
+          bg-white
           px-5
         "
       >
@@ -1633,7 +1631,7 @@ export default function WeeklyCalendar() {
             className={`mb-2 cursor-pointer rounded-xl px-4 py-3 ${summary.mealTotal >
               0
               ? 'border border-[#32DE8B] bg-[#EAF8EC]'
-              : 'bg-white'
+              : 'bg-[#F5F5F5]'
               }`}
           >
             <p className="text-[10px] text-gray-500">
@@ -1715,7 +1713,7 @@ export default function WeeklyCalendar() {
             className={`mb-2 cursor-pointer rounded-xl px-4 py-3 ${summary.activityTotal >
               0
               ? 'border border-[#32DE8B] bg-[#EAF8EC]'
-              : 'bg-white'
+              : 'bg-[#F5F5F5]'
               }`}
           >
             <p className="text-[10px] text-gray-500">
@@ -1797,7 +1795,7 @@ export default function WeeklyCalendar() {
             className={`mb-4 cursor-pointer rounded-xl px-4 py-3 ${summary.condition >
               0
               ? 'border border-[#32DE8B] bg-[#EAF8EC]'
-              : 'bg-white'
+              : 'bg-[#F5F5F5]'
               }`}
           >
             <p className="text-[10px] text-gray-500">
@@ -1854,94 +1852,15 @@ export default function WeeklyCalendar() {
             </div>
           </div>
 
-          {/* 오늘의 생리 기록 */}
-          <div className="mt-7">
-            <h2 className="text-[16px] font-bold text-gray-900">
-              오늘의 생리 기록
-            </h2>
-
-            <p className="mt-1 text-[8px] leading-4 text-gray-400">
-              선택한 날짜의 생리 상태를 확인해요
+          {/* 이번 주 분석 */}
+          <div className="mb-8 mt-5 rounded-xl border border-[#FFE45E] bg-[#FFFDE7] p-4">
+            <p className="text-xs font-bold text-gray-900">
+              이번 주 분석
             </p>
 
-            <button
-              type="button"
-              onClick={() =>
-                navigate(
-                  '/periodDetail',
-                  {
-                    state: {
-                      selectedDate,
-                    },
-                  },
-                )
-              }
-              className={
-                'mt-4 flex w-full items-center justify-between rounded-xl p-4 text-left ' +
-                (todayPeriodStatus
-                  ? CARD_CLASS[
-                      todayPeriodStatus.tone
-                    ]
-                  : 'bg-white')
-              }
-            >
-              {todayPeriodStatus ? (
-                <div className="flex min-w-0 items-center gap-2">
-                  <span
-                    className={
-                      'shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold ' +
-                      TAG_CLASS[
-                        todayPeriodStatus.tone
-                      ]
-                    }
-                  >
-                    {
-                      todayPeriodStatus.phase
-                    }
-                  </span>
-
-                  {todayPeriodStatus.phase ===
-                    '생리중' &&
-                  todayPeriodStatus.dayInPeriod ? (
-                    <span className="shrink-0 text-[10px] font-medium text-gray-700">
-                      {
-                        todayPeriodStatus.dayInPeriod
-                      }
-                      일차
-                    </span>
-                  ) : null}
-
-                  {todayPeriodStatus.daysUntilNext !=
-                    null &&
-                  todayPeriodStatus.daysUntilNext >
-                    0 ? (
-                    <span className="text-[10px] text-gray-700">
-                      예정일까지{' '}
-                      <b className="text-[#32C878]">
-                        {
-                          todayPeriodStatus.daysUntilNext
-                        }
-                        일
-                      </b>
-                    </span>
-                  ) : todayPeriodStatus.message ? (
-                    <span className="text-[9px] leading-tight text-gray-400">
-                      {
-                        todayPeriodStatus.message
-                      }
-                    </span>
-                  ) : null}
-                </div>
-              ) : (
-                <span className="text-[10px] text-gray-500">
-                  생리 기록을 추가해보세요
-                </span>
-              )}
-
-              <span className="shrink-0 pl-2 text-[20px] leading-none text-gray-400">
-                ›
-              </span>
-            </button>
+            <p className="mt-2 text-[10px] leading-5 text-gray-500">
+              {analysisText}
+            </p>
           </div>
 
           {/* 지난주 기록 리포트 */}
@@ -2057,17 +1976,6 @@ export default function WeeklyCalendar() {
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* 이번 주 분석 */}
-          <div className="mb-8 mt-5 rounded-xl bg-white p-4">
-            <p className="text-xs font-bold text-gray-900">
-              이번 주 분석
-            </p>
-
-            <p className="mt-2 text-[10px] leading-5 text-gray-500">
-              {analysisText}
-            </p>
           </div>
 
         </div>

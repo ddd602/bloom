@@ -24,7 +24,9 @@ import {
   type ConversationSummaryResponse,
 } from '../components/api/AiChatApi'
 
-const USER_NAME = '○○'
+import {
+  getProfile,
+} from '../components/api/OnboardingApi'
 
 const SUGGESTIONS = [
   '시술 관련 정보 탐색 요청',
@@ -64,6 +66,11 @@ function AiChat() {
   const [
     errorMessage,
     setErrorMessage,
+  ] = useState('')
+
+  const [
+    userName,
+    setUserName,
   ] = useState('')
 
   // =========================
@@ -108,6 +115,42 @@ function AiChat() {
   }, [])
 
   // =========================
+  // 사용자 이름 조회
+  // =========================
+
+  useEffect(() => {
+    let cancelled = false
+
+    const loadUserName =
+      async () => {
+        try {
+          const profile =
+            await getProfile()
+
+          if (
+            !cancelled &&
+            profile.nickname
+          ) {
+            setUserName(
+              profile.nickname,
+            )
+          }
+        } catch (error) {
+          console.error(
+            '사용자 정보를 불러오지 못했습니다.',
+            error,
+          )
+        }
+      }
+
+    void loadUserName()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  // =========================
   // 메시지 보내기
   // =========================
 
@@ -121,6 +164,17 @@ function AiChat() {
       !trimmed ||
       sending
     ) {
+      return
+    }
+
+    if (
+      trimmed.length >
+      2000
+    ) {
+      setErrorMessage(
+        '메시지는 2,000자 이하로 입력해 주세요.',
+      )
+
       return
     }
 
@@ -465,9 +519,11 @@ function AiChat() {
         <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-6">
           <div className="-translate-y-2 text-center">
 
-            <p className="mb-1 text-[12px] font-medium text-[#31C66B]">
-              {USER_NAME}님
-            </p>
+            {userName && (
+              <p className="mb-1 text-[12px] font-medium text-[#31C66B]">
+                {userName}님
+              </p>
+            )}
 
             <p className="text-[21px] font-bold tracking-[-0.5px] text-gray-900">
               무엇이든 물어보세요!
@@ -573,6 +629,7 @@ function AiChat() {
                 event.target.value,
               )
             }
+            maxLength={2000}
             placeholder=""
             className="
               min-w-0 flex-1

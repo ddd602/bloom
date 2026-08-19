@@ -18,10 +18,12 @@ import {
 
 import {
   analyzeNutritionImage,
+  analyzeNutritionText,
   updateNutritionDraftFood,
   addNutritionDraftFood,
   deleteNutritionDraftFood,
   recordNutritionAnalysis,
+  type NutritionFoodSource,
 } from '../components/api/AiNutritionApi'
 
 import { IconChevronLeft } from '../components/icons'
@@ -76,8 +78,11 @@ const MEAL_TYPE_BY_KEY:
 }
 
 type EditableMealItem =
-  MealItem & {
+  Omit<MealItem, 'kcal'> & {
+    kcal: number | null
     draftFoodId?: number
+    source?: NutritionFoodSource
+    confidence?: number | null
   }
 
 export default function MealInput() {
@@ -109,6 +114,12 @@ export default function MealInput() {
     useState<
       'manual' | 'ai'
     >('manual')
+
+  const [
+    manualText,
+    setManualText,
+  ] =
+    useState('')
 
   const [
     scanned,
@@ -173,8 +184,11 @@ export default function MealInput() {
     useState(false)
 
   const total =
-    mealCalories(
-      items,
+    items.reduce(
+      (sum, item) =>
+        sum +
+        (item.kcal ?? 0),
+      0,
     )
 
   const showCamera =
@@ -224,6 +238,59 @@ export default function MealInput() {
     selectedDate,
   ])
 
+  const applyAnalysisResult = (
+    result: Awaited<
+      ReturnType<
+        typeof analyzeNutritionImage
+      >
+    >,
+  ) => {
+    setAnalysisId(
+      result.analysisId,
+    )
+
+    setDeletedDraftFoodIds(
+      [],
+    )
+
+    setItems(
+      result.foods.map(
+        (food) => ({
+          draftFoodId:
+            food.draftFoodId,
+          name:
+            food.foodName,
+          kcal:
+            food.kcal,
+          carbs:
+            food.carbs,
+          protein:
+            food.protein,
+          fat:
+            food.fat,
+          source:
+            food.source,
+          confidence:
+            food.confidence,
+        }),
+      ),
+    )
+
+    setScanned(
+      true,
+    )
+
+    if (
+      result.status ===
+      'FAILED' ||
+      result.manualInputAvailable
+    ) {
+      setAnalysisError(
+        '음식을 인식하지 못했어요. 직접 입력해주세요.',
+      )
+    }
+  }
+
   // ==============================
   // AI 이미지 분석
   // ==============================
@@ -264,45 +331,9 @@ export default function MealInput() {
             file,
           )
 
-        setAnalysisId(
-          result.analysisId,
+        applyAnalysisResult(
+          result,
         )
-
-        setDeletedDraftFoodIds(
-          [],
-        )
-
-        setItems(
-          result.foods.map(
-            (food) => ({
-              draftFoodId:
-                food.draftFoodId,
-              name:
-                food.foodName,
-              kcal:
-                food.kcal ?? 0,
-              carbs:
-                food.carbs,
-              protein:
-                food.protein,
-              fat:
-                food.fat,
-            }),
-          ),
-        )
-
-        setScanned(
-          true,
-        )
-
-        if (
-          result.status ===
-          'FAILED'
-        ) {
-          setAnalysisError(
-            '음식을 인식하지 못했어요. 직접 입력해주세요.',
-          )
-        }
       } catch (error) {
         console.error(
           'AI 식단 분석에 실패했습니다.',
@@ -320,6 +351,58 @@ export default function MealInput() {
         )
 
         setCameraOpen(
+          false,
+        )
+      }
+    }
+
+  // ==============================
+  // 직접입력 탭 텍스트 AI 분석
+  // 사진은 화면에만 유지하고,
+  // TEXT 요청에는 텍스트만 전송
+  // ==============================
+
+  const analyzeManualText =
+    async () => {
+      const text =
+        manualText.trim()
+
+      if (
+        analyzing ||
+        text === ''
+      ) {
+        return
+      }
+
+      setAnalysisError('')
+      setAnalyzing(true)
+
+      try {
+        const result =
+          await analyzeNutritionText(
+            selectedDate,
+            MEAL_TYPE_BY_KEY[
+              key
+            ],
+            text,
+          )
+
+        applyAnalysisResult(
+          result,
+        )
+      } catch (error) {
+        console.error(
+          'AI 텍스트 식단 분석에 실패했습니다.',
+          error,
+        )
+
+        setAnalysisError(
+          error instanceof Error
+            ? error.message
+            : 'AI 식단 분석에 실패했습니다.',
+        )
+      } finally {
+        setAnalyzing(
           false,
         )
       }
@@ -462,9 +545,9 @@ export default function MealInput() {
                 ...item,
 
                 kcal:
-                  Number(
-                    kcal,
-                  ) || 0,
+                  kcal.trim() === ''
+                    ? null
+                    : Number(kcal),
               }
             : item,
       ),
@@ -513,7 +596,11 @@ export default function MealInput() {
       ...items,
       {
         name: '',
-        kcal: 0,
+        kcal: null,
+        source:
+          analysisId !== null
+            ? 'USER_INPUT'
+            : undefined,
       },
     ])
   }
@@ -545,7 +632,6 @@ export default function MealInput() {
         )
 
         if (
-          tab === 'ai' &&
           analysisId !== null
         ) {
           await Promise.all(
@@ -602,7 +688,22 @@ export default function MealInput() {
             key,
             {
               items:
-                cleaned,
+                cleaned.map(
+                  (item) => ({
+                    mealId:
+                      item.mealId,
+                    name:
+                      item.name,
+                    kcal:
+                      item.kcal ?? 0,
+                    carbs:
+                      item.carbs,
+                    protein:
+                      item.protein,
+                    fat:
+                      item.fat,
+                  }),
+                ),
             },
           )
         }
@@ -808,6 +909,68 @@ export default function MealInput() {
 
             </div>
 
+            {tab === 'manual' && (
+              <div className="mb-5">
+                <label className="mb-2 block text-[11px] font-semibold text-gray-800">
+                  먹은 내용을 입력해주세요
+                </label>
+
+                <textarea
+                  value={
+                    manualText
+                  }
+                  onChange={(
+                    e,
+                  ) =>
+                    setManualText(
+                      e.target.value,
+                    )
+                  }
+                  maxLength={
+                    2000
+                  }
+                  placeholder="예) 닭가슴살구이, 군고구마 2개, 파프리카 구이"
+                  className="h-24 w-full resize-none rounded-xl border border-gray-200 bg-[#FAFAFA] px-4 py-3 text-[11px] leading-5 text-gray-800 outline-none focus:border-[#31C66B]"
+                />
+
+                <div className="mt-2 flex items-center justify-between">
+                  <span className="text-[8px] text-gray-300">
+                    사진과 함께 입력해도 AI 요청에는 텍스트만 사용돼요.
+                  </span>
+
+                  <span className="text-[8px] text-gray-300">
+                    {manualText.length}/2000
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    void analyzeManualText()
+                  }
+                  disabled={
+                    analyzing ||
+                    manualText.trim() ===
+                      ''
+                  }
+                  className={
+                    'mt-3 w-full rounded-full py-2.5 text-[12px] font-bold transition-colors ' +
+                    (
+                      analyzing ||
+                      manualText.trim() ===
+                        ''
+                        ? 'cursor-not-allowed bg-gray-200 text-gray-400'
+                        : 'bg-[#31C66B] text-white active:bg-[#29B760]'
+                    )
+                  }
+                >
+                  {analyzing
+                    ? 'AI가 분석 중...'
+                    : '텍스트 AI 분석하기'}
+                </button>
+              </div>
+            )}
+
             {analyzing && (
               <p className="mb-4 text-center text-[10px] text-gray-400">
                 AI가 식사를 분석하고 있어요...
@@ -838,10 +1001,35 @@ export default function MealInput() {
 
                     <div className="mb-1 flex items-center justify-between">
 
-                      <span className="text-[9px] text-gray-400">
-                        음식{' '}
-                        {i + 1}
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[9px] text-gray-400">
+                          음식{' '}
+                          {i + 1}
+                        </span>
+
+                        {item.source ===
+                          'AI_ESTIMATE' && (
+                          <span className="rounded bg-[#EAF8EC] px-1.5 py-0.5 text-[8px] font-medium text-[#31C66B]">
+                            AI 추정
+                          </span>
+                        )}
+
+                        {item.source ===
+                          'USER_INPUT' && (
+                          <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[8px] font-medium text-gray-500">
+                            직접 입력
+                          </span>
+                        )}
+
+                        {(item.kcal === null ||
+                          item.carbs === null ||
+                          item.protein === null ||
+                          item.fat === null) && (
+                          <span className="text-[8px] text-amber-500">
+                            영양정보 일부 미확인
+                          </span>
+                        )}
+                      </div>
 
                       <button
                         type="button"

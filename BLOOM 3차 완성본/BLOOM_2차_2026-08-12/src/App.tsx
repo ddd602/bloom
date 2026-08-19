@@ -32,6 +32,7 @@ import CharacterSetting from './pages/CharacterSetting'
 import StoreScreen from './pages/StoreScreen'
 import AiReport from './pages/AiReport'
 import NudeBodyDetail from './pages/NudeBodyDetail'
+import Points from './pages/Points'
 
 import Splash from './pages/Splash'
 import Welcome from './pages/Welcome'
@@ -128,7 +129,6 @@ export default function App() {
           }
         />
 
-        {/* 추가 */}
         <Route
           path="/my-page/profile-settings"
           element={<ProfileSettings />}
@@ -148,11 +148,10 @@ export default function App() {
           }
         />
 
+        {/* 실제 포인트 페이지 */}
         <Route
           path="/my-page/points"
-          element={
-            <PlaceholderScreen title="포인트" />
-          }
+          element={<Points />}
         />
 
         <Route
@@ -188,7 +187,6 @@ export default function App() {
           }
         />
 
-        {/* 두 번째 코드에 원래 있던 거 유지 */}
         <Route
           path="/my-page/store/ranking"
           element={
@@ -261,12 +259,10 @@ export default function App() {
           element={<ConditionDetail />}
         />
 
-        {/* 추가 */}
         <Route
           path="/periodDetail"
           element={<PeriodDetail />}
         />
-
 
         <Route
           path="/manage/exercise"

@@ -2,6 +2,7 @@ import {
   useEffect,
   useState,
 } from 'react'
+
 import {
   Link,
   useNavigate,
@@ -14,6 +15,11 @@ import {
   getOnboarding,
   type OnboardingData,
 } from '../components/api/OnboardingApi'
+
+import {
+  getProfile,
+  type ProfileResponse,
+} from '../components/api/ProfileApi'
 
 import profileUrl from '../assets/brand/profile-yellow.svg'
 
@@ -109,19 +115,37 @@ function ProfileSettings() {
       OnboardingData | null
     >(null)
 
+  const [
+    profile,
+    setProfile,
+  ] =
+    useState<
+      ProfileResponse | null
+    >(null)
+
   useEffect(() => {
     const load =
       async () => {
         try {
-          const data =
-            await getOnboarding()
+          const [
+            onboardingData,
+            profileData,
+          ] =
+            await Promise.all([
+              getOnboarding(),
+              getProfile(),
+            ])
 
           setOnboarding(
-            data,
+            onboardingData,
+          )
+
+          setProfile(
+            profileData,
           )
         } catch (error) {
           console.error(
-            '온보딩 정보를 불러오지 못했습니다.',
+            '프로필 정보를 불러오지 못했습니다.',
             error,
           )
         }
@@ -164,8 +188,6 @@ function ProfileSettings() {
       <ScreenHeader title="내 정보 설정" />
 
       <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-6 pt-7">
-
-        {/* 프로필 */}
         <div className="flex flex-col items-center">
           <div className="relative">
             <div className="flex h-[64px] w-[64px] items-center justify-center overflow-hidden rounded-full bg-[#F1F8F3]">
@@ -185,14 +207,19 @@ function ProfileSettings() {
 
           <div className="mt-3 flex items-center gap-1">
             <p className="text-[13px] font-bold text-gray-900">
-              사용자님
+              {profile?.nickname ||
+                '사용자'}
+              님
             </p>
 
             <IconPencil className="h-3 w-3 text-gray-400" />
           </div>
+
+          <p className="mt-1 text-[8px] text-gray-400">
+            {profile?.email ?? ''}
+          </p>
         </div>
 
-        {/* 이용약관 */}
         <Link
           to="/my-page/terms"
           className="mt-5 block text-center text-[9px] text-gray-400 underline underline-offset-2"
@@ -200,35 +227,48 @@ function ProfileSettings() {
           이용약관
         </Link>
 
-        {/* 관리 목표 */}
-        <div className="mt-6 flex items-center justify-between rounded-lg bg-[#F5F5F5] px-4 py-3">
-          <span className="rounded-full bg-[#31C66B] px-3 py-1 text-[10px] font-semibold text-white">
-            {goalTag}
-          </span>
+        <div className="mt-6 flex items-center justify-between rounded-lg bg-[#FFFBE6] px-4 py-3">
+          <div className="min-w-0">
+            <p className="text-[8px] text-gray-400">
+              미용목표
+            </p>
+
+            <p className="mt-1 truncate text-[11px] font-bold text-gray-900">
+              {goalTag}
+            </p>
+          </div>
 
           <button
             type="button"
             onClick={() =>
               navigate(
-                '/my-page/goal-edit',
+                '/onboarding?mode=edit',
               )
             }
-            className="shrink-0 rounded-full border border-[#31C66B] px-3 py-1 text-[9px] font-medium text-[#31B76A]"
+            className="shrink-0 rounded-full bg-[#31C66B] px-4 py-1.5 text-[9px] font-semibold text-white"
           >
             수정하기
           </button>
         </div>
 
-        {/* 기본 건강 정보 */}
         <p className="mt-7 text-[12px] font-bold text-gray-900">
           기본 건강 정보
         </p>
 
-        <div className="mt-3 rounded-xl bg-[#EAF8EC] px-4 py-3">
-
+        <button
+          type="button"
+          onClick={() =>
+            navigate(
+              '/onboarding?mode=edit',
+            )
+          }
+          className="mt-3 w-full rounded-xl border border-[#67DB97] bg-[#EAF8EC] px-4 py-3 text-left"
+        >
           <div className="flex items-center justify-between">
             <p className="text-[11px] font-bold text-gray-900">
-              사용자님{' '}
+              {profile?.nickname ||
+                '사용자'}
+              님{' '}
               {weeks != null
                 ? `출산 ${weeks}주차`
                 : ''}
@@ -264,7 +304,7 @@ function ProfileSettings() {
                 : '-'}
             </span>
           </div>
-        </div>
+        </button>
       </div>
     </div>
   )

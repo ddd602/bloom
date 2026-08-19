@@ -9,10 +9,8 @@ export type NutritionAnalysisStatus =
   | 'CANCELLED'
 
 export type NutritionFoodSource =
-  | 'MFDS'
   | 'AI_ESTIMATE'
   | 'USER_INPUT'
-  | string
 
 export type NutritionDraftFood = {
   draftFoodId: number
@@ -31,9 +29,10 @@ export type NutritionAnalysisResponse = {
   analysisId: number
   status: NutritionAnalysisStatus
   modelVersion: string
+  imageUrl: string | null
   foods: NutritionDraftFood[]
   totalKcal: number | null
-  manualInputAvailable?: boolean
+  manualInputAvailable: boolean
 }
 
 export type NutritionDraftFoodPatchRequest = {
@@ -66,6 +65,7 @@ export async function analyzeNutritionImage(
   formData.append('date', date)
   formData.append('mealType', mealType)
   formData.append('inputType', 'IMAGE')
+
   formData.append(
     'image',
     image,

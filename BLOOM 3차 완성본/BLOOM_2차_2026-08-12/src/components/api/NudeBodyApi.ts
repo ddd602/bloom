@@ -5,7 +5,6 @@ export type BodyCheckAnalysisStatus =
   | 'ANALYZING'
   | 'COMPLETED'
   | 'FAILED'
-  | string
 
 export type NudeBodyPhoto = {
   id: string
@@ -152,13 +151,6 @@ export async function deleteNudeBodyPhoto(
     },
   )
 }
-
-// ==============================
-// AI 예상 이미지 분석 요청
-//
-// POST
-// /api/v1/care/body-checks/{bodyCheckId}/analysis
-// ==============================
 
 export async function requestNudeBodyAnalysis(
   id: string,
