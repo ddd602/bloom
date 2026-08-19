@@ -88,54 +88,87 @@ export default function RecommendedMeal({
   ] =
     useState(false)
 
-  useEffect(() => {
-    let cancelled = false
+useEffect(() => {
+  let cancelled = false
 
-    const loadRecommendation =
-      async () => {
-        try {
-          setLoading(true)
-          setError(false)
+  const cacheKey =
+    `mealRecommendation:${date}:${mealType}`
 
-          const result =
-            await getMealRecommendation({
-              date,
-              mealType,
-            })
+  const loadRecommendation =
+    async () => {
+      try {
+        setLoading(true)
+        setError(false)
 
-          if (!cancelled) {
-            setRecommendation(
-              result,
-            )
-          }
-        } catch (error) {
-          console.error(
-            '추천 식단을 불러오지 못했습니다.',
-            error,
+        // 이전에 받은 추천이 있으면 그대로 사용
+        const cached =
+          localStorage.getItem(
+            cacheKey,
           )
 
+        if (cached) {
+          const parsed =
+            JSON.parse(
+              cached,
+            ) as MealRecommendationResponse
+
           if (!cancelled) {
             setRecommendation(
-              null,
+              parsed,
             )
-            setError(true)
-          }
-        } finally {
-          if (!cancelled) {
             setLoading(false)
           }
+
+          return
+        }
+
+        // 없을 때만 AI 추천 API 호출
+        const result =
+          await getMealRecommendation({
+            date,
+            mealType,
+          })
+
+        localStorage.setItem(
+          cacheKey,
+          JSON.stringify(
+            result,
+          ),
+        )
+
+        if (!cancelled) {
+          setRecommendation(
+            result,
+          )
+        }
+      } catch (error) {
+        console.error(
+          '추천 식단을 불러오지 못했습니다.',
+          error,
+        )
+
+        if (!cancelled) {
+          setRecommendation(
+            null,
+          )
+          setError(true)
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false)
         }
       }
-
-    void loadRecommendation()
-
-    return () => {
-      cancelled = true
     }
-  }, [
-    date,
-    mealType,
-  ])
+
+  void loadRecommendation()
+
+  return () => {
+    cancelled = true
+  }
+}, [
+  date,
+  mealType,
+])
 
   return (
     <>

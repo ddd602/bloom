@@ -17,7 +17,6 @@ import {
 
 import {
   analyzeNutritionImage,
-  analyzeNutritionText,
   updateNutritionDraftFood,
   addNutritionDraftFood,
   deleteNutritionDraftFood,
@@ -203,7 +202,7 @@ export default function MealInput() {
 
           const existing =
             result.meals[
-              key
+            key
             ]
 
           setItems(
@@ -319,7 +318,7 @@ export default function MealInput() {
           await analyzeNutritionImage(
             selectedDate,
             MEAL_TYPE_BY_KEY[
-              key
+            key
             ],
             file,
           )
@@ -459,9 +458,9 @@ export default function MealInput() {
         ) =>
           index === i
             ? {
-                ...item,
-                name,
-              }
+              ...item,
+              name,
+            }
             : item,
       ),
     )
@@ -483,13 +482,13 @@ export default function MealInput() {
         ) =>
           index === i
             ? {
-                ...item,
+              ...item,
 
-                kcal:
-                  kcal.trim() === ''
-                    ? null
-                    : Number(kcal),
-              }
+              kcal:
+                kcal.trim() === ''
+                  ? null
+                  : Number(kcal),
+            }
             : item,
       ),
     )
@@ -623,19 +622,8 @@ export default function MealInput() {
           await recordNutritionAnalysis(
             analysisId,
           )
-        } else if (
-          tab === 'manual'
-        ) {
-          const text =
-            cleaned
-              .map(
-                (item) =>
-                  item.name.trim(),
-              )
-              .filter(Boolean)
-              .join(', ')
-
-          if (text === '') {
+        } else if (tab === 'manual') {
+          if (cleaned.length === 0) {
             setAnalysisError(
               '음식 이름을 입력해주세요.',
             )
@@ -643,30 +631,22 @@ export default function MealInput() {
           }
 
           setAnalysisError('')
-          setAnalyzing(true)
 
-          const result =
-            await analyzeNutritionText(
-              selectedDate,
-              MEAL_TYPE_BY_KEY[
-                key
-              ],
-              text,
-            )
-
-          if (
-            result.status ===
-              'FAILED' ||
-            result.manualInputAvailable
-          ) {
-            applyAnalysisResult(
-              result,
-            )
-            return
-          }
-
-          await recordNutritionAnalysis(
-            result.analysisId,
+          await saveMeal(
+            selectedDate,
+            key,
+            {
+              items: cleaned.map(
+                (item) => ({
+                  mealId: item.mealId,
+                  name: item.name.trim(),
+                  kcal: item.kcal ?? 0,
+                  carbs: item.carbs,
+                  protein: item.protein,
+                  fat: item.fat,
+                }),
+              ),
+            },
           )
         } else {
           await saveMeal(
@@ -759,7 +739,7 @@ export default function MealInput() {
               'flex-1 rounded-full py-2 text-[12px] transition-colors ' +
               (
                 tab ===
-                'manual'
+                  'manual'
                   ? 'bg-[#31C66B] font-semibold text-white'
                   : 'text-gray-500'
               )
@@ -779,7 +759,7 @@ export default function MealInput() {
               'flex-1 rounded-full py-2 text-[12px] transition-colors ' +
               (
                 tab ===
-                'ai'
+                  'ai'
                   ? 'bg-[#31C66B] font-semibold text-white'
                   : 'text-gray-500'
               )
@@ -937,26 +917,26 @@ export default function MealInput() {
 
                         {item.source ===
                           'AI_ESTIMATE' && (
-                          <span className="rounded bg-[#EAF8EC] px-1.5 py-0.5 text-[8px] font-medium text-[#31C66B]">
-                            AI 추정
-                          </span>
-                        )}
+                            <span className="rounded bg-[#EAF8EC] px-1.5 py-0.5 text-[8px] font-medium text-[#31C66B]">
+                              AI 추정
+                            </span>
+                          )}
 
                         {item.source ===
                           'USER_INPUT' && (
-                          <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[8px] font-medium text-gray-500">
-                            직접 입력
-                          </span>
-                        )}
+                            <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[8px] font-medium text-gray-500">
+                              직접 입력
+                            </span>
+                          )}
 
                         {(item.kcal === null ||
                           item.carbs === null ||
                           item.protein === null ||
                           item.fat === null) && (
-                          <span className="text-[8px] text-amber-500">
-                            영양정보 일부 미확인
-                          </span>
-                        )}
+                            <span className="text-[8px] text-amber-500">
+                              영양정보 일부 미확인
+                            </span>
+                          )}
                       </div>
 
                       <button
@@ -1080,7 +1060,7 @@ export default function MealInput() {
                 'w-full rounded-full py-3 text-[16px] font-bold transition-colors ' +
                 (
                   saving ||
-                  analyzing
+                    analyzing
                     ? 'cursor-not-allowed bg-gray-200 text-gray-400'
                     : 'bg-[#31C66B] text-white active:bg-[#29B760]'
                 )

@@ -11,10 +11,11 @@ type MealCardProps = {
 export default function MealCard({ meal, onEdit }: MealCardProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const hasDetail =
-    meal.carbs !== undefined ||
-    meal.protein !== undefined ||
-    meal.fat !== undefined;
+ const hasDetail =
+  meal.calories !== null ||
+  meal.carbs !== undefined ||
+  meal.protein !== undefined ||
+  meal.fat !== undefined;
 
   return (
     <>

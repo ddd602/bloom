@@ -590,50 +590,62 @@ function Home() {
         ]
       : []
 
-  const handleOpenAiReport =
-    async () => {
-      if (aiReportLoading) {
-        return
-      }
-
-      try {
-        setAiReportLoading(true)
-        setAiReportError('')
-
-        const report =
-          await createAiReport({
-            from:
-              getSevenDaysAgoDate(),
-            to: getTodayDate(),
-          })
-
-        setAiReport(report)
-
-        navigate('/home/report')
-      } catch (error) {
-        console.error(
-          'AI 분석 리포트를 생성하지 못했습니다.',
-          error,
-        )
-
-        if (
-          error instanceof Error &&
-          error.message.includes(
-            'AI_SERVICE_UNAVAILABLE',
-          )
-        ) {
-          setAiReportError(
-            'AI 서비스를 현재 사용할 수 없어요.',
-          )
-        } else {
-          setAiReportError(
-            'AI 분석 리포트를 생성하지 못했어요.',
-          )
-        }
-      } finally {
-        setAiReportLoading(false)
-      }
+ const handleOpenAiReport =
+  async () => {
+    if (aiReportLoading) {
+      return
     }
+
+    // 이미 완료된 리포트가 있으면
+    // 새로 생성하지 않고 기존 리포트로 이동
+    if (
+      aiReport &&
+      aiReport.status === 'COMPLETED'
+    ) {
+      navigate('/home/report')
+      return
+    }
+
+    // 리포트가 없을 때만 최초 생성
+    try {
+      setAiReportLoading(true)
+      setAiReportError('')
+
+      const report =
+        await createAiReport({
+          from:
+            getSevenDaysAgoDate(),
+          to:
+            getTodayDate(),
+        })
+
+      setAiReport(report)
+
+      navigate('/home/report')
+    } catch (error) {
+      console.error(
+        'AI 분석 리포트를 생성하지 못했습니다.',
+        error,
+      )
+
+      if (
+        error instanceof Error &&
+        error.message.includes(
+          'AI_SERVICE_UNAVAILABLE',
+        )
+      ) {
+        setAiReportError(
+          'AI 서비스를 현재 사용할 수 없어요.',
+        )
+      } else {
+        setAiReportError(
+          'AI 분석 리포트를 생성하지 못했어요.',
+        )
+      }
+    } finally {
+      setAiReportLoading(false)
+    }
+  }
 
   const showRoutineReward =
     (
