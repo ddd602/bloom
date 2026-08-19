@@ -26,7 +26,6 @@ import {
 
 
 import loginLogoUrl from '../assets/brand/login-logo.svg'
-import profileUrl from '../assets/brand/profile-yellow.svg'
 
 import {
   pickGoalVariant,
@@ -130,7 +129,12 @@ function MyPage() {
     setLoading,
   ] = useState(true)
 
-  // 온보딩에서 고른 목표에 맞는 캐릭터로 프로필 사진을 자동 설정
+  const [
+    avatarLoaded,
+    setAvatarLoaded,
+  ] = useState(false)
+
+  // 저장된 목표를 불러오기 전에는 기본 캐릭터를 먼저 보여주지 않음
   const avatarUrl =
     profile
       ? PROFILE_BY_GOAL[
@@ -138,7 +142,11 @@ function MyPage() {
             profile.beautyGoals,
           )
         ]
-      : profileUrl
+      : null
+
+  useEffect(() => {
+    setAvatarLoaded(false)
+  }, [avatarUrl])
 
   useEffect(() => {
     const loadPage =
@@ -317,15 +325,36 @@ function MyPage() {
                 bg-[#F1F8F3]
               "
             >
-              <img
-                src={avatarUrl}
-                alt="프로필"
-                className="
-                  h-full
-                  w-full
-                  object-cover
-                "
-              />
+              <div className="relative h-full w-full overflow-hidden rounded-full">
+                {(!avatarUrl || !avatarLoaded) && (
+                  <div
+                    className="
+                      absolute
+                      inset-0
+                      animate-pulse
+                      bg-[#EDF3EF]
+                    "
+                  />
+                )}
+
+                {avatarUrl && (
+                  <img
+                    src={avatarUrl}
+                    alt="프로필"
+                    onLoad={() => {
+                      setAvatarLoaded(true)
+                    }}
+                    className={
+                      'h-full w-full object-cover transition-opacity duration-300 ' +
+                      (
+                        avatarLoaded
+                          ? 'opacity-100'
+                          : 'opacity-0'
+                      )
+                    }
+                  />
+                )}
+              </div>
             </span>
 
             <span
