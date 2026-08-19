@@ -12,6 +12,9 @@ import {
   logout,
 } from '../components/api/AuthApi'
 
+import stampActive from '../assets/icons/stamp-active.svg'
+import stampInactive from '../assets/icons/stamp-inactive.svg'
+
 import {
   getProfile,
   type ProfileResponse,
@@ -26,6 +29,11 @@ import {
 
 import loginLogoUrl from '../assets/brand/login-logo.svg'
 import profileUrl from '../assets/brand/profile-yellow.svg'
+
+import {
+  pickGoalVariant,
+  PROFILE_BY_GOAL,
+} from '../utils/characterVariant'
 
 function maskEmail(
   email: string,
@@ -123,6 +131,16 @@ function MyPage() {
     loading,
     setLoading,
   ] = useState(true)
+
+  // 온보딩에서 고른 목표에 맞는 캐릭터로 프로필 사진을 자동 설정
+  const avatarUrl =
+    profile
+      ? PROFILE_BY_GOAL[
+          pickGoalVariant(
+            profile.beautyGoals,
+          )
+        ]
+      : profileUrl
 
   useEffect(() => {
     const loadPage =
@@ -302,7 +320,7 @@ function MyPage() {
               "
             >
               <img
-                src={profileUrl}
+                src={avatarUrl}
                 alt="프로필"
                 className="
                   h-full
@@ -503,31 +521,15 @@ function MyPage() {
                     }
                     className="flex flex-col items-center"
                   >
-                    <div
-                      className={
-                        'flex h-[42px] w-[42px] items-center justify-center rounded-full border-2 ' +
-                        (
-                          active
-                            ? 'border-[#31C66B] bg-[#EAF8EC]'
-                            : 'border-[#D7D7D7] bg-[#F1F1F1]'
-                        )
+                    <img
+                      src={
+                        active
+                          ? stampActive
+                          : stampInactive
                       }
-                    >
-                      <div
-                        className={
-                          'flex h-[25px] w-[25px] items-center justify-center rounded-full text-[13px] font-black ' +
-                          (
-                            active
-                              ? 'bg-[#31C66B] text-white'
-                              : 'bg-[#D9D9D9] text-white'
-                          )
-                        }
-                      >
-                        {active
-                          ? '✓'
-                          : '·'}
-                      </div>
-                    </div>
+                      alt=""
+                      className="h-[42px] w-[42px]"
+                    />
 
                     <span
                       className={
