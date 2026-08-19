@@ -1,24 +1,145 @@
-//백엔드에서 받은 데이터를 여기에 적어야함
-const recommendedMeals = [
-  {
-    calories: 510,
-    name: "연어 샐러드 플레이트",
-  },
-  {
-    calories: 510,
-    name: "포케",
-  },
-  {
-    calories: 590,
-    name: "소고기 미역국 정식",
-  },
-];
+import {
+  useEffect,
+  useState,
+} from 'react'
 
-export default function RecommendedMeal(){
-    return (
-        <>
-        
-        <section className="mt-3 px-5">
+import {
+  getMealRecommendation,
+  type MealRecommendationResponse,
+} from '../api/AiMealRecommendationApi'
+
+import type {
+  MealType,
+} from '../api/MealApi'
+
+type RecommendedMealProps = {
+  date?: string
+  mealType?: Extract<
+    MealType,
+    'BREAKFAST' | 'LUNCH' | 'DINNER'
+  >
+}
+
+function getTodayDate() {
+  const today = new Date()
+
+  const year =
+    today.getFullYear()
+
+  const month =
+    String(
+      today.getMonth() + 1,
+    ).padStart(
+      2,
+      '0',
+    )
+
+  const day =
+    String(
+      today.getDate(),
+    ).padStart(
+      2,
+      '0',
+    )
+
+  return `${year}-${month}-${day}`
+}
+
+function getCurrentMealType():
+  Extract<
+    MealType,
+    'BREAKFAST' | 'LUNCH' | 'DINNER'
+  > {
+  const hour =
+    new Date().getHours()
+
+  if (hour < 11) {
+    return 'BREAKFAST'
+  }
+
+  if (hour < 16) {
+    return 'LUNCH'
+  }
+
+  return 'DINNER'
+}
+
+export default function RecommendedMeal({
+  date = getTodayDate(),
+  mealType = getCurrentMealType(),
+}: RecommendedMealProps) {
+  const [
+    recommendation,
+    setRecommendation,
+  ] =
+    useState<
+      MealRecommendationResponse | null
+    >(null)
+
+  const [
+    loading,
+    setLoading,
+  ] =
+    useState(true)
+
+  const [
+    error,
+    setError,
+  ] =
+    useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+
+    const loadRecommendation =
+      async () => {
+        try {
+          setLoading(true)
+          setError(false)
+
+          const result =
+            await getMealRecommendation({
+              date,
+              mealType,
+            })
+
+          if (!cancelled) {
+            setRecommendation(
+              result,
+            )
+          }
+        } catch (error) {
+          console.error(
+            '추천 식단을 불러오지 못했습니다.',
+            error,
+          )
+
+          if (!cancelled) {
+            setRecommendation(
+              null,
+            )
+            setError(true)
+          }
+        } finally {
+          if (!cancelled) {
+            setLoading(false)
+          }
+        }
+      }
+
+    void loadRecommendation()
+
+    return () => {
+      cancelled = true
+    }
+  }, [
+    date,
+    mealType,
+  ])
+
+  return (
+    <>
+      <section className="mt-3 px-5">
         <h2 className="text-lg font-bold">
           추천 식단
         </h2>
@@ -26,29 +147,49 @@ export default function RecommendedMeal(){
         <p className="mt-1 text-xs text-gray-500">
           아직 식사를 안했다면, 이런 식단은 어떨까요?
         </p>
-        
-        {/* 이 부분은 백엔드 연동 필요 */}
+
         <div className="mt-4 flex gap-3 overflow-x-auto pb-2">
-          {recommendedMeals.map((meal, index) => (
-            <article
-              key={index}
-              className="min-w-[110px] rounded-lg bg-gray-100 p-3"
-            >
+          {loading && (
+            <article className="min-w-[110px] rounded-lg bg-gray-100 p-3">
               <p className="text-xs text-gray-500">
-                최적
+                추천 중
               </p>
 
-              <p className="mt-1 text-lg font-bold">
-                {meal.calories} kcal
-              </p>
-
-              <p className="mt-3 text-sm font-medium leading-5">
-                {meal.name}
+              <p className="mt-3 text-sm font-medium leading-5 text-gray-400">
+                식단을 불러오고 있어요
               </p>
             </article>
-          ))}
+          )}
+
+          {!loading &&
+            recommendation && (
+              <article className="min-w-[110px] rounded-lg bg-gray-100 p-3">
+                <p className="text-xs text-gray-500">
+                  최적
+                </p>
+
+                <p className="mt-1 text-lg font-bold">
+                  {recommendation.totalKcal ===
+                  null
+                    ? '-'
+                    : recommendation.totalKcal}{' '}
+                  kcal
+                </p>
+
+                <p className="mt-3 text-sm font-medium leading-5">
+                  {recommendation.title}
+                </p>
+              </article>
+            )}
+
+          {!loading &&
+            error && (
+              <p className="text-xs text-gray-400">
+                추천 식단을 불러오지 못했어요.
+              </p>
+            )}
         </div>
       </section>
-        </>
-    );
+    </>
+  )
 }
