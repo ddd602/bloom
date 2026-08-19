@@ -90,28 +90,6 @@ function toSeoulDateString(
   return `${year}-${month}-${day}`
 }
 
-function shiftDate(
-  date: string,
-  days: number,
-) {
-  const value =
-    new Date(
-      `${date}T00:00:00Z`,
-    )
-
-  value.setUTCDate(
-    value.getUTCDate() +
-    days,
-  )
-
-  return value
-    .toISOString()
-    .slice(
-      0,
-      10,
-    )
-}
-
 function MyPage() {
   const navigate =
     useNavigate()
@@ -196,51 +174,26 @@ function MyPage() {
     void loadPage()
   }, [])
 
-  const attendanceDates =
-    new Set(
-      mileageHistory
-        .filter(
-          (item) =>
-            item.reason ===
-            'ATTENDANCE',
-        )
-        .map(
-          (item) =>
-            toSeoulDateString(
-              new Date(
-                item.createdAt,
-              ),
-            ),
-        ),
-    )
-
-  const today =
-    toSeoulDateString(
-      new Date(),
-    )
-
-  const attendanceDays =
-    Array.from(
-      {
-        length: 5,
-      },
-      (
-        _,
-        index,
-      ) =>
-        shiftDate(
-          today,
-          index - 4,
-        ),
-    )
-
   const attendanceCount =
-    attendanceDays.filter(
-      (date) =>
-        attendanceDates.has(
-          date,
-        ),
-    ).length
+    Math.min(
+      new Set(
+        mileageHistory
+          .filter(
+            (item) =>
+              item.reason ===
+              'ATTENDANCE',
+          )
+          .map(
+            (item) =>
+              toSeoulDateString(
+                new Date(
+                  item.createdAt,
+                ),
+              ),
+          ),
+      ).size,
+      5,
+    )
 
   const handleLogOut =
     async () => {
@@ -531,20 +484,22 @@ function MyPage() {
           </div>
 
           <div className="mt-4 flex items-start justify-between">
-            {attendanceDays.map(
+            {Array.from(
+              {
+                length: 5,
+              },
               (
-                date,
+                _,
                 index,
               ) => {
                 const active =
-                  attendanceDates.has(
-                    date,
-                  )
+                  index <
+                  attendanceCount
 
                 return (
                   <div
                     key={
-                      date
+                      index
                     }
                     className="flex flex-col items-center"
                   >
