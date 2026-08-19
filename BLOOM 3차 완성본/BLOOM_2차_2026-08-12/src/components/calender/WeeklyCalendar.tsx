@@ -126,6 +126,25 @@ function getWeekDateKeys(
 }
 
 
+
+function isDiaryNotFound(
+  error: unknown,
+) {
+  const message =
+    error instanceof Error
+      ? error.message
+      : String(error)
+
+  return (
+    message.includes(
+      'DIARY_NOT_FOUND',
+    ) ||
+    message.includes(
+      '"status":404',
+    )
+  )
+}
+
 export default function WeeklyCalendar() {
   const navigate =
     useNavigate()
@@ -283,10 +302,16 @@ export default function WeeklyCalendar() {
             )
           }
         } catch (error) {
-          console.error(
-            '컨디션 데이터를 불러오지 못했습니다.',
-            error,
-          )
+          if (
+            !isDiaryNotFound(
+              error,
+            )
+          ) {
+            console.error(
+              '컨디션 데이터를 불러오지 못했습니다.',
+              error,
+            )
+          }
 
           setCondition(0)
 
@@ -1077,10 +1102,16 @@ export default function WeeklyCalendar() {
             averageCondition,
           })
         } catch (error) {
-          console.error(
-            '지난주 기록 리포트를 불러오지 못했습니다.',
-            error,
-          )
+          if (
+            !isDiaryNotFound(
+              error,
+            )
+          ) {
+            console.error(
+              '지난주 기록 리포트를 불러오지 못했습니다.',
+              error,
+            )
+          }
 
           setWeeklyReport({
             routineRate: 0,
@@ -1091,9 +1122,12 @@ export default function WeeklyCalendar() {
             averageCondition: 0,
           })
 
-
           setAnalysisText(
-            '지난주 기록을 분석하지 못했어요.',
+            isDiaryNotFound(
+              error,
+            )
+              ? '지난주와 2주 전 기록이 충분하지 않아 아직 비교 분석을 만들기 어려워요.'
+              : '지난주 기록을 분석하지 못했어요.',
           )
         }
       }
