@@ -101,7 +101,7 @@ function shiftDate(
 
   value.setUTCDate(
     value.getUTCDate() +
-      days,
+    days,
   )
 
   return value
@@ -150,20 +150,28 @@ function MyPage() {
     const loadPage =
       async () => {
         try {
-          const [
-            profileData,
-            mileageData,
-            mileageHistoryData,
-          ] =
-            await Promise.all([
-              getProfile(),
-              getMileageBalance(),
-              getMileageHistory(),
-            ])
+          const profileData =
+            await getProfile()
 
           setProfile(
             profileData,
           )
+        } catch (error) {
+          console.error(
+            '프로필 정보를 불러오지 못했습니다.',
+            error,
+          )
+        }
+
+        try {
+          const [
+            mileageData,
+            mileageHistoryData,
+          ] =
+            await Promise.all([
+              getMileageBalance(),
+              getMileageHistory(),
+            ])
 
           setMileage(
             mileageData.balance,
@@ -174,37 +182,19 @@ function MyPage() {
           )
         } catch (error) {
           console.error(
-            '마이페이지 정보를 불러오지 못했습니다.',
+            '마일리지 정보를 불러오지 못했습니다.',
             error,
           )
+
+          setMileage(0)
+          setMileageHistory([])
         } finally {
-          setLoading(
-            false,
-          )
+          setLoading(false)
         }
       }
 
     void loadPage()
   }, [])
-
-  const handleLogout =
-    async () => {
-      try {
-        await logout()
-      } catch (error) {
-        console.error(
-          '로그아웃 중 오류가 발생했습니다.',
-          error,
-        )
-      } finally {
-        navigate(
-          '/login',
-          {
-            replace: true,
-          },
-        )
-      }
-    }
 
   const attendanceDates =
     new Set(
@@ -251,6 +241,25 @@ function MyPage() {
           date,
         ),
     ).length
+
+  const handleLogout =
+    async () => {
+      try {
+        await logout()
+      } catch (error) {
+        console.error(
+          '로그아웃 요청에 실패했습니다.',
+          error,
+        )
+      } finally {
+        navigate(
+          '/welcome',
+          {
+            replace: true,
+          },
+        )
+      }
+    }
 
   const summary = [
     {
@@ -392,8 +401,8 @@ function MyPage() {
             <p className="mt-1 truncate text-[8px] text-gray-400">
               {profile?.email
                 ? maskEmail(
-                    profile.email,
-                  )
+                  profile.email,
+                )
                 : ''}
             </p>
           </div>
