@@ -19,6 +19,10 @@ import {
   addPeriod,
 } from '../components/api/PeriodApi'
 
+import {
+  createAiReport,
+} from '../components/api/AiReportApi'
+
 import WheelPicker from '../components/onboarding/WheelPicker'
 import NudeBodyCamera from '../components/Manage/NudeBodyCamera'
 
@@ -437,6 +441,52 @@ function toKey(
     2,
     '0',
   )}`
+}
+
+function getRecentSevenDayRange() {
+  const toDate =
+    new Date()
+
+  const fromDate =
+    new Date(
+      toDate,
+    )
+
+  fromDate.setDate(
+    fromDate.getDate() -
+      6,
+  )
+
+  const to =
+    `${toDate.getFullYear()}-${String(
+      toDate.getMonth() + 1,
+    ).padStart(
+      2,
+      '0',
+    )}-${String(
+      toDate.getDate(),
+    ).padStart(
+      2,
+      '0',
+    )}`
+
+  const from =
+    `${fromDate.getFullYear()}-${String(
+      fromDate.getMonth() + 1,
+    ).padStart(
+      2,
+      '0',
+    )}-${String(
+      fromDate.getDate(),
+    ).padStart(
+      2,
+      '0',
+    )}`
+
+  return {
+    from,
+    to,
+  }
 }
 
 function makeDateKey(
@@ -961,6 +1011,24 @@ export default function Onboarding() {
           await updateOnboarding(
             profileData,
           )
+
+          try {
+            const {
+              from,
+              to,
+            } =
+              getRecentSevenDayRange()
+
+            await createAiReport({
+              from,
+              to,
+            })
+          } catch (error) {
+            console.error(
+              '수정된 프로필 기준 AI 리포트를 생성하지 못했습니다.',
+              error,
+            )
+          }
         } else {
           await saveOnboarding(
             profileData,
@@ -984,6 +1052,26 @@ export default function Onboarding() {
               pEnd ??
               pStart,
           })
+        }
+
+        if (!isEditMode) {
+          try {
+            const {
+              from,
+              to,
+            } =
+              getRecentSevenDayRange()
+
+            await createAiReport({
+              from,
+              to,
+            })
+          } catch (error) {
+            console.error(
+              '초기 AI 리포트를 생성하지 못했습니다.',
+              error,
+            )
+          }
         }
 
         navigate(
