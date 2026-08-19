@@ -3,6 +3,8 @@ import {
   useNavigate,
 } from 'react-router-dom'
 
+import { IconMail } from '../components/icons'
+
 import logoUrl from '../assets/brand/login-logo.svg'
 import bgUrl from '../assets/brand/login-bg.svg'
 
@@ -11,23 +13,9 @@ export default function Welcome() {
     useNavigate()
 
   return (
-    <div
-      className="
-        relative
-        mx-auto
-        flex
-        h-[100dvh]
-        w-full
-        max-w-[390px]
-        flex-col
-        overflow-hidden
-        bg-gradient-to-b
-        from-[#EAF8EE]
-        to-white
-        px-7
-      "
-    >
-      {/* 배경 큰 클로버 */}
+    <div className="page-fade-in relative mx-auto flex h-[100dvh] w-full max-w-[390px] flex-col overflow-hidden bg-gradient-to-b from-[#EAF8EE] to-white px-7">
+
+      {/* 배경 마크 */}
       <img
         src={bgUrl}
         alt=""
@@ -35,21 +23,23 @@ export default function Welcome() {
           pointer-events-none
           absolute
           left-1/2
-          top-12
-          w-[330px]
+          top-10
+          w-[520px]
+          max-w-none
           -translate-x-1/2
+          rotate-[8deg]
+          opacity-40
           animate-[welcomeBg_800ms_ease-out_both]
-          opacity-[0.08]
         "
       />
 
-      {/* 중앙 로고 */}
+      {/* 로고 */}
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center">
         <img
           src={logoUrl}
           alt="BLOOM"
           className="
-            w-44
+            w-full
             animate-[welcomeLogo_650ms_150ms_ease-out_both]
           "
         />
@@ -86,7 +76,8 @@ export default function Welcome() {
             active:scale-[0.98]
           "
         >
-          이메일로 회원가입
+          <IconMail className="h-[18px] w-[18px]" />
+          이메일로 가입하기
         </button>
 
         <p className="mt-6 text-center text-[13px] text-gray-400">
@@ -108,13 +99,15 @@ export default function Welcome() {
               opacity: 0;
               transform:
                 translateX(-50%)
+                rotate(8deg)
                 scale(1.08);
             }
 
             100% {
-              opacity: 0.08;
+              opacity: 0.4;
               transform:
                 translateX(-50%)
+                rotate(8deg)
                 scale(1);
             }
           }
