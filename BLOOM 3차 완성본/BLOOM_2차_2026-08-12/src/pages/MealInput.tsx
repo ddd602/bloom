@@ -9,7 +9,6 @@ import CameraScan from '../components/Meal/CameraScan'
 
 import {
   saveMeal,
-  mealCalories,
   getMealsByDate,
   type MealItem,
   type MealKey,
