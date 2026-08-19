@@ -25,7 +25,7 @@ import {
 
 
 import loginLogoUrl from '../assets/brand/login-logo.svg'
-import profileUrl from '../assets/brand/profile.svg'
+import profileUrl from '../assets/brand/profile-yellow.svg'
 
 function maskEmail(
   email: string,

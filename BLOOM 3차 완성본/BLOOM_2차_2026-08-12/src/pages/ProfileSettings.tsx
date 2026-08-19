@@ -8,7 +8,6 @@ import {
 } from 'react-router-dom'
 
 import ScreenHeader from '../components/ScreenHeader'
-import { IconPencil } from '../components/icons'
 
 import {
   getOnboarding,
@@ -188,30 +187,20 @@ function ProfileSettings() {
 
       <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-6 pt-7">
         <div className="flex flex-col items-center">
-          <div className="relative">
-            <div className="flex h-[64px] w-[64px] items-center justify-center overflow-hidden rounded-full bg-[#F1F8F3]">
-              <img
-                src={
-                  profileUrl
-                }
-                alt="프로필"
-                className="h-full w-full object-cover"
-              />
-            </div>
-
-            <span className="absolute bottom-0 right-0 flex h-5 w-5 items-center justify-center rounded-full bg-white text-gray-500 shadow">
-              <IconPencil className="h-3 w-3" />
-            </span>
+          <div className="flex h-[64px] w-[64px] items-center justify-center overflow-hidden rounded-full bg-[#F1F8F3]">
+            <img
+              src={profileUrl}
+              alt="프로필"
+              className="h-full w-full object-cover"
+            />
           </div>
 
-          <div className="mt-3 flex items-center gap-1">
+          <div className="mt-3">
             <p className="text-[13px] font-bold text-gray-900">
               {profile?.nickname ||
                 '사용자'}
               님
             </p>
-
-            <IconPencil className="h-3 w-3 text-gray-400" />
           </div>
 
           <p className="mt-1 text-[8px] text-gray-400">
