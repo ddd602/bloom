@@ -31,11 +31,19 @@ export async function uploadImage(
 export async function getPrivateImageUrl(
   imageUrl: string,
 ): Promise<string> {
+  const safeImageUrl =
+    imageUrl.startsWith('http://')
+      ? imageUrl.replace(
+          'http://',
+          'https://',
+        )
+      : imageUrl
+
   const fetchImage = async () => {
     const token = getAccessToken()
 
     return fetch(
-      imageUrl,
+      safeImageUrl,
       {
         headers: token
           ? {
