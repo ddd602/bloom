@@ -9,6 +9,7 @@ import CameraScan from '../components/Meal/CameraScan'
 
 import {
   saveMeal,
+  mealCalories,
   getMealsByDate,
   type MealItem,
   type MealKey,
@@ -113,12 +114,6 @@ export default function MealInput() {
     useState<
       'manual' | 'ai'
     >('manual')
-
-  const [
-    manualText,
-    setManualText,
-  ] =
-    useState('')
 
   const [
     scanned,
@@ -350,58 +345,6 @@ export default function MealInput() {
         )
 
         setCameraOpen(
-          false,
-        )
-      }
-    }
-
-  // ==============================
-  // 직접입력 탭 텍스트 AI 분석
-  // 사진은 화면에만 유지하고,
-  // TEXT 요청에는 텍스트만 전송
-  // ==============================
-
-  const analyzeManualText =
-    async () => {
-      const text =
-        manualText.trim()
-
-      if (
-        analyzing ||
-        text === ''
-      ) {
-        return
-      }
-
-      setAnalysisError('')
-      setAnalyzing(true)
-
-      try {
-        const result =
-          await analyzeNutritionText(
-            selectedDate,
-            MEAL_TYPE_BY_KEY[
-              key
-            ],
-            text,
-          )
-
-        applyAnalysisResult(
-          result,
-        )
-      } catch (error) {
-        console.error(
-          'AI 텍스트 식단 분석에 실패했습니다.',
-          error,
-        )
-
-        setAnalysisError(
-          error instanceof Error
-            ? error.message
-            : 'AI 식단 분석에 실패했습니다.',
-        )
-      } finally {
-        setAnalyzing(
           false,
         )
       }
@@ -681,6 +624,51 @@ export default function MealInput() {
           await recordNutritionAnalysis(
             analysisId,
           )
+        } else if (
+          tab === 'manual'
+        ) {
+          const text =
+            cleaned
+              .map(
+                (item) =>
+                  item.name.trim(),
+              )
+              .filter(Boolean)
+              .join(', ')
+
+          if (text === '') {
+            setAnalysisError(
+              '음식 이름을 입력해주세요.',
+            )
+            return
+          }
+
+          setAnalysisError('')
+          setAnalyzing(true)
+
+          const result =
+            await analyzeNutritionText(
+              selectedDate,
+              MEAL_TYPE_BY_KEY[
+                key
+              ],
+              text,
+            )
+
+          if (
+            result.status ===
+              'FAILED' ||
+            result.manualInputAvailable
+          ) {
+            applyAnalysisResult(
+              result,
+            )
+            return
+          }
+
+          await recordNutritionAnalysis(
+            result.analysisId,
+          )
         } else {
           await saveMeal(
             selectedDate,
@@ -717,6 +705,10 @@ export default function MealInput() {
         )
       } finally {
         setSaving(
+          false,
+        )
+
+        setAnalyzing(
           false,
         )
       }
@@ -907,68 +899,6 @@ export default function MealInput() {
               </label>
 
             </div>
-
-            {tab === 'manual' && (
-              <div className="mb-5">
-                <label className="mb-2 block text-[11px] font-semibold text-gray-800">
-                  먹은 내용을 입력해주세요
-                </label>
-
-                <textarea
-                  value={
-                    manualText
-                  }
-                  onChange={(
-                    e,
-                  ) =>
-                    setManualText(
-                      e.target.value,
-                    )
-                  }
-                  maxLength={
-                    2000
-                  }
-                  placeholder="예) 닭가슴살구이, 군고구마 2개, 파프리카 구이"
-                  className="h-24 w-full resize-none rounded-xl border border-gray-200 bg-[#FAFAFA] px-4 py-3 text-[11px] leading-5 text-gray-800 outline-none focus:border-[#31C66B]"
-                />
-
-                <div className="mt-2 flex items-center justify-between">
-                  <span className="text-[8px] text-gray-300">
-                    사진과 함께 입력해도 AI 요청에는 텍스트만 사용돼요.
-                  </span>
-
-                  <span className="text-[8px] text-gray-300">
-                    {manualText.length}/2000
-                  </span>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    void analyzeManualText()
-                  }
-                  disabled={
-                    analyzing ||
-                    manualText.trim() ===
-                      ''
-                  }
-                  className={
-                    'mt-3 w-full rounded-full py-2.5 text-[12px] font-bold transition-colors ' +
-                    (
-                      analyzing ||
-                      manualText.trim() ===
-                        ''
-                        ? 'cursor-not-allowed bg-gray-200 text-gray-400'
-                        : 'bg-[#31C66B] text-white active:bg-[#29B760]'
-                    )
-                  }
-                >
-                  {analyzing
-                    ? 'AI가 분석 중...'
-                    : '텍스트 AI 분석하기'}
-                </button>
-              </div>
-            )}
 
             {analyzing && (
               <p className="mb-4 text-center text-[10px] text-gray-400">
