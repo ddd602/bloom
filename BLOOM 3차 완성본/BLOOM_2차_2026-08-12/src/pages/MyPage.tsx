@@ -242,7 +242,7 @@ function MyPage() {
         ),
     ).length
 
-  const handleLogout =
+  const handleLogOut =
     async () => {
       try {
         await logout()
@@ -410,7 +410,7 @@ function MyPage() {
           <button
             type="button"
             onClick={
-              handleLogout
+              handleLogOut
             }
             className="
               shrink-0
