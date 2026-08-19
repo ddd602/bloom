@@ -125,9 +125,7 @@ export default function App() {
 
         <Route
           path="/my-page/membership"
-          element={
-            <PlaceholderScreen title="멤버십 가입" />
-          }
+          element={<MemberShip />}
         />
 
         <Route
@@ -294,10 +292,6 @@ export default function App() {
           path="*"
           element={<NotFound />}
         />
-
-        <Route 
-        path = "/my-page/membership"
-        element={<MemberShip/>}/>
       </Route>
     </Routes>
   )
