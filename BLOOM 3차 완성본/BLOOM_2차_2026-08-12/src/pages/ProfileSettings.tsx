@@ -159,13 +159,13 @@ function ProfileSettings() {
 
   // 온보딩에서 고른 목표에 맞는 캐릭터로 프로필 사진을 자동 설정
   const avatarUrl =
-    profile
-      ? PROFILE_BY_GOAL[
-          pickGoalVariant(
-            profile.beautyGoals,
-          )
-        ]
-      : profileUrl
+  onboarding
+    ? PROFILE_BY_GOAL[
+        pickGoalVariant(
+          onboarding.goals,
+        )
+      ]
+    : profileUrl
 
   const focusLabel =
     FOCUS_LABELS[
