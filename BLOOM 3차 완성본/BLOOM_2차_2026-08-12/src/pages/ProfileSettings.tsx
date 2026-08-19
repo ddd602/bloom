@@ -4,7 +4,6 @@ import {
 } from 'react'
 
 import {
-  Link,
   useNavigate,
 } from 'react-router-dom'
 
@@ -219,13 +218,6 @@ function ProfileSettings() {
             {profile?.email ?? ''}
           </p>
         </div>
-
-        <Link
-          to="/my-page/terms"
-          className="mt-5 block text-center text-[9px] text-gray-400 underline underline-offset-2"
-        >
-          이용약관
-        </Link>
 
         <div className="mt-6 flex items-center justify-between rounded-lg bg-[#FFFBE6] px-4 py-3">
           <div className="min-w-0">
