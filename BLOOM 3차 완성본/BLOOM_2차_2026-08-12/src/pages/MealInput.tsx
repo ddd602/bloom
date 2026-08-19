@@ -954,51 +954,75 @@ export default function MealInput() {
 
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <input
+                          value={item.name}
+                          onChange={(e) =>
+                            setName(
+                              i,
+                              e.target.value,
+                            )
+                          }
+                          placeholder="음식 이름"
+                          className="min-w-0 flex-1 bg-transparent text-[13px] font-semibold text-gray-900 outline-none placeholder:text-gray-300"
+                        />
 
-                      <input
-                        value={
-                          item.name
-                        }
-                        onChange={(
-                          e,
-                        ) =>
-                          setName(
-                            i,
-                            e
-                              .target
-                              .value,
-                          )
-                        }
-                        placeholder="음식 이름"
-                        className="min-w-0 flex-1 bg-transparent text-[13px] font-semibold text-gray-900 outline-none placeholder:text-gray-300"
-                      />
+                        <input
+                          value={
+                            item.kcal ??
+                            ''
+                          }
+                          onChange={(e) =>
+                            setKcal(
+                              i,
+                              e.target.value.replace(
+                                /\D/g,
+                                '',
+                              ),
+                            )
+                          }
+                          inputMode="numeric"
+                          placeholder="0"
+                          className="w-12 bg-transparent text-right text-[13px] font-bold text-[#31C66B] outline-none"
+                        />
 
-                      <input
-                        value={
-                          item.kcal ??
-                          ''
-                        }
-                        onChange={(
-                          e,
-                        ) =>
-                          setKcal(
-                            i,
-                            e.target.value.replace(
-                              /\D/g,
-                              '',
-                            ),
-                          )
-                        }
-                        inputMode="numeric"
-                        placeholder="0"
-                        className="w-12 bg-transparent text-right text-[13px] font-bold text-[#31C66B] outline-none"
-                      />
+                        <span className="text-[11px] font-medium text-[#31C66B]">
+                          kcal
+                        </span>
+                      </div>
 
-                      <span className="text-[11px] font-medium text-[#31C66B]">
-                        kcal
-                      </span>
+                      <div className="mt-2 flex items-center gap-3 text-[9px] text-gray-500">
+                        <span>
+                          탄수화물{' '}
+                          <strong className="font-semibold text-gray-700">
+                            {item.carbs !== null &&
+                            item.carbs !== undefined
+                              ? `${item.carbs}g`
+                              : '-'}
+                          </strong>
+                        </span>
 
+                        <span>
+                          단백질{' '}
+                          <strong className="font-semibold text-gray-700">
+                            {item.protein !== null &&
+                            item.protein !== undefined
+                              ? `${item.protein}g`
+                              : '-'}
+                          </strong>
+                        </span>
+
+                        <span>
+                          지방{' '}
+                          <strong className="font-semibold text-gray-700">
+                            {item.fat !== null &&
+                            item.fat !== undefined
+                              ? `${item.fat}g`
+                              : '-'}
+                          </strong>
+                        </span>
+                      </div>
                     </div>
 
                   </div>

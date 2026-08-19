@@ -44,7 +44,15 @@ import {
 
 import AttendanceRewardModal from '../components/mileage/AttendanceRewardModal'
 
-import characterUrl from '../assets/brand/character.svg'
+import {
+  getOnboarding,
+  type OnboardingData,
+} from '../components/api/OnboardingApi'
+
+import {
+  pickGoalVariant,
+  CHARACTER_BY_GOAL,
+} from '../utils/characterVariant'
 
 function getTodayDate() {
   const today = new Date()
@@ -313,6 +321,44 @@ function Home() {
     useState<
       3 | 7 | 14 | null
     >(null)
+
+  const [
+    onboarding,
+    setOnboarding,
+  ] =
+    useState<
+      OnboardingData | null
+    >(null)
+
+  useEffect(() => {
+    const loadOnboarding =
+      async () => {
+        try {
+          const data =
+            await getOnboarding()
+
+          setOnboarding(
+            data,
+          )
+        } catch (error) {
+          console.error(
+            '온보딩 정보를 불러오지 못했습니다.',
+            error,
+          )
+        }
+      }
+
+    void loadOnboarding()
+  }, [])
+
+  const characterUrl =
+    onboarding
+      ? CHARACTER_BY_GOAL[
+          pickGoalVariant(
+            onboarding.goals,
+          )
+        ]
+      : CHARACTER_BY_GOAL.weight
 
   useEffect(() => {
     const loadHomeStats =

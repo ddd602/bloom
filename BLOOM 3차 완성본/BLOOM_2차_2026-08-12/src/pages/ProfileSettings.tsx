@@ -19,8 +19,6 @@ import {
   type ProfileResponse,
 } from '../components/api/ProfileApi'
 
-import profileUrl from '../assets/brand/profile-yellow.svg'
-
 import {
   pickGoalVariant,
   PROFILE_BY_GOAL,
@@ -157,15 +155,14 @@ function ProfileSettings() {
     void load()
   }, [])
 
-  // 온보딩에서 고른 목표에 맞는 캐릭터로 프로필 사진을 자동 설정
   const avatarUrl =
-  onboarding
-    ? PROFILE_BY_GOAL[
-        pickGoalVariant(
-          onboarding.goals,
-        )
-      ]
-    : profileUrl
+    onboarding
+      ? PROFILE_BY_GOAL[
+          pickGoalVariant(
+            onboarding.goals,
+          )
+        ]
+      : PROFILE_BY_GOAL.weight
 
   const focusLabel =
     FOCUS_LABELS[
