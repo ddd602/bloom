@@ -73,7 +73,8 @@ export default function NudeBodyCamera({
           },
         )
 
-        const previewUrl = URL.createObjectURL(file)
+        const previewUrl =
+          URL.createObjectURL(file)
 
         onCapture(file, previewUrl)
       },
@@ -88,7 +89,22 @@ export default function NudeBodyCamera({
     const file = e.target.files?.[0]
     if (!file) return
 
-    const previewUrl = URL.createObjectURL(file)
+    const allowedTypes = [
+      'image/jpeg',
+      'image/png',
+      'image/webp',
+    ]
+
+    if (
+      !allowedTypes.includes(file.type) ||
+      file.size > 10 * 1024 * 1024
+    ) {
+      e.target.value = ''
+      return
+    }
+
+    const previewUrl =
+      URL.createObjectURL(file)
 
     onCapture(file, previewUrl)
 
@@ -164,24 +180,14 @@ export default function NudeBodyCamera({
               strokeLinejoin="round"
               className="h-6 w-6 drop-shadow"
             >
-              <rect
-                x="3"
-                y="4"
-                width="18"
-                height="16"
-                rx="2"
-              />
-              <circle
-                cx="8.5"
-                cy="9.5"
-                r="1.5"
-              />
+              <rect x="3" y="4" width="18" height="16" rx="2" />
+              <circle cx="8.5" cy="9.5" r="1.5" />
               <path d="M21 16l-5-5-4 4-2-2-7 7" />
             </svg>
 
             <input
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp"
               className="hidden"
               onChange={onFile}
             />

@@ -221,7 +221,6 @@ export default function NudeBodyDetail() {
         const uploaded =
           await uploadImage(
             file,
-            'BODY_CHECK',
           )
 
         const created =

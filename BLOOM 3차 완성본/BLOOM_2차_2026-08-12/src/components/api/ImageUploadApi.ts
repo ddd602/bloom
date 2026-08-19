@@ -5,39 +5,22 @@ import {
   clearTokens,
 } from './AuthApi'
 
-export type ImagePurpose =
-  | 'BODY_CHECK'
-  | 'NUTRITION'
-
 export type ImageUploadResponse = {
   imageUrl: string
   contentType: string
   size: number
 }
 
-// ==============================
-// 이미지 업로드
-//
-// POST /api/v1/uploads/images
-// multipart/form-data
-// ==============================
-
 export async function uploadImage(
   file: File,
-  purpose: ImagePurpose,
 ): Promise<ImageUploadResponse> {
-  const formData =
-    new FormData()
+  const formData = new FormData()
 
-  formData.append(
-    'file',
-    file,
-  )
+  formData.append('file', file)
+  formData.append('purpose', 'BODY_CHECK')
 
   return apiFetch<ImageUploadResponse>(
-    `/api/v1/uploads/images?purpose=${encodeURIComponent(
-      purpose,
-    )}`,
+    '/api/v1/uploads/images',
     {
       method: 'POST',
       body: formData,
@@ -45,47 +28,31 @@ export async function uploadImage(
   )
 }
 
-// ==============================
-// 비공개 이미지 조회
-//
-// GET /api/v1/uploads/images/{imageId}
-//
-// Bearer 인증이 필요해서
-// <img src="">로 바로 표시할 수 없음.
-// Blob으로 받아 Object URL로 변환.
-// ==============================
-
 export async function getPrivateImageUrl(
   imageUrl: string,
 ): Promise<string> {
-  const fetchImage =
-    async () => {
-      const token =
-        getAccessToken()
+  const fetchImage = async () => {
+    const token = getAccessToken()
 
-      return fetch(
-        imageUrl,
-        {
-          headers: token
-            ? {
-                Authorization:
-                  `Bearer ${token}`,
-              }
-            : undefined,
-        },
-      )
-    }
+    return fetch(
+      imageUrl,
+      {
+        headers: token
+          ? {
+              Authorization:
+                `Bearer ${token}`,
+            }
+          : undefined,
+      },
+    )
+  }
 
-  let response =
-    await fetchImage()
+  let response = await fetchImage()
 
-  if (
-    response.status === 401
-  ) {
+  if (response.status === 401) {
     try {
       await reissueTokens()
-      response =
-        await fetchImage()
+      response = await fetchImage()
     } catch (error) {
       clearTokens()
       throw error
@@ -98,10 +65,7 @@ export async function getPrivateImageUrl(
     )
   }
 
-  const blob =
-    await response.blob()
+  const blob = await response.blob()
 
-  return URL.createObjectURL(
-    blob,
-  )
+  return URL.createObjectURL(blob)
 }
