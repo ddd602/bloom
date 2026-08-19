@@ -39,6 +39,7 @@ import Welcome from './pages/Welcome'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Onboarding from './pages/Onboarding'
+import MemberShip from './pages/MemberShip'
 
 import {
   getAccessToken,
@@ -293,6 +294,10 @@ export default function App() {
           path="*"
           element={<NotFound />}
         />
+
+        <Route 
+        path = "/my-page/membership"
+        element={<MemberShip/>}/>
       </Route>
     </Routes>
   )
