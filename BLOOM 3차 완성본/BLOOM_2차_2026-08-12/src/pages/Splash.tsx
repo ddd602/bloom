@@ -13,30 +13,26 @@ import {
   clearTokens,
 } from '../components/api/AuthApi'
 
-import cloverUrl from '../assets/brand/profile.svg'
-
 export default function Splash() {
   const navigate =
     useNavigate()
 
   const [
-    leaving,
-    setLeaving,
-  ] =
-    useState(false)
+    fadingOut,
+    setFadingOut,
+  ] = useState(false)
 
   useEffect(() => {
-    let cancelled =
-      false
+    let cancelled = false
 
     const checkAuth =
       async () => {
-        const minimumDelay =
+        const delay =
           new Promise<void>(
             (resolve) => {
               setTimeout(
                 resolve,
-                1600,
+                2800,
               )
             },
           )
@@ -47,17 +43,13 @@ export default function Splash() {
         const accessToken =
           getAccessToken()
 
-        if (
-          accessToken
-        ) {
+        if (accessToken) {
           try {
             await reissueTokens()
 
             nextPath =
               '/home'
-          } catch (
-            error
-          ) {
+          } catch (error) {
             console.error(
               '로그인 세션을 확인하지 못했습니다.',
               error,
@@ -70,160 +62,94 @@ export default function Splash() {
           }
         }
 
-        await minimumDelay
+        await delay
 
-        if (
-          cancelled
-        ) {
+        if (cancelled) {
           return
         }
 
-        setLeaving(
+        setFadingOut(
           true,
         )
 
-        setTimeout(
-          () => {
-            if (
-              !cancelled
-            ) {
-              navigate(
-                nextPath,
-                {
-                  replace:
-                    true,
-                },
-              )
-            }
+        await new Promise<void>(
+          (resolve) => {
+            setTimeout(
+              resolve,
+              600,
+            )
           },
-          350,
         )
+
+        if (!cancelled) {
+          navigate(
+            nextPath,
+            {
+              replace: true,
+            },
+          )
+        }
       }
 
     void checkAuth()
 
     return () => {
-      cancelled =
-        true
+      cancelled = true
     }
   }, [navigate])
 
   return (
     <div
-      className={
-        'relative mx-auto flex h-[100dvh] w-full max-w-[390px] items-center justify-center overflow-hidden bg-gradient-to-b from-white via-[#F7FCF8] to-[#ECF8F0] transition-opacity duration-300 ' +
-        (
-          leaving
-            ? 'opacity-0'
-            : 'opacity-100'
-        )
-      }
+      className="
+        mx-auto
+        flex
+        h-[100dvh]
+        w-full
+        max-w-[390px]
+        flex-col
+        items-center
+        justify-center
+        bg-gradient-to-b
+        from-[#EAF8EE]
+        to-white
+      "
     >
-      {/* 배경 글로우 */}
-      <div
-        className="
-          pointer-events-none
-          absolute
-          left-1/2
-          top-1/2
-          h-[280px]
-          w-[280px]
-          -translate-x-1/2
-          -translate-y-1/2
-          rounded-full
-          bg-[radial-gradient(circle,#A7EDC0_0%,rgba(167,237,192,0.35)_40%,rgba(255,255,255,0)_72%)]
-          blur-[12px]
-        "
-      />
+      <svg
+        viewBox="3410 133 302 371"
+        className={
+          'h-24 w-24' +
+          (
+            fadingOut
+              ? ' splash-mark-fade-out'
+              : ''
+          )
+        }
+        fill="none"
+      >
+        <path
+          pathLength={1}
+          d="M3573.41,203.15s-18.36-81.52-72.01-54.41c-55.99,28.29-4.92,89.24-4.92,89.24,0,0-70.34-25.94-76.32,50.92-4.21,54.12,84.3,31.79,84.3,31.79,0,0-68.51,30.38-30.99,79.11,27.54,35.77,76.06-15.33,76.06-15.33"
+          stroke="#231f20"
+          strokeWidth={14.94}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="splash-draw-path"
+        />
 
-      {/* 중앙 콘텐츠 */}
-      <div className="relative z-10 flex flex-col items-center">
-        <div
-          className="
-            flex
-            h-[118px]
-            w-[118px]
-            animate-[splashPop_700ms_cubic-bezier(0.22,1,0.36,1)_both]
-            items-center
-            justify-center
-            rounded-full
-            bg-white/70
-            shadow-[0_14px_40px_rgba(49,198,107,0.15)]
-            backdrop-blur-sm
-          "
-        >
-          <img
-            src={
-              cloverUrl
-            }
-            alt="BLOOM"
-            className="
-              h-[92px]
-              w-[92px]
-              object-contain
-            "
-          />
-        </div>
-
-        <h1
-          className="
-            mt-5
-            animate-[splashFadeUp_700ms_250ms_ease-out_both]
-            text-[25px]
-            font-black
-            tracking-[0.18em]
-            text-[#2DBB68]
-          "
-        >
-          BLOOM
-        </h1>
-
-        <p
-          className="
-            mt-2
-            animate-[splashFadeUp_700ms_400ms_ease-out_both]
-            text-[9px]
-            font-medium
-            tracking-[0.06em]
-            text-[#8AB39A]
-          "
-        >
-          나를 위한 회복과 변화
-        </p>
-      </div>
-
-      <style>
-        {`
-          @keyframes splashPop {
-            0% {
-              opacity: 0;
-              transform: scale(0.82);
-            }
-
-            70% {
-              opacity: 1;
-              transform: scale(1.04);
-            }
-
-            100% {
-              opacity: 1;
-              transform: scale(1);
-            }
-          }
-
-          @keyframes splashFadeUp {
-            0% {
-              opacity: 0;
-              transform: translateY(8px);
-            }
-
-            100% {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-        `}
-      </style>
+        <path
+          pathLength={1}
+          d="M3601.04,387.31 L3606.29,389.78 L3612.07,391.85 L3617.99,393.49 L3624.02,394.69 L3630.12,395.39 L3636.26,395.54 L3642.38,395.07 L3648.41,393.89 L3654.23,391.96 L3659.75,389.25 L3664.83,385.82 L3669.41,381.73 L3673.45,377.10 L3676.94,372.05 L3679.93,366.68 L3682.45,361.08 L3684.50,355.29 L3685.74,349.28 L3686.05,343.15 L3685.39,337.05 L3683.78,331.12 L3681.34,325.49 L3678.20,320.21 L3674.49,315.31 L3670.33,310.80 L3665.81,306.64 L3661.00,302.82 L3655.95,299.33 L3650.70,296.13 L3645.29,293.23 L3639.73,290.59 L3634.06,288.23 L3628.29,286.13 L3622.43,284.29 L3616.49,282.72 L3610.48,281.43 L3604.42,280.42 L3598.32,279.71 L3592.19,279.34 L3586.04,279.33 L3579.91,279.72 L3573.83,280.58 L3567.85,281.97 L3562.05,283.99 L3556.55,286.72 L3551.53,290.25 L3547.22,294.61 L3543.82,299.72 L3541.48,305.39 L3543.05,310.85 L3548.74,313.03 L3554.84,313.69 L3560.99,313.68 L3567.11,313.27 L3573.22,312.57 L3579.29,311.64 L3585.33,310.53 L3591.34,309.25 L3597.32,307.82 L3603.26,306.25 L3609.16,304.54 L3615.03,302.71 L3620.85,300.74 L3626.62,298.65 L3632.35,296.43 L3638.02,294.07 L3643.64,291.57 L3649.18,288.92 L3654.65,286.12 L3660.03,283.15 L3665.30,280.00 L3670.46,276.65 L3675.46,273.10 L3680.29,269.30 L3684.91,265.25 L3689.26,260.90 L3693.26,256.25 L3696.85,251.26 L3699.87,245.92 L3701.61,240.04 L3701.98,233.92 L3701.30,227.82 L3699.81,221.86 L3697.64,216.11 L3694.90,210.62 L3691.61,205.43 L3687.84,200.59 L3683.59,196.15 L3678.90,192.19 L3673.79,188.78 L3668.31,186.01 L3662.53,183.95 L3656.52,182.68 L3650.40,182.20 L3644.27,182.51 L3638.22,183.55 L3632.33,185.30 L3626.70,187.74 L3621.39,190.83 L3616.45,194.48 L3611.89,198.59 L3607.71,203.09 L3603.89,207.90 L3600.41,212.96 L3597.23,218.22 L3594.33,223.64 L3591.70,229.19 L3589.29,234.84 L3587.10,240.58 L3585.10,246.39 L3583.28,252.26 L3581.63,258.18 L3580.13,264.14 L3578.77,270.13 L3577.55,276.15 L3576.45,282.20 L3575.48,288.26 L3574.62,294.35 L3573.86,300.44 L3573.21,306.55 L3572.66,312.67 L3572.21,318.80 L3571.85,324.93 L3571.58,331.07 L3571.40,337.21 L3571.31,343.36 L3571.30,349.50 L3571.38,355.64 L3571.54,361.79 L3571.80,367.93 L3572.13,374.06 L3572.55,380.19 L3573.07,386.31 L3573.67,392.43 L3574.37,398.53 L3575.16,404.62 L3576.06,410.70 L3577.06,416.77 L3578.17,422.81 L3579.40,428.83 L3580.77,434.82 L3582.27,440.78 L3583.93,446.69 L3585.76,452.56 L3587.79,458.35 L3590.05,464.07 L3592.59,469.66 L3595.45,475.10 L3598.71,480.30 L3602.49,485.14 L3606.94,489.37 L3612.17,492.56 L3618.10,494.05 L3623.98,492.60 L3628.73,488.75 L3632.55,483.95 L3635.78,478.72 L3638.58,473.25 L3641.05,467.63 L3643.22,461.88"
+          stroke="#231f20"
+          strokeWidth={14.94}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="splash-draw-path"
+          style={{
+            animationDelay:
+              '1.1s',
+          }}
+        />
+      </svg>
     </div>
   )
 }

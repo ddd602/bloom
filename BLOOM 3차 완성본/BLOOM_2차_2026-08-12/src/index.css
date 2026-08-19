@@ -9,3 +9,37 @@ body {
   margin: 0;
   background: #f0f0f0;
 }
+.splash-draw-path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+
+  animation:
+    splashDraw 1.35s ease forwards;
+}
+
+.splash-mark-fade-out {
+  animation:
+    splashFadeOut 600ms ease forwards;
+}
+
+@keyframes splashDraw {
+  from {
+    stroke-dashoffset: 1;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes splashFadeOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
