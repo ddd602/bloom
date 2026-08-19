@@ -76,7 +76,7 @@ function ExerciseProgressPanel({
   return (
     <div
       ref={sheetRef}
-      className="absolute inset-x-0 bottom-0 top-[315px] flex flex-col rounded-t-[24px] bg-[#FCFCFC] shadow-[0_-4px_20px_rgba(0,0,0,0.05)]"
+      className="absolute inset-x-0 bottom-0 top-[315px] flex flex-col rounded-t-[5px] bg-[#FCFCFC] shadow-[0_-4px_20px_rgba(0,0,0,0.05)]"
       style={{
         transform: `translateY(${offset}px)`,
         transition: dragging

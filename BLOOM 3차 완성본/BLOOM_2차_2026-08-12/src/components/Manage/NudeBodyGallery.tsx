@@ -138,7 +138,7 @@ function NudeBodyGallery({ to }: { to: string }) {
 
       {photos.length ===
       0 ? (
-        <div className="mt-4 flex h-[90px] items-center justify-center rounded-lg bg-[#F7F7F7] text-[9px] text-gray-400">
+        <div className="mt-4 flex h-[90px] items-center justify-center rounded-[5px] bg-[#F7F7F7] text-[9px] text-gray-400">
           아직 눈바디 기록이 없어요
         </div>
       ) : (
@@ -154,7 +154,7 @@ function NudeBodyGallery({ to }: { to: string }) {
                 }
                 className="w-[82px] shrink-0"
               >
-                <div className="aspect-[3/4] overflow-hidden rounded-lg bg-gray-300">
+                <div className="aspect-[3/4] overflow-hidden rounded-[5px] bg-gray-300">
                   <img
                     src={
                       imageUrl

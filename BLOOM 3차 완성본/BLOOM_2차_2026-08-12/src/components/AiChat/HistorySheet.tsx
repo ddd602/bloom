@@ -129,7 +129,7 @@ function HistorySheet({
           max-h-[72%]
           flex-col
           overflow-hidden
-          rounded-t-[24px]
+          rounded-t-[5px]
           bg-[#F8F8F8]
           pb-5
           shadow-2xl
@@ -266,7 +266,7 @@ function HistorySheet({
                       w-full
                       items-start
                       justify-between
-                      rounded-xl
+                      rounded-[5px]
                       bg-white
                       px-4
                       py-3

@@ -32,7 +32,7 @@ export default function MealTimeline({ meals, onSelect }: MealTimelineProps) {
             <div
               onClick={isEmpty ? () => onSelect?.(index) : undefined}
               className={
-                "mb-4 flex-1 rounded-[10px] bg-[#F5F5F6] px-4 pb-2 pt-4 " +
+                "mb-4 flex-1 rounded-[5px] bg-[#F5F5F6] px-4 pb-2 pt-4 " +
                 (isEmpty ? "cursor-pointer" : "")
               }
             >

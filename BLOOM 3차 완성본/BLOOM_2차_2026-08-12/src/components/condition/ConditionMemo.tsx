@@ -58,7 +58,7 @@ function ConditionMemo({
     <div>
       <div
         className={
-          'relative min-h-[78px] rounded-lg border p-3 transition-colors ' +
+          'relative min-h-[78px] rounded-[5px] border p-3 transition-colors ' +
           (
             editing
               ? 'border-[#31C66B] bg-white'

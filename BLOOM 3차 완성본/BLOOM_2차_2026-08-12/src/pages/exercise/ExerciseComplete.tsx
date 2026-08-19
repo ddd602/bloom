@@ -75,7 +75,7 @@ function ExerciseComplete() {
             완료한 루틴
           </p>
 
-          <div className="space-y-2 rounded-lg bg-[#FAFAFA] p-3">
+          <div className="space-y-2 rounded-[5px] bg-[#FAFAFA] p-3">
             {sessionCompleted.map((r, i) => (
               <RoutineCard
                 key={`${r.id}-${i}`}

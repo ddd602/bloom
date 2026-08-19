@@ -152,7 +152,7 @@ export default function NudeBodyCamera({
           </div>
         )}
 
-        <div className="pointer-events-none absolute inset-x-5 bottom-[145px] top-[92px] z-10 rounded-[22px] border-2 border-[#F4D447]">
+        <div className="pointer-events-none absolute inset-x-5 bottom-[145px] top-[92px] z-10 rounded-[20px] border-2 border-[#F4D447]">
           <span className="absolute right-4 top-4 text-[16px] text-[#F4D447]">
             ✦
           </span>
@@ -180,8 +180,20 @@ export default function NudeBodyCamera({
               strokeLinejoin="round"
               className="h-6 w-6 drop-shadow"
             >
-              <rect x="3" y="4" width="18" height="16" rx="2" />
-              <circle cx="8.5" cy="9.5" r="1.5" />
+              <rect
+                x="3"
+                y="4"
+                width="18"
+                height="16"
+                rx="2"
+              />
+
+              <circle
+                cx="8.5"
+                cy="9.5"
+                r="1.5"
+              />
+
               <path d="M21 16l-5-5-4 4-2-2-7 7" />
             </svg>
 

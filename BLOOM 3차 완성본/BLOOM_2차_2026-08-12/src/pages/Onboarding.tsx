@@ -1261,7 +1261,7 @@ export default function Onboarding() {
 
           {/* 날짜 입력 + 다음 */}
           <div className="mt-[56px]">
-            <div className="flex h-[54px] w-full items-center rounded-[4px] bg-[#F1F1F1] px-[10px]">
+            <div className="flex h-[54px] w-full items-center rounded-[5px] bg-[#F1F1F1] px-[10px]">
               {/* 년 */}
               <div className="min-w-0 flex-[1.45]">
                 <WheelPicker
@@ -1373,7 +1373,7 @@ export default function Onboarding() {
           </p>
 
           <div className="mt-[56px]">
-            <div className="flex h-[54px] w-full items-center rounded-[4px] bg-[#F1F1F1] px-[10px]">
+            <div className="flex h-[54px] w-full items-center rounded-[5px] bg-[#F1F1F1] px-[10px]">
               <div className="min-w-0 flex-[1.45]">
                 <WheelPicker
                   compact
@@ -1601,7 +1601,7 @@ export default function Onboarding() {
                             )
                           }
                           className={
-                            'flex h-[55px] w-full items-center gap-[14px] rounded-[3px] border px-[15px] text-left text-[11px] font-medium transition-colors ' +
+                            'flex h-[55px] w-full items-center gap-[14px] rounded-[5px] border px-[15px] text-left text-[11px] font-medium transition-colors ' +
                             (
                               active
                                 ? 'border-[#67DB97] bg-[#EAF8EE] text-[#31C66B]'

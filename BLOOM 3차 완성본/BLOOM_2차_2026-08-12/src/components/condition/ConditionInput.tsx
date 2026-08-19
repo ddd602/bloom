@@ -225,7 +225,7 @@ function ConditionInput({
             />
           </div>
 
-          <div className="mt-2 rounded-lg bg-[#FAFAFA] p-3">
+          <div className="mt-2 rounded-[5px] bg-[#FAFAFA] p-3">
             <ConditionTags
               options={
                 EMOTION_POOL
@@ -283,7 +283,7 @@ function ConditionInput({
           </div>
 
           {/* 신체 세부 카드 */}
-          <div className="mt-2 rounded-lg bg-[#FAFAFA] p-3">
+          <div className="mt-2 rounded-[5px] bg-[#FAFAFA] p-3">
 
             {/* 생리주기 */}
             <div className="flex items-start gap-4">

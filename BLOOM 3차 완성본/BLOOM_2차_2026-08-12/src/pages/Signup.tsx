@@ -12,6 +12,7 @@ import {
   IconLock,
   IconProfile,
   IconEye,
+  IconEyeOff,
 } from '../components/icons'
 
 export default function Signup() {
@@ -110,7 +111,7 @@ export default function Signup() {
         >
 
           {/* 이메일 */}
-          <div className="flex h-[46px] items-center bg-[#F7F7F7] px-3">
+          <div className="flex h-[46px] items-center rounded-[5px] bg-[#F7F7F7] px-3">
 
             <IconMail className="h-[16px] w-[16px] shrink-0 text-[#777]" />
 
@@ -130,7 +131,7 @@ export default function Signup() {
           </div>
 
           {/* 비밀번호 */}
-          <div className="flex h-[46px] items-center bg-[#F7F7F7] px-3">
+          <div className="flex h-[46px] items-center rounded-[5px] bg-[#F7F7F7] px-3">
 
             <IconLock className="h-[16px] w-[16px] shrink-0 text-[#777]" />
 
@@ -161,13 +162,17 @@ export default function Signup() {
               aria-label="비밀번호 표시"
               className="ml-2 flex h-6 w-6 items-center justify-center text-[#777]"
             >
-              <IconEye className="h-[17px] w-[17px]" />
+              {showPw ? (
+                <IconEye className="h-[17px] w-[17px]" />
+              ) : (
+                <IconEyeOff className="h-[17px] w-[17px]" />
+              )}
             </button>
 
           </div>
 
           {/* 이름 */}
-          <div className="flex h-[46px] items-center bg-[#F7F7F7] px-3">
+          <div className="flex h-[46px] items-center rounded-[5px] bg-[#F7F7F7] px-3">
 
             <IconProfile className="h-[16px] w-[16px] shrink-0 text-[#777]" />
 

@@ -1419,7 +1419,7 @@ export default function WeeklyCalendar() {
               </button>
 
               {weekPickerOpen && (
-                <div className="absolute left-0 top-7 z-30 w-40 rounded-xl bg-white p-2 shadow-lg">
+                <div className="absolute left-0 top-7 z-30 w-40 rounded-[5px] bg-white p-2 shadow-lg">
                   {Array.from(
                     {
                       length: 5,
@@ -1443,7 +1443,7 @@ export default function WeeklyCalendar() {
                               week,
                             )
                           }
-                          className="block w-full rounded-lg px-3 py-2 text-left text-xs text-gray-700 hover:bg-[#EAF8EC]"
+                          className="block w-full rounded-[5px] px-3 py-2 text-left text-xs text-gray-700 hover:bg-[#EAF8EC]"
                         >
                           {selectedMonth}
                           월{' '}
@@ -1617,7 +1617,7 @@ export default function WeeklyCalendar() {
           min-h-0
           flex-1
           overflow-hidden
-          rounded-t-[20px]
+          rounded-t-[5px]
           bg-white
           px-5
         "
@@ -1662,7 +1662,7 @@ export default function WeeklyCalendar() {
                 },
               })
             }
-            className={`mb-2 cursor-pointer rounded-xl px-4 py-3 ${summary.mealTotal >
+            className={`mb-2 cursor-pointer rounded-[5px] px-4 py-3 ${summary.mealTotal >
               0
               ? 'border border-[#32DE8B] bg-[#EAF8EC]'
               : 'bg-[#F5F5F5]'
@@ -1744,7 +1744,7 @@ export default function WeeklyCalendar() {
                 }
               )
             }
-            className={`mb-2 cursor-pointer rounded-xl px-4 py-3 ${summary.activityTotal >
+            className={`mb-2 cursor-pointer rounded-[5px] px-4 py-3 ${summary.activityTotal >
               0
               ? 'border border-[#32DE8B] bg-[#EAF8EC]'
               : 'bg-[#F5F5F5]'
@@ -1826,7 +1826,7 @@ export default function WeeklyCalendar() {
                 },
               )
             }
-            className={`mb-4 cursor-pointer rounded-xl px-4 py-3 ${summary.condition >
+            className={`mb-4 cursor-pointer rounded-[5px] px-4 py-3 ${summary.condition >
               0
               ? 'border border-[#32DE8B] bg-[#EAF8EC]'
               : 'bg-[#F5F5F5]'
@@ -1887,7 +1887,7 @@ export default function WeeklyCalendar() {
           </div>
 
           {/* 이번 주 분석 */}
-          <div className="mb-8 mt-5 rounded-xl border border-[#FFE45E] bg-[#FFFDE7] p-4">
+          <div className="mb-8 mt-5 rounded-[5px] border border-[#FFE45E] bg-[#FFFDE7] p-4">
             <p className="text-xs font-bold text-gray-900">
               이번 주 분석
             </p>
@@ -1911,7 +1911,7 @@ export default function WeeklyCalendar() {
               돌아봐요
             </p>
 
-            <div className="mt-5 rounded-xl bg-white px-5 py-5">
+            <div className="mt-5 rounded-[5px] bg-white px-5 py-5">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-[11px] font-semibold text-gray-500">
@@ -1970,7 +1970,7 @@ export default function WeeklyCalendar() {
               </div>
 
               <div className="mt-5 grid grid-cols-3 gap-3">
-                <div className="rounded-lg border border-[#FFE45E] bg-[#FFFDE7] px-2 py-3 text-center">
+                <div className="rounded-[5px] border border-[#FFE45E] bg-[#FFFDE7] px-2 py-3 text-center">
                   <p className="text-[10px] text-gray-500">
                     평균 섭취량
                   </p>
@@ -1983,7 +1983,7 @@ export default function WeeklyCalendar() {
                   </p>
                 </div>
 
-                <div className="rounded-lg border border-[#FFE45E] bg-[#FFFDE7] px-2 py-3 text-center">
+                <div className="rounded-[5px] border border-[#FFE45E] bg-[#FFFDE7] px-2 py-3 text-center">
                   <p className="text-[10px] text-gray-500">
                     평균 활동량
                   </p>
@@ -1996,7 +1996,7 @@ export default function WeeklyCalendar() {
                   </p>
                 </div>
 
-                <div className="rounded-lg border border-[#FFE45E] bg-[#FFFDE7] px-2 py-3 text-center">
+                <div className="rounded-[5px] border border-[#FFE45E] bg-[#FFFDE7] px-2 py-3 text-center">
                   <p className="text-[10px] text-gray-500">
                     평균 컨디션
                   </p>

@@ -199,7 +199,7 @@ export default function NudeBodyDetail() {
                 setCameraOpen(true)
               }
               disabled={uploading}
-              className="flex aspect-[3/4] w-full max-w-[220px] flex-col items-center justify-center rounded-lg bg-[#D1D1D1] text-white disabled:opacity-60"
+              className="flex aspect-[3/4] w-full max-w-[220px] flex-col items-center justify-center rounded-[5px] bg-[#D1D1D1] text-white disabled:opacity-60"
               aria-label="눈바디 촬영"
             >
               <svg
@@ -212,7 +212,12 @@ export default function NudeBodyDetail() {
                 className="h-8 w-8"
               >
                 <path d="M4 8.5h3l1.5-2h7L17 8.5h3a1 1 0 0 1 1 1V18a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5a1 1 0 0 1 1-1Z" />
-                <circle cx="12" cy="13" r="3.2" />
+
+                <circle
+                  cx="12"
+                  cy="13"
+                  r="3.2"
+                />
               </svg>
 
               <span className="mt-2 text-center text-[8px] leading-[11px] text-white/80">
@@ -237,7 +242,7 @@ export default function NudeBodyDetail() {
         </div>
 
         {saveMessage && (
-          <p className="mt-3 rounded-lg bg-[#F7F7F7] px-3 py-2 text-[9px] leading-[14px] text-gray-500">
+          <p className="mt-3 rounded-[5px] bg-[#F7F7F7] px-3 py-2 text-[9px] leading-[14px] text-gray-500">
             {saveMessage}
           </p>
         )}
@@ -270,11 +275,11 @@ export default function NudeBodyDetail() {
           )}
 
           {!record ? (
-            <div className="mt-4 flex min-h-[90px] items-center justify-center rounded-xl bg-[#F8F8F8] px-4 text-center text-[9px] leading-[14px] text-gray-400">
+            <div className="mt-4 flex min-h-[90px] items-center justify-center rounded-[5px] bg-[#F8F8F8] px-4 text-center text-[9px] leading-[14px] text-gray-400">
               눈바디 사진을 먼저 기록해 주세요.
             </div>
           ) : recommendationLoading ? (
-            <div className="mt-4 flex h-[90px] items-center justify-center rounded-xl bg-[#F8F8F8] text-[9px] text-gray-400">
+            <div className="mt-4 flex h-[90px] items-center justify-center rounded-[5px] bg-[#F8F8F8] text-[9px] text-gray-400">
               추천 시술을 불러오는 중...
             </div>
           ) : recommendations.length > 0 ? (
@@ -283,7 +288,7 @@ export default function NudeBodyDetail() {
                 (item) => (
                   <div
                     key={item.procedureId}
-                    className="rounded-xl bg-[#F8F8F8] p-4"
+                    className="rounded-[5px] bg-[#F8F8F8] p-4"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
@@ -315,10 +320,12 @@ export default function NudeBodyDetail() {
                         {item.estimatedSessions
                           ? `예상 횟수 · ${item.estimatedSessions}`
                           : ''}
+
                         {item.estimatedSessions &&
                         item.interval
                           ? ' / '
                           : ''}
+
                         {item.interval
                           ? `간격 · ${item.interval}`
                           : ''}
@@ -329,7 +336,7 @@ export default function NudeBodyDetail() {
               )}
             </div>
           ) : (
-            <div className="mt-4 flex min-h-[90px] items-center justify-center rounded-xl bg-[#F8F8F8] px-4 text-center text-[9px] leading-[14px] text-gray-400">
+            <div className="mt-4 flex min-h-[90px] items-center justify-center rounded-[5px] bg-[#F8F8F8] px-4 text-center text-[9px] leading-[14px] text-gray-400">
               {recommendationMessage ||
                 '추천 시술 분석 버튼을 눌러주세요.'}
             </div>

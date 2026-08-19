@@ -114,7 +114,7 @@ export default function Points() {
       <ScreenHeader title="포인트" />
 
       <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-10 pt-6">
-        <div className="rounded-2xl bg-[#EAF8EC] px-5 py-5">
+        <div className="rounded-[5px] bg-[#EAF8EC] px-5 py-5">
           <p className="text-[10px] text-gray-500">
             보유 포인트
           </p>

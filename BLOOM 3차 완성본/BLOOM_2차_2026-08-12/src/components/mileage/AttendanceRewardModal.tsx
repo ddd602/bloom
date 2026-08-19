@@ -1,3 +1,6 @@
+import stampActive from '../../assets/icons/stamp-active.svg'
+import stampInactive from '../../assets/icons/stamp-inactive.svg'
+
 type Props = {
   open: boolean
   rewardType:
@@ -24,30 +27,11 @@ function AttendanceStamp({
 }) {
   return (
     <div className="flex flex-col items-center gap-1.5">
-      <div
-        className={
-          'relative flex h-[42px] w-[42px] items-center justify-center rounded-full border-[2px] ' +
-          (
-            active
-              ? 'border-[#31C66B] bg-[#ECF9F0]'
-              : 'border-[#D8D8D8] bg-[#F5F5F5]'
-          )
-        }
-      >
-        {active ? (
-          <>
-            <div className="absolute h-[24px] w-[24px] rounded-full bg-[#31C66B]" />
-
-            <span className="relative z-10 text-[15px] font-black leading-none text-white">
-              ✓
-            </span>
-          </>
-        ) : (
-          <span className="text-[16px] font-bold text-[#C7C7C7]">
-            ·
-          </span>
-        )}
-      </div>
+      <img
+        src={active ? stampActive : stampInactive}
+        alt=""
+        className="h-[42px] w-[42px]"
+      />
 
       <span
         className={
@@ -73,7 +57,6 @@ function RoutineBadge({
   return (
     <div className="relative mx-auto mt-6 flex h-[104px] w-[104px] items-center justify-center">
       <div className="absolute h-[92px] w-[92px] rounded-full bg-[#EAF8EC]" />
-
       <div className="absolute h-[76px] w-[76px] rounded-full border-[3px] border-[#31C66B]" />
 
       <div className="relative z-10 text-center">
@@ -134,7 +117,7 @@ export default function AttendanceRewardModal({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-5">
-      <div className="relative w-full max-w-[340px] overflow-hidden rounded-[18px] bg-white shadow-[0_18px_60px_rgba(0,0,0,0.18)]">
+      <div className="relative w-full max-w-[340px] overflow-hidden rounded-[5px] bg-white shadow-[0_18px_60px_rgba(0,0,0,0.18)]">
         <button
           type="button"
           onClick={onClose}
@@ -192,7 +175,7 @@ export default function AttendanceRewardModal({
               />
             )}
 
-            <div className="mt-6 rounded-[14px] bg-[#F3FBF5] px-4 py-3 text-center">
+            <div className="mt-6 rounded-[5px] bg-[#F3FBF5] px-4 py-3 text-center">
               <p className="text-[10px] font-medium text-gray-500">
                 받을 수 있는 포인트
               </p>
@@ -235,7 +218,6 @@ export default function AttendanceRewardModal({
 
             <div className="relative mx-auto mt-7 flex h-[112px] w-[112px] items-center justify-center">
               <div className="absolute h-[104px] w-[104px] rounded-full bg-[#ECF9F0]" />
-
               <div className="absolute h-[82px] w-[82px] rounded-full border-[4px] border-[#31C66B] bg-white" />
 
               <div className="relative z-10 text-center">

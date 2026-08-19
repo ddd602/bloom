@@ -110,7 +110,7 @@ export default function CalendarHeader({
 
       {/* 년 / 월 선택창 */}
       {pickerOpen && (
-        <div className="absolute left-6 top-[52px] z-50 w-56 rounded-2xl border border-gray-100 bg-white p-4 shadow-lg">
+        <div className="absolute left-6 top-[52px] z-50 w-56 rounded-[5px] border border-gray-100 bg-white p-4 shadow-lg">
 
           <div className="mb-3 flex items-center justify-between">
 

@@ -17,7 +17,7 @@ function RoutineCard({
     <Tag
       onClick={onClick}
       className={
-        'flex w-full flex-col gap-1.5 rounded-lg bg-white px-4 py-3 text-left ' +
+        'flex w-full flex-col gap-1.5 rounded-[5px] bg-white px-4 py-3 text-left ' +
         (onClick
           ? 'transition-colors active:bg-gray-50'
           : '')

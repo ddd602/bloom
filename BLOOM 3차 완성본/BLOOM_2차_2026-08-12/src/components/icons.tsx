@@ -278,3 +278,13 @@ export function IconEye(p: IconProps) {
     </svg>
   )
 }
+
+export function IconEyeOff(p: IconProps) {
+  return (
+    <svg {...base(p)}>
+      <path d="M2.5 12s3.5-5 9.5-5 9.5 5 9.5 5-3.5 5-9.5 5-9.5-5-9.5-5Z" />
+      <circle cx="12" cy="12" r="2.3" />
+      <path d="M3.5 20.5 20.5 3.5" />
+    </svg>
+  )
+}

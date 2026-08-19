@@ -220,7 +220,7 @@ function ProfileSettings() {
           </p>
         </div>
 
-        <div className="mt-6 flex items-center justify-between rounded-lg bg-[#FFFBE6] px-4 py-3">
+        <div className="mt-6 flex items-center justify-between rounded-[5px] bg-[#FFFBE6] px-4 py-3">
           <div className="min-w-0">
             <p className="text-[8px] text-gray-400">
               미용목표
@@ -255,7 +255,7 @@ function ProfileSettings() {
               '/onboarding?mode=edit',
             )
           }
-          className="mt-3 w-full rounded-xl border border-[#67DB97] bg-[#EAF8EC] px-4 py-3 text-left"
+          className="mt-3 w-full rounded-[5px] border border-[#67DB97] bg-[#EAF8EC] px-4 py-3 text-left"
         >
           <div className="flex items-center justify-between">
             <p className="text-[11px] font-bold text-gray-900">

@@ -1,3 +1,4 @@
+
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -11,6 +12,8 @@ import {
 
 import {
   IconChevronLeft,
+  IconEye,
+  IconEyeOff,
 } from '../components/icons'
 
 export default function Login() {
@@ -121,10 +124,10 @@ export default function Login() {
             }}
             type="email"
             placeholder="아이디 (이메일)"
-            className="w-full rounded-xl bg-gray-100 px-4 py-3.5 text-sm outline-none placeholder:text-gray-400"
+            className="w-full rounded-[5px] bg-gray-100 px-4 py-3.5 text-sm outline-none placeholder:text-gray-400"
           />
 
-          <div className="flex items-center rounded-xl bg-gray-100 px-4">
+          <div className="flex items-center rounded-[5px] bg-gray-100 px-4">
 
             <input
               value={pw}
@@ -153,9 +156,11 @@ export default function Login() {
               aria-label="비밀번호 표시"
               className="pl-2 text-gray-400"
             >
-              {showPw
-                ? '🙈'
-                : '👁'}
+              {showPw ? (
+                <IconEye className="h-5 w-5" />
+              ) : (
+                <IconEyeOff className="h-5 w-5" />
+              )}
             </button>
 
           </div>

@@ -86,7 +86,7 @@ function Exercise() {
             ))}
 
             {routines.length === 0 && (
-              <div className="flex h-[72px] items-center justify-center rounded-lg bg-[#FAFAFA] text-[10px] text-gray-400">
+              <div className="flex h-[72px] items-center justify-center rounded-[5px] bg-[#FAFAFA] text-[10px] text-gray-400">
                 루틴이 없어요. 새로 만들어보세요.
               </div>
             )}

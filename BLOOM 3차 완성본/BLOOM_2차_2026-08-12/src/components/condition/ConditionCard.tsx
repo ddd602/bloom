@@ -11,7 +11,7 @@ function ConditionCard({ title, score, tags }: Props) {
   const extra = tags.length - shown.length
 
   return (
-    <div className="min-h-[100px] rounded-lg bg-[#FAFAFA] p-3">
+    <div className="min-h-[100px] rounded-[5px] bg-[#FAFAFA] p-3">
       <p className="text-[11px] font-semibold text-gray-700">
         {title}
       </p>

@@ -75,7 +75,7 @@ function RoutineSelectSheet({
             {routines.map((r) => (
               <div
                 key={r.id}
-                className="overflow-hidden rounded-lg border border-gray-100 bg-white"
+                className="overflow-hidden rounded-[5px] border border-gray-100 bg-white"
               >
                 <RoutineCard
                   routine={r}

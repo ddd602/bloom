@@ -88,87 +88,87 @@ export default function RecommendedMeal({
   ] =
     useState(false)
 
-useEffect(() => {
-  let cancelled = false
+  useEffect(() => {
+    let cancelled = false
 
-  const cacheKey =
-    `mealRecommendation:${date}:${mealType}`
+    const cacheKey =
+      `mealRecommendation:${date}:${mealType}`
 
-  const loadRecommendation =
-    async () => {
-      try {
-        setLoading(true)
-        setError(false)
+    const loadRecommendation =
+      async () => {
+        try {
+          setLoading(true)
+          setError(false)
 
-        // 이전에 받은 추천이 있으면 그대로 사용
-        const cached =
-          localStorage.getItem(
+          // 이전에 받은 추천이 있으면 그대로 사용
+          const cached =
+            localStorage.getItem(
+              cacheKey,
+            )
+
+          if (cached) {
+            const parsed =
+              JSON.parse(
+                cached,
+              ) as MealRecommendationResponse
+
+            if (!cancelled) {
+              setRecommendation(
+                parsed,
+              )
+              setLoading(false)
+            }
+
+            return
+          }
+
+          // 없을 때만 AI 추천 API 호출
+          const result =
+            await getMealRecommendation({
+              date,
+              mealType,
+            })
+
+          localStorage.setItem(
             cacheKey,
+            JSON.stringify(
+              result,
+            ),
           )
-
-        if (cached) {
-          const parsed =
-            JSON.parse(
-              cached,
-            ) as MealRecommendationResponse
 
           if (!cancelled) {
             setRecommendation(
-              parsed,
+              result,
             )
+          }
+        } catch (error) {
+          console.error(
+            '추천 식단을 불러오지 못했습니다.',
+            error,
+          )
+
+          if (!cancelled) {
+            setRecommendation(
+              null,
+            )
+            setError(true)
+          }
+        } finally {
+          if (!cancelled) {
             setLoading(false)
           }
-
-          return
-        }
-
-        // 없을 때만 AI 추천 API 호출
-        const result =
-          await getMealRecommendation({
-            date,
-            mealType,
-          })
-
-        localStorage.setItem(
-          cacheKey,
-          JSON.stringify(
-            result,
-          ),
-        )
-
-        if (!cancelled) {
-          setRecommendation(
-            result,
-          )
-        }
-      } catch (error) {
-        console.error(
-          '추천 식단을 불러오지 못했습니다.',
-          error,
-        )
-
-        if (!cancelled) {
-          setRecommendation(
-            null,
-          )
-          setError(true)
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false)
         }
       }
+
+    void loadRecommendation()
+
+    return () => {
+      cancelled = true
     }
-
-  void loadRecommendation()
-
-  return () => {
-    cancelled = true
-  }
-}, [
-  date,
-  mealType,
-])
+  }, [
+    date,
+    mealType,
+  ])
 
   return (
     <>
@@ -183,7 +183,7 @@ useEffect(() => {
 
         <div className="mt-4 flex gap-3 overflow-x-auto pb-2">
           {loading && (
-            <article className="min-w-[110px] rounded-lg bg-gray-100 p-3">
+            <article className="min-w-[110px] rounded-[5px] bg-gray-100 p-3">
               <p className="text-xs text-gray-500">
                 추천 중
               </p>
@@ -196,7 +196,7 @@ useEffect(() => {
 
           {!loading &&
             recommendation && (
-              <article className="min-w-[110px] rounded-lg bg-gray-100 p-3">
+              <article className="min-w-[110px] rounded-[5px] bg-gray-100 p-3">
                 <p className="text-xs text-gray-500">
                   최적
                 </p>

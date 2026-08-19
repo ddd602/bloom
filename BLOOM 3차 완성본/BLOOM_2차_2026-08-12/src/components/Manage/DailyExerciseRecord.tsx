@@ -59,7 +59,7 @@ function DailyExerciseRecord({ date }: Props) {
   }, [targetDate])
 
   return (
-    <div className="rounded-md bg-[#FAFAFA] px-4 py-4">
+    <div className="rounded-[5px] bg-[#FAFAFA] px-4 py-4">
       <div className="mb-4 flex items-center justify-between">
         <p className="text-[13px] font-bold text-gray-900">
           일일 운동 기록
@@ -74,7 +74,7 @@ function DailyExerciseRecord({ date }: Props) {
       </div>
 
       {routines.length === 0 ? (
-        <div className="flex h-[54px] items-center justify-center rounded-md bg-white text-[10px] text-gray-400 shadow-sm">
+        <div className="flex h-[54px] items-center justify-center rounded-[5px] bg-white text-[10px] text-gray-400 shadow-sm">
           아직 운동 기록이 없어요
         </div>
       ) : (

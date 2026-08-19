@@ -19,7 +19,7 @@ export default function Welcome() {
       <img
         src={bgUrl}
         alt=""
-        className="pointer-events-none absolute left-1/2 top-10 w-[520px] -translate-x-1/2 rotate-[8deg] opacity-40"
+        className="pointer-events-none absolute -left-4 -top-4 w-[536px] max-w-none rotate-[8deg] opacity-70"
       />
 
       {/* 로고 */}

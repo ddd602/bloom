@@ -403,7 +403,7 @@ function MyPage() {
             flex
             items-center
             justify-between
-            rounded-md
+            rounded-[5px]
             bg-[#F5F5F5]
             px-4
             py-3
@@ -474,7 +474,7 @@ function MyPage() {
         </div>
 
         {/* 출석 현황 */}
-        <section className="mt-2 rounded-2xl bg-[#F8F8F8] px-4 pb-5 pt-4">
+        <section className="mt-2 rounded-[5px] bg-[#F8F8F8] px-4 pb-5 pt-4">
           <div className="flex items-end justify-between">
             <div>
               <p className="text-[9px] text-gray-500">

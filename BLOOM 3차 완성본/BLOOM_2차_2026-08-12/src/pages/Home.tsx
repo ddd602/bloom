@@ -30,6 +30,15 @@ import {
 } from '../components/api/GoalApi'
 
 import {
+  getProfile,
+} from '../components/api/ProfileApi'
+
+import {
+  pickGoalVariant,
+  CHARACTER_BY_GOAL,
+} from '../utils/characterVariant'
+
+import {
   createAiReport,
   getLatestAiReport,
   type AiReportResponse,
@@ -44,15 +53,7 @@ import {
 
 import AttendanceRewardModal from '../components/mileage/AttendanceRewardModal'
 
-import {
-  getOnboarding,
-  type OnboardingData,
-} from '../components/api/OnboardingApi'
-
-import {
-  pickGoalVariant,
-  CHARACTER_BY_GOAL,
-} from '../utils/characterVariant'
+import characterUrl from '../assets/brand/character.svg'
 
 function getTodayDate() {
   const today = new Date()
@@ -323,42 +324,19 @@ function Home() {
     >(null)
 
   const [
-    onboarding,
-    setOnboarding,
-  ] =
-    useState<
-      OnboardingData | null
-    >(null)
+    beautyGoals,
+    setBeautyGoals,
+  ] = useState<string[]>([])
 
-  useEffect(() => {
-    const loadOnboarding =
-      async () => {
-        try {
-          const data =
-            await getOnboarding()
-
-          setOnboarding(
-            data,
-          )
-        } catch (error) {
-          console.error(
-            '온보딩 정보를 불러오지 못했습니다.',
-            error,
-          )
-        }
-      }
-
-    void loadOnboarding()
-  }, [])
-
-  const characterUrl =
-    onboarding
+  // 온보딩에서 고른 목표에 맞는 캐릭터로 자동 설정
+  const characterSrc =
+    beautyGoals.length > 0
       ? CHARACTER_BY_GOAL[
           pickGoalVariant(
-            onboarding.goals,
+            beautyGoals,
           )
         ]
-      : CHARACTER_BY_GOAL.weight
+      : characterUrl
 
   useEffect(() => {
     const loadHomeStats =
@@ -373,6 +351,7 @@ function Home() {
             goal,
             streak,
             mileageHistory,
+            profile,
           ] =
             await Promise.all([
               getActivityByDate(
@@ -384,10 +363,16 @@ function Home() {
               getGoal(),
               getExerciseStreak(),
               getMileageHistory(),
+              getProfile(),
             ])
 
           setRoutineStreak(
             streak,
+          )
+
+          setBeautyGoals(
+            profile.beautyGoals ??
+              [],
           )
 
           const attendanceDates =
@@ -636,62 +621,50 @@ function Home() {
         ]
       : []
 
- const handleOpenAiReport =
-  async () => {
-    if (aiReportLoading) {
-      return
-    }
-
-    // 이미 완료된 리포트가 있으면
-    // 새로 생성하지 않고 기존 리포트로 이동
-    if (
-      aiReport &&
-      aiReport.status === 'COMPLETED'
-    ) {
-      navigate('/home/report')
-      return
-    }
-
-    // 리포트가 없을 때만 최초 생성
-    try {
-      setAiReportLoading(true)
-      setAiReportError('')
-
-      const report =
-        await createAiReport({
-          from:
-            getSevenDaysAgoDate(),
-          to:
-            getTodayDate(),
-        })
-
-      setAiReport(report)
-
-      navigate('/home/report')
-    } catch (error) {
-      console.error(
-        'AI 분석 리포트를 생성하지 못했습니다.',
-        error,
-      )
-
-      if (
-        error instanceof Error &&
-        error.message.includes(
-          'AI_SERVICE_UNAVAILABLE',
-        )
-      ) {
-        setAiReportError(
-          'AI 서비스를 현재 사용할 수 없어요.',
-        )
-      } else {
-        setAiReportError(
-          'AI 분석 리포트를 생성하지 못했어요.',
-        )
+  const handleOpenAiReport =
+    async () => {
+      if (aiReportLoading) {
+        return
       }
-    } finally {
-      setAiReportLoading(false)
+
+      try {
+        setAiReportLoading(true)
+        setAiReportError('')
+
+        const report =
+          await createAiReport({
+            from:
+              getSevenDaysAgoDate(),
+            to: getTodayDate(),
+          })
+
+        setAiReport(report)
+
+        navigate('/home/report')
+      } catch (error) {
+        console.error(
+          'AI 분석 리포트를 생성하지 못했습니다.',
+          error,
+        )
+
+        if (
+          error instanceof Error &&
+          error.message.includes(
+            'AI_SERVICE_UNAVAILABLE',
+          )
+        ) {
+          setAiReportError(
+            'AI 서비스를 현재 사용할 수 없어요.',
+          )
+        } else {
+          setAiReportError(
+            'AI 분석 리포트를 생성하지 못했어요.',
+          )
+        }
+      } finally {
+        setAiReportLoading(false)
+      }
     }
-  }
 
   const showRoutineReward =
     (
@@ -1317,7 +1290,7 @@ function Home() {
       ref={
         homeRef
       }
-      className="relative h-[calc(100dvh-64px)] overflow-hidden bg-white"
+      className="page-fade-in relative h-[calc(100dvh-64px)] overflow-hidden bg-white"
     >
       {/* 상단 그라데이션 */}
       <div
@@ -1357,7 +1330,7 @@ function Home() {
       {/* 캐릭터 */}
       <img
         src={
-          characterUrl
+          characterSrc
         }
         alt="BLOOM 캐릭터"
         className="
@@ -1493,7 +1466,7 @@ function Home() {
           z-20
           h-[85%]
           overflow-hidden
-          rounded-t-[22px]
+          rounded-t-[5px]
           bg-[#F8F8F8]
           shadow-[0_-6px_20px_rgba(0,0,0,0.04)]
         "
@@ -1630,7 +1603,7 @@ function Home() {
                   r.label
                 }
                 className="
-                  rounded-xl
+                  rounded-[5px]
                   bg-white
                   px-4
                   py-4

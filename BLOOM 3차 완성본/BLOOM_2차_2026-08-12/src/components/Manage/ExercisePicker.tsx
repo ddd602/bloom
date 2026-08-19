@@ -134,7 +134,7 @@ function ExercisePicker({
       {/* 운동 목록 */}
       <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
         {list.length === 0 ? (
-          <div className="flex h-[140px] items-center justify-center rounded-xl bg-[#F8F8F8]">
+          <div className="flex h-[140px] items-center justify-center rounded-[5px] bg-[#F8F8F8]">
             <p className="text-[11px] text-gray-400">
               해당 조건의 운동이 없어요
             </p>
@@ -150,7 +150,7 @@ function ExercisePicker({
                     type="button"
                     onClick={() => toggle(e.name)}
                     className={
-                      'flex w-full items-center justify-between rounded-xl border px-4 py-4 text-left transition-colors ' +
+                      'flex w-full items-center justify-between rounded-[5px] border px-4 py-4 text-left transition-colors ' +
                       (on
                         ? 'border-[#31C66B] bg-[#F1FFF6]'
                         : 'border-gray-100 bg-[#FAFAFA]')

@@ -63,7 +63,7 @@ export default function Membership() {
               )
             }
             className={
-              'relative w-full rounded-xl border px-4 py-4 text-left transition ' +
+              'relative w-full rounded-[5px] border px-4 py-4 text-left transition ' +
               (
                 plan ===
                 'yearly'
@@ -139,7 +139,7 @@ export default function Membership() {
               )
             }
             className={
-              'w-full rounded-xl border px-4 py-4 text-left transition ' +
+              'w-full rounded-[5px] border px-4 py-4 text-left transition ' +
               (
                 plan ===
                 'monthly'
@@ -201,7 +201,7 @@ export default function Membership() {
                 }
                 className="flex items-start gap-2"
               >
-                <span className="mt-[1px] flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-[#4E9EF8] text-[9px] font-bold text-[#4E9EF8]">
+                <span className="mt-[1px] flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-[#31C66B] text-[9px] font-bold text-[#31C66B]">
                   ✓
                 </span>
 
@@ -216,7 +216,7 @@ export default function Membership() {
         </div>
 
         {message && (
-          <p className="mt-5 rounded-xl bg-[#F7F7F7] px-4 py-3 text-center text-[10px] leading-[16px] text-gray-500">
+          <p className="mt-5 rounded-[5px] bg-[#F7F7F7] px-4 py-3 text-center text-[10px] leading-[16px] text-gray-500">
             {message}
           </p>
         )}

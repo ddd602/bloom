@@ -72,7 +72,7 @@ function NudeBodySection({ to }: { to: string }) {
           <button
             type="button"
             onClick={handleOpenCamera}
-            className="flex aspect-[3/4] w-full flex-col items-center justify-center rounded-lg bg-[#CFCFCF] text-white"
+            className="flex aspect-[3/4] w-full flex-col items-center justify-center rounded-[5px] bg-[#CFCFCF] text-white"
             aria-label="눈바디 촬영하기"
           >
             <svg

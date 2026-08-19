@@ -32,7 +32,7 @@ function RoutineCreated() {
           </p>
         </div>
 
-        <div className="mt-10 rounded-lg bg-[#F8F8F8] p-3">
+        <div className="mt-10 rounded-[5px] bg-[#F8F8F8] p-3">
           <RoutineCard routine={lastCreated} />
         </div>
 

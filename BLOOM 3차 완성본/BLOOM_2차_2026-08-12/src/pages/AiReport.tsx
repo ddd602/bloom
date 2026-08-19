@@ -405,7 +405,7 @@ export default function AiReport() {
         {/* 분석 기간 */}
         <div
           className="
-            rounded-2xl
+            rounded-[5px]
             border
             border-[#CFE4D6]
             bg-[#EEF7F0]

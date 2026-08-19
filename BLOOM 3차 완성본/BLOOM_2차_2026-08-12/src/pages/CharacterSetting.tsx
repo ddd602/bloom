@@ -25,7 +25,7 @@ export default function CharacterSetting() {
         </div>
 
         {/* 캐릭터 디자인 선택 — 하단 */}
-        <div className="rounded-2xl bg-gray-200 p-4">
+        <div className="rounded-[5px] bg-gray-200 p-4">
           <p className="mb-3 text-sm font-bold text-gray-900">캐릭터 디자인</p>
           <div className="flex gap-3 overflow-x-auto pb-1">
             {Array.from({ length: DESIGNS }, (_, i) => (

@@ -182,7 +182,7 @@ export default function WheelPicker({
           top-1/2
           h-[44px]
           -translate-y-1/2
-          rounded-[4px]
+          rounded-[5px]
           bg-[#F1F1F1]
         "
       />

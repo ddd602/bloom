@@ -261,7 +261,7 @@ function PeriodDetail() {
             onClick={
               openLogInput
             }
-            className="min-h-[80px] rounded-lg bg-[#FAFAFA] p-3 text-left"
+            className="min-h-[80px] rounded-[5px] bg-[#FAFAFA] p-3 text-left"
           >
             <p className="text-[11px] font-semibold text-gray-700">
               기분
@@ -298,7 +298,7 @@ function PeriodDetail() {
             onClick={
               openLogInput
             }
-            className="min-h-[80px] rounded-lg bg-[#FAFAFA] p-3 text-left"
+            className="min-h-[80px] rounded-[5px] bg-[#FAFAFA] p-3 text-left"
           >
             <p className="text-[11px] font-semibold text-gray-700">
               통증

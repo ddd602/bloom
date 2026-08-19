@@ -126,7 +126,7 @@ function RoutineCreate() {
             운동 루틴에 필요한 정보를 입력해주세요
           </p>
 
-          <div className="divide-y divide-gray-100 rounded-xl bg-[#F8F8F8] px-4">
+          <div className="divide-y divide-gray-100 rounded-[5px] bg-[#F8F8F8] px-4">
             {/* 이름 */}
             <div className="flex min-h-[58px] items-center justify-between gap-3">
               <span className="flex shrink-0 items-center gap-1.5 text-[11px] text-gray-600">
@@ -207,7 +207,7 @@ function RoutineCreate() {
                   }
                   inputMode="numeric"
                   placeholder="0"
-                  className="h-7 w-9 rounded-md bg-white text-center text-[11px] font-medium outline-none"
+                  className="h-7 w-9 rounded-[5px] bg-white text-center text-[11px] font-medium outline-none"
                 />
 
                 <span className="text-[9px] text-gray-400">
@@ -221,7 +221,7 @@ function RoutineCreate() {
                   }
                   inputMode="numeric"
                   placeholder="0"
-                  className="h-7 w-9 rounded-md bg-white text-center text-[11px] font-medium outline-none"
+                  className="h-7 w-9 rounded-[5px] bg-white text-center text-[11px] font-medium outline-none"
                 />
 
                 <span className="text-[9px] text-gray-400">
@@ -245,7 +245,7 @@ function RoutineCreate() {
                   }
                   inputMode="numeric"
                   placeholder="0"
-                  className="h-7 w-11 rounded-md bg-white text-center text-[11px] font-medium outline-none"
+                  className="h-7 w-11 rounded-[5px] bg-white text-center text-[11px] font-medium outline-none"
                 />
 
                 <span className="text-[9px] text-gray-400">

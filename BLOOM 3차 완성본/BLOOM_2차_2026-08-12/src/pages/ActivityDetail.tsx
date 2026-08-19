@@ -255,7 +255,7 @@ export default function ActivityDetail() {
         </section>
 
         {/* 활동 요약 */}
-        <section className="rounded-2xl bg-gray-100 p-4">
+        <section className="rounded-[5px] bg-gray-100 p-4">
 
           <p className="mb-4 text-sm font-bold text-gray-900">
             오늘의 활동
@@ -264,7 +264,7 @@ export default function ActivityDetail() {
           <div className="grid grid-cols-2 gap-3">
 
             {/* 운동 시간 */}
-            <div className="rounded-xl bg-white px-4 py-4">
+            <div className="rounded-[5px] bg-white px-4 py-4">
 
               <p className="text-[10px] text-gray-400">
                 운동 시간
@@ -285,7 +285,7 @@ export default function ActivityDetail() {
             </div>
 
             {/* 소모 칼로리 */}
-            <div className="rounded-xl bg-white px-4 py-4">
+            <div className="rounded-[5px] bg-white px-4 py-4">
 
               <p className="text-[10px] text-gray-400">
                 소모 칼로리
@@ -335,7 +335,7 @@ export default function ActivityDetail() {
         </section>
 
         {/* 일일 걸음 수 */}
-        <section className="rounded-2xl bg-gray-100 p-4">
+        <section className="rounded-[5px] bg-gray-100 p-4">
 
           <p className="mb-2 text-sm font-bold text-gray-900">
             일일 걸음 수

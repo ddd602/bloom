@@ -225,7 +225,7 @@ function NudeBodyGalleryPage() {
 
         {photos.length ===
         0 ? (
-          <div className="mt-5 flex h-[150px] items-center justify-center rounded-xl bg-[#F7F7F7] text-[10px] text-gray-400">
+          <div className="mt-5 flex h-[150px] items-center justify-center rounded-[5px] bg-[#F7F7F7] text-[10px] text-gray-400">
             아직 서버에 저장된 눈바디 사진이 없어요
           </div>
         ) : (
@@ -240,7 +240,7 @@ function NudeBodyGalleryPage() {
                     photo.id
                   }
                 >
-                  <div className="aspect-[3/4] overflow-hidden rounded-lg bg-[#D9D9D9]">
+                  <div className="aspect-[3/4] overflow-hidden rounded-[5px] bg-[#D9D9D9]">
                     <img
                       src={
                         imageUrl

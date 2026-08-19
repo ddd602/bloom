@@ -801,10 +801,10 @@ export default function MealInput() {
                       photo
                     }
                     alt="식사 사진"
-                    className="h-[90px] w-[90px] rounded-lg object-cover"
+                    className="h-[90px] w-[90px] rounded-[5px] object-cover"
                   />
                 ) : (
-                  <div className="flex h-[90px] w-[90px] items-center justify-center rounded-lg bg-gray-200 text-gray-400">
+                  <div className="flex h-[90px] w-[90px] items-center justify-center rounded-[5px] bg-gray-200 text-gray-400">
 
                     <svg
                       viewBox="0 0 24 24"
@@ -904,7 +904,7 @@ export default function MealInput() {
                       item.mealId ??
                       i
                     }
-                    className="rounded-lg bg-[#F8F8F8] px-4 py-3"
+                    className="rounded-[5px] bg-[#F8F8F8] px-4 py-3"
                   >
 
                     <div className="mb-1 flex items-center justify-between">
