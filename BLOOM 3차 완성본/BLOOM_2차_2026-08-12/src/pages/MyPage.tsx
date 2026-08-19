@@ -12,8 +12,6 @@ import {
   logout,
 } from '../components/api/AuthApi'
 
-import stampActive from '../assets/icons/stamp-active.svg'
-import stampInactive from '../assets/icons/stamp-inactive.svg'
 
 import {
   getProfile,
@@ -521,15 +519,29 @@ function MyPage() {
                     }
                     className="flex flex-col items-center"
                   >
-                    <img
-                      src={
-                        active
-                          ? stampActive
-                          : stampInactive
+                    <div
+                      className={
+                        'relative flex h-[42px] w-[42px] items-center justify-center rounded-full border-[2px] ' +
+                        (
+                          active
+                            ? 'border-[#31C66B] bg-[#ECF9F0]'
+                            : 'border-[#D8D8D8] bg-[#F5F5F5]'
+                        )
                       }
-                      alt=""
-                      className="h-[42px] w-[42px]"
-                    />
+                    >
+                      {active ? (
+                        <>
+                          <div className="absolute h-[24px] w-[24px] rounded-full bg-[#31C66B]" />
+                          <span className="relative z-10 text-[15px] font-black leading-none text-white">
+                            ✓
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-[16px] font-bold text-[#C7C7C7]">
+                          ·
+                        </span>
+                      )}
+                    </div>
 
                     <span
                       className={
