@@ -110,9 +110,7 @@ export async function getDiaries(
   to: string,
 ): Promise<Diary[]> {
   const history =
-    await apiFetch<
-      DiaryHistoryItem[]
-    >(
+    await apiFetch<DiaryHistoryItem[]>(
       `/api/v1/diary/history?from=${encodeURIComponent(
         from,
       )}&to=${encodeURIComponent(
@@ -120,15 +118,26 @@ export async function getDiaries(
       )}`,
     )
 
-  if (
-    history.length === 0
-  ) {
+  if (history.length === 0) {
+    return []
+  }
+
+  // 백엔드가 혹시 전체 history를 반환하더라도
+  // 현재 보고 있는 기간의 데이터만 사용
+  const filteredHistory =
+    history.filter(
+      (item) =>
+        item.date >= from &&
+        item.date <= to,
+    )
+
+  if (filteredHistory.length === 0) {
     return []
   }
 
   const diaries =
     await Promise.all(
-      history.map(
+      filteredHistory.map(
         async (item) => {
           try {
             const daily =
@@ -137,17 +146,15 @@ export async function getDiaries(
               )
 
             return {
-              id:
-                dateToId(
-                  item.date,
-                ),
+              id: dateToId(
+                item.date,
+              ),
 
               date:
                 item.date,
 
               content:
-                daily.memo ??
-                '',
+                daily.memo ?? '',
             }
           } catch {
             return null
