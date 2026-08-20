@@ -1,4 +1,7 @@
-import { apiFetch } from './ApiClient'
+import {
+  apiFetch,
+  getDataMutationVersion,
+} from './ApiClient'
 
 export type EmotionTag =
   | 'HAPPY'
@@ -140,6 +143,11 @@ export type DailyDiaryResponse = {
 type DiaryCacheEntry = {
   data: DailyDiaryResponse
   createdAt: number
+
+  // 이 캐시가 만들어졌을 때의 서버 데이터 변경 버전.
+  // 식사/운동/컨디션 등 POST/PATCH/DELETE가 한 번이라도 성공하면
+  // ApiClient의 mutation version이 올라가므로 이전 캐시는 재사용하지 않는다.
+  mutationVersion: number
 }
 
 const diaryCache =
@@ -174,6 +182,8 @@ export async function getDailyDiary(
 
   if (
     cached &&
+    cached.mutationVersion ===
+      getDataMutationVersion() &&
     Date.now() -
       cached.createdAt <
       CACHE_TTL
@@ -217,6 +227,8 @@ export async function getDailyDiary(
             data,
             createdAt:
               Date.now(),
+            mutationVersion:
+              getDataMutationVersion(),
           },
         )
 
@@ -265,6 +277,8 @@ export async function saveDailyDiary(
       data: saved,
       createdAt:
         Date.now(),
+      mutationVersion:
+        getDataMutationVersion(),
     },
   )
 
