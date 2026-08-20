@@ -288,3 +288,20 @@ export function IconEyeOff(p: IconProps) {
     </svg>
   )
 }
+
+export function IconHeart(
+  p: IconProps & { filled?: boolean },
+) {
+  return (
+    <svg
+      {...base(p)}
+      fill={
+        p.filled
+          ? 'currentColor'
+          : 'none'
+      }
+    >
+      <path d="M12 20.2s-7.5-4.6-9.7-9.1C.7 7.8 2 4.5 5.3 3.6c2-.5 4 .3 5.2 2 .3.4.8 1 1.5 1.9.7-.9 1.2-1.5 1.5-1.9 1.2-1.7 3.2-2.5 5.2-2 3.3.9 4.6 4.2 3 7.5-2.2 4.5-9.7 9.1-9.7 9.1Z" />
+    </svg>
+  )
+}

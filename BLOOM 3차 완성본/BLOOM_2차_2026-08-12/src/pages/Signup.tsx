@@ -15,6 +15,41 @@ import {
   IconEyeOff,
 } from '../components/icons'
 
+// 백엔드 비밀번호 규칙: 8~72자, 영문·숫자·특수문자 모두 포함
+function getPasswordRuleError(
+  password: string,
+): string {
+  if (password.length === 0) {
+    return ''
+  }
+
+  if (
+    password.length < 8 ||
+    password.length > 72
+  ) {
+    return '비밀번호는 8자에서 72자 사이여야 해요'
+  }
+
+  const hasLetter =
+    /[a-zA-Z]/.test(password)
+
+  const hasDigit =
+    /[0-9]/.test(password)
+
+  const hasSpecial =
+    /[^a-zA-Z0-9]/.test(password)
+
+  if (
+    !hasLetter ||
+    !hasDigit ||
+    !hasSpecial
+  ) {
+    return '영문, 숫자, 특수문자를 모두 포함해주세요'
+  }
+
+  return ''
+}
+
 export default function Signup() {
   const navigate = useNavigate()
 
@@ -22,13 +57,18 @@ export default function Signup() {
   const [pw, setPw] = useState('')
   const [name, setName] = useState('')
   const [showPw, setShowPw] = useState(false)
+  const [pwTouched, setPwTouched] = useState(false)
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  const passwordRuleError =
+    getPasswordRuleError(pw)
+
   const valid =
     email.trim() !== '' &&
     pw.trim() !== '' &&
+    !passwordRuleError &&
     name.trim() !== ''
 
   const submit = async (
@@ -110,6 +150,25 @@ export default function Signup() {
           className="space-y-[6px]"
         >
 
+          {/* 이름 */}
+          <div className="flex h-[46px] items-center rounded-[5px] bg-[#F7F7F7] px-3">
+
+            <IconProfile className="h-[16px] w-[16px] shrink-0 text-[#777]" />
+
+            <input
+              value={name}
+              onChange={(e) => {
+                setName(
+                  e.target.value,
+                )
+                setError('')
+              }}
+              placeholder="이름을 입력해주세요"
+              className="ml-3 min-w-0 flex-1 bg-transparent text-[10px] text-gray-700 outline-none placeholder:text-[#777]"
+            />
+
+          </div>
+
           {/* 이메일 */}
           <div className="flex h-[46px] items-center rounded-[5px] bg-[#F7F7F7] px-3">
 
@@ -148,6 +207,9 @@ export default function Signup() {
                 )
                 setError('')
               }}
+              onBlur={() =>
+                setPwTouched(true)
+              }
               placeholder="비밀번호를 입력해주세요"
               className="ml-3 min-w-0 flex-1 bg-transparent text-[10px] text-gray-700 outline-none placeholder:text-[#777]"
             />
@@ -171,24 +233,21 @@ export default function Signup() {
 
           </div>
 
-          {/* 이름 */}
-          <div className="flex h-[46px] items-center rounded-[5px] bg-[#F7F7F7] px-3">
-
-            <IconProfile className="h-[16px] w-[16px] shrink-0 text-[#777]" />
-
-            <input
-              value={name}
-              onChange={(e) => {
-                setName(
-                  e.target.value,
-                )
-                setError('')
-              }}
-              placeholder="이름을 입력해주세요"
-              className="ml-3 min-w-0 flex-1 bg-transparent text-[10px] text-gray-700 outline-none placeholder:text-[#777]"
-            />
-
-          </div>
+          {/* 비밀번호 규칙 안내 */}
+          <p
+            className={
+              'px-1 text-[8px] ' +
+              (pwTouched &&
+              passwordRuleError
+                ? 'text-red-500'
+                : 'text-gray-400')
+            }
+          >
+            {pwTouched &&
+            passwordRuleError
+              ? passwordRuleError
+              : '영문, 숫자, 특수문자를 포함해 8~72자로 입력해주세요'}
+          </p>
 
           {/* 에러 메시지 */}
           {error && (

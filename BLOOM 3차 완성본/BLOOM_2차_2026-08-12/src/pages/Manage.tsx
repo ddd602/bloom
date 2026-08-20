@@ -71,21 +71,21 @@ function Manage() {
           <NudeBodyGallery to="/manage/gallery" />
         </div>
 
-        {/* 스토어 및 시술 내역 */}
+        {/* 스토어 및 시술 추천 */}
         <div className="mt-8">
           <Link
             to="/manage/store"
             className="flex items-center justify-between"
           >
             <h2 className="text-[14px] font-bold text-gray-900">
-              스토어 및 시술 내역
+              스토어 및 시술 추천
             </h2>
 
             <IconChevronRight className="h-6 w-6 text-gray-400" />
           </Link>
 
           <p className="mt-1 text-[8px] leading-[12px] text-gray-400">
-            구매한 제품과 예약한 시술 내역을 확인할 수 있어요
+            회원님께 맞는 제품과 시술을 추천해드려요
           </p>
         </div>
       </div>

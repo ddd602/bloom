@@ -26,6 +26,8 @@ import ExerciseComplete from './pages/exercise/ExerciseComplete'
 import NudeBodyGalleryPage from './pages/manager/NudeBodyGalleryPage'
 
 import PlaceholderScreen from './pages/PlaceholderScreen'
+import FavoriteProducts from './pages/FavoriteProducts'
+import FavoriteProcedures from './pages/FavoriteProcedures'
 import MealInput from './pages/MealInput'
 import ActivityDetail from './pages/ActivityDetail'
 import CharacterSetting from './pages/CharacterSetting'
@@ -141,16 +143,12 @@ export default function App() {
 
         <Route
           path="/my-page/treatments"
-          element={
-            <PlaceholderScreen title="시술 내역" />
-          }
+          element={<FavoriteProcedures />}
         />
 
         <Route
           path="/my-page/purchases"
-          element={
-            <PlaceholderScreen title="구매 내역" />
-          }
+          element={<FavoriteProducts />}
         />
 
         {/* 실제 포인트 페이지 */}

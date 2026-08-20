@@ -1,5 +1,23 @@
 import { useEffect, useRef, useState } from 'react'
 
+// 서버가 주는 ISO 타임스탬프(초 이하 자리 포함)를
+// "날짜 시:분"만 보이게 정리
+function formatHistoryDate(raw: string) {
+  const date = new Date(raw)
+
+  if (Number.isNaN(date.getTime())) {
+    return raw
+  }
+
+  const pad = (n: number) =>
+    String(n).padStart(2, '0')
+
+  return (
+    `${date.getFullYear()}.${pad(date.getMonth() + 1)}.${pad(date.getDate())} ` +
+    `${pad(date.getHours())}:${pad(date.getMinutes())}`
+  )
+}
+
 // 카테고리 탭
 const CATEGORIES = ['전체', '운동', '식단', '시술', '관리', '기타'] as const
 type Category = (typeof CATEGORIES)[number]
@@ -308,7 +326,7 @@ function HistorySheet({
                     <div className="flex shrink-0 flex-col items-end gap-1">
 
                       <span className="text-[10px] text-gray-400">
-                        {it.date}
+                        {formatHistoryDate(it.date)}
                       </span>
 
                       <span className="text-[16px] leading-none text-gray-300">

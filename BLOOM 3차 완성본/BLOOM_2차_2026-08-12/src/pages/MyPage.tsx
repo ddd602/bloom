@@ -32,6 +32,11 @@ import {
   PROFILE_BY_GOAL,
 } from '../utils/characterVariant'
 
+import {
+  getFavoriteProducts,
+  getFavoriteProcedures,
+} from '../utils/favorites'
+
 function maskEmail(
   email: string,
 ) {
@@ -232,19 +237,19 @@ function MyPage() {
   const summary = [
     {
       label:
-        '시술 내역',
+        '관심 상품',
       value:
-        '-',
+        `${getFavoriteProducts().length}개`,
       to:
-        '/my-page/treatments',
+        '/my-page/purchases',
     },
     {
       label:
-        '구매 내역',
+        '관심 시술',
       value:
-        '-',
+        `${getFavoriteProcedures().length}개`,
       to:
-        '/my-page/purchases',
+        '/my-page/treatments',
     },
     {
       label:

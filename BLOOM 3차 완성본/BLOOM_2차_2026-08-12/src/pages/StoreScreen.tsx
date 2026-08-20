@@ -1,9 +1,16 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { IconChevronLeft } from '../components/icons'
+import { IconChevronLeft, IconHeart } from '../components/icons'
 
 import { getProfile } from '../components/api/ProfileApi'
 import { pickGoalVariant, type GoalId } from '../utils/characterVariant'
+
+import {
+  getFavoriteProducts,
+  getFavoriteProcedures,
+  toggleFavoriteProduct,
+  toggleFavoriteProcedure,
+} from '../utils/favorites'
 
 // WIM Store 실제 카테고리
 const PRODUCT_CHIPS = [
@@ -14,7 +21,7 @@ const PRODUCT_CHIPS = [
 ]
 
 // WIM Store 실제 상품
-const PRODUCTS = [
+export const PRODUCTS = [
   {
     category: '쉐이크',
     name: '저당·저탄수·고단백 윔쉐이크 초코 800g',
@@ -142,7 +149,7 @@ const PROCEDURE_CHIPS = [
 ]
 
 // WIM Clinic 실제 프로그램
-const PROCEDURES = [
+export const PROCEDURES = [
   {
     category: '비만대사 진료',
     name: '비만대사 원인 진단 상담',
@@ -259,30 +266,28 @@ function ChipRow({
   )
 }
 
-function ItemCard({
+export function ItemCard({
   item,
+  favorite,
+  onToggleFavorite,
 }: {
   item: (typeof PRODUCTS)[number]
+  favorite: boolean
+  onToggleFavorite: () => void
 }) {
   return (
     <a
       href={item.href}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex min-h-[78px] bg-white active:bg-gray-50"
+      className="relative flex min-h-[78px] bg-white active:bg-gray-50"
     >
       <div className="w-[82px] shrink-0 bg-gray-300" />
 
       <div className="min-w-0 flex-1 px-4 py-3">
-        <div className="flex items-start justify-between gap-2">
-          <p className="text-[11px] font-bold text-gray-900">
-            {item.name}
-          </p>
-
-          <p className="shrink-0 text-[10px] font-medium text-[#31C66B]">
-            {item.price}
-          </p>
-        </div>
+        <p className="pr-6 text-[11px] font-bold text-gray-900">
+          {item.name}
+        </p>
 
         <p className="mt-2 text-[8px] leading-4 text-gray-400">
           {item.desc1}
@@ -291,7 +296,36 @@ function ItemCard({
         <p className="text-[8px] leading-4 text-gray-400">
           {item.desc2}
         </p>
+
+        <p className="mt-2 text-right text-[10px] font-medium text-[#31C66B]">
+          {item.price}
+        </p>
       </div>
+
+      <button
+        type="button"
+        onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          onToggleFavorite()
+        }}
+        aria-label={
+          favorite
+            ? '관심 목록에서 제거'
+            : '관심 목록에 추가'
+        }
+        className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center"
+      >
+        <IconHeart
+          filled={favorite}
+          className={
+            'h-4 w-4 ' +
+            (favorite
+              ? 'text-[#E86B5C]'
+              : 'text-gray-300')
+          }
+        />
+      </button>
     </a>
   )
 }
@@ -397,6 +431,37 @@ export default function StoreScreen() {
         PROCEDURE_CHIP_KEY,
       ) !== null,
   )
+
+  // 관심 상품 / 관심 시술 (하트로 찜한 항목 이름 목록)
+  const [
+    favoriteProducts,
+    setFavoriteProducts,
+  ] = useState<string[]>(
+    getFavoriteProducts,
+  )
+
+  const [
+    favoriteProcedures,
+    setFavoriteProcedures,
+  ] = useState<string[]>(
+    getFavoriteProcedures,
+  )
+
+  const handleToggleFavoriteProduct = (
+    name: string,
+  ) => {
+    setFavoriteProducts(
+      toggleFavoriteProduct(name),
+    )
+  }
+
+  const handleToggleFavoriteProcedure = (
+    name: string,
+  ) => {
+    setFavoriteProcedures(
+      toggleFavoriteProcedure(name),
+    )
+  }
 
   // 미용목표에 맞춰 개별로 추천된 상품/시술 이름 목록
   const [
@@ -614,6 +679,14 @@ export default function StoreScreen() {
                 <ItemCard
                   key={index}
                   item={item}
+                  favorite={favoriteProducts.includes(
+                    item.name,
+                  )}
+                  onToggleFavorite={() =>
+                    handleToggleFavoriteProduct(
+                      item.name,
+                    )
+                  }
                 />
               ),
             )}
@@ -647,6 +720,14 @@ export default function StoreScreen() {
                 <ItemCard
                   key={index}
                   item={item}
+                  favorite={favoriteProcedures.includes(
+                    item.name,
+                  )}
+                  onToggleFavorite={() =>
+                    handleToggleFavoriteProcedure(
+                      item.name,
+                    )
+                  }
                 />
               ),
             )}
