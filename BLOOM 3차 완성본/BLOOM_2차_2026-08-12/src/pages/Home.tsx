@@ -53,7 +53,6 @@ import {
 
 import AttendanceRewardModal from '../components/mileage/AttendanceRewardModal'
 
-import characterUrl from '../assets/brand/character.svg'
 
 function getTodayDate() {
   const today = new Date()
@@ -162,7 +161,7 @@ function shiftDate(
 
   value.setUTCDate(
     value.getUTCDate() +
-      days,
+    days,
   )
 
   return value
@@ -219,10 +218,10 @@ function getNextAttendanceStreak(
       );
     dates.has(date);
     date =
-      shiftDate(
-        date,
-        -1,
-      )
+    shiftDate(
+      date,
+      -1,
+    )
   ) {
     streak += 1
   }
@@ -332,11 +331,11 @@ function Home() {
   const characterSrc =
     beautyGoals.length > 0
       ? CHARACTER_BY_GOAL[
-          pickGoalVariant(
-            beautyGoals,
-          )
-        ]
-      : characterUrl
+      pickGoalVariant(
+        beautyGoals,
+      )
+      ]
+      : null
 
   useEffect(() => {
     const loadHomeStats =
@@ -372,7 +371,7 @@ function Home() {
 
           setBeautyGoals(
             profile.beautyGoals ??
-              [],
+            [],
           )
 
           const attendanceDates =
@@ -404,19 +403,19 @@ function Home() {
             | 14
             | null =
             streak >= 14 &&
-            !claimedReasons.has(
-              'ROUTINE_STREAK_14',
-            )
+              !claimedReasons.has(
+                'ROUTINE_STREAK_14',
+              )
               ? 14
               : streak >= 7 &&
-                  !claimedReasons.has(
-                    'ROUTINE_STREAK_7',
-                  )
+                !claimedReasons.has(
+                  'ROUTINE_STREAK_7',
+                )
                 ? 7
                 : streak >= 3 &&
-                    !claimedReasons.has(
-                      'ROUTINE_STREAK_3',
-                    )
+                  !claimedReasons.has(
+                    'ROUTINE_STREAK_3',
+                  )
                   ? 3
                   : null
 
@@ -462,10 +461,10 @@ function Home() {
 
             setRewardAmount(
               routineMilestone ===
-              14
+                14
                 ? 500
                 : routineMilestone ===
-                    7
+                  7
                   ? 300
                   : 100,
             )
@@ -584,41 +583,41 @@ function Home() {
 
   const homeReport =
     aiReport &&
-    aiReport.status === 'COMPLETED'
+      aiReport.status === 'COMPLETED'
       ? [
-          {
-            label: '관리 목표',
-            heading:
-              aiReport.priorities[0]?.title ??
-              '맞춤 관리 목표',
-            body:
-              aiReport.priorities[0]?.description ?? '',
-          },
-          {
-            label: '추천 관리',
-            heading:
-              aiReport.methods[0]?.title ??
-              '맞춤 관리 방법',
-            body:
-              aiReport.methods[0]?.description ?? '',
-          },
-          {
-            label: '추천 관리',
-            heading:
-              aiReport.methods[1]?.title ??
-              '맞춤 관리 방법',
-            body:
-              aiReport.methods[1]?.description ?? '',
-          },
-          {
-            label: '추천 관리',
-            heading:
-              aiReport.methods[2]?.title ??
-              '맞춤 관리 방법',
-            body:
-              aiReport.methods[2]?.description ?? '',
-          },
-        ]
+        {
+          label: '관리 목표',
+          heading:
+            aiReport.priorities[0]?.title ??
+            '맞춤 관리 목표',
+          body:
+            aiReport.priorities[0]?.description ?? '',
+        },
+        {
+          label: '추천 관리',
+          heading:
+            aiReport.methods[0]?.title ??
+            '맞춤 관리 방법',
+          body:
+            aiReport.methods[0]?.description ?? '',
+        },
+        {
+          label: '추천 관리',
+          heading:
+            aiReport.methods[1]?.title ??
+            '맞춤 관리 방법',
+          body:
+            aiReport.methods[1]?.description ?? '',
+        },
+        {
+          label: '추천 관리',
+          heading:
+            aiReport.methods[2]?.title ??
+            '맞춤 관리 방법',
+          body:
+            aiReport.methods[2]?.description ?? '',
+        },
+      ]
       : []
 
   const handleOpenAiReport =
@@ -704,9 +703,9 @@ function Home() {
     () => {
       if (
         rewardType ===
-          'ATTENDANCE' &&
+        'ATTENDANCE' &&
         pendingRoutineMilestone !==
-          null
+        null
       ) {
         const milestone =
           pendingRoutineMilestone
@@ -742,7 +741,7 @@ function Home() {
 
         const result =
           rewardType ===
-          'ATTENDANCE'
+            'ATTENDANCE'
             ? await claimAttendanceReward()
             : await checkRoutineStreakReward()
 
@@ -759,7 +758,7 @@ function Home() {
 
           setRewardStreak(
             result.streak ??
-              rewardStreak,
+            rewardStreak,
           )
 
           setRewardStage(
@@ -771,9 +770,9 @@ function Home() {
 
         if (
           rewardType ===
-            'ATTENDANCE' &&
+          'ATTENDANCE' &&
           result.reason ===
-            'ALREADY_REWARDED'
+          'ALREADY_REWARDED'
         ) {
           moveToNextReward()
           return
@@ -781,9 +780,9 @@ function Home() {
 
         if (
           rewardType ===
-            'ROUTINE' &&
+          'ROUTINE' &&
           result.reason ===
-            'NO_NEW_REWARD'
+          'NO_NEW_REWARD'
         ) {
           setRewardOpen(
             false,
@@ -816,9 +815,9 @@ function Home() {
 
       if (
         rewardType ===
-          'ATTENDANCE' &&
+        'ATTENDANCE' &&
         pendingRoutineMilestone !==
-          null
+        null
       ) {
         const milestone =
           pendingRoutineMilestone
@@ -851,9 +850,9 @@ function Home() {
 
       if (
         rewardType ===
-          'ATTENDANCE' &&
+        'ATTENDANCE' &&
         pendingRoutineMilestone !==
-          null
+        null
       ) {
         moveToNextReward()
         return
@@ -891,13 +890,13 @@ function Home() {
         '잔여 섭취 칼로리',
       value:
         remainingCalories ===
-        null
+          null
           ? '-'
           : remainingCalories
-              .toLocaleString(),
+            .toLocaleString(),
       unit:
         remainingCalories ===
-        null
+          null
           ? ''
           : 'kcal',
     },
@@ -1005,7 +1004,7 @@ function Home() {
           Math.max(
             0,
             maxUpTop -
-              sheetBaseTop,
+            sheetBaseTop,
           )
 
         const initialTop =
@@ -1021,7 +1020,7 @@ function Home() {
           Math.max(
             minOffset,
             sheet.offsetHeight -
-              COLLAPSED_VISIBLE,
+            COLLAPSED_VISIBLE,
           )
 
         minOffsetRef.current =
@@ -1032,9 +1031,9 @@ function Home() {
 
         const glowVisible =
           glowRect.bottom >
-            homeRect.top &&
+          homeRect.top &&
           glowRect.top <
-            homeRect.bottom
+          homeRect.bottom
 
         if (
           glowVisible
@@ -1189,7 +1188,7 @@ function Home() {
       Math.min(
         Math.max(
           startOffset.current +
-            dy,
+          dy,
           minOffsetRef.current,
         ),
         maxOffsetRef.current,
@@ -1328,23 +1327,23 @@ function Home() {
       />
 
       {/* 캐릭터 */}
-      <img
-        src={
-          characterSrc
-        }
-        alt="BLOOM 캐릭터"
-        className="
-          pointer-events-none
-          absolute
-          left-1/2
-          top-[220px]
-          z-10
-          h-[172px]
-          w-auto
-          -translate-x-1/2
-          object-contain
-        "
-      />
+      {characterSrc && (
+        <img
+          src={characterSrc}
+          alt="BLOOM 캐릭터"
+          className="
+      pointer-events-none
+      absolute
+      left-1/2
+      top-[220px]
+      z-10
+      h-[172px]
+      w-auto
+      -translate-x-1/2
+      object-contain
+    "
+        />
+      )}
 
       {/* BLOOM */}
       <h1
@@ -1597,22 +1596,22 @@ function Home() {
           {!aiReportLoading &&
             !aiReportError &&
             homeReport.map(
-            (r) => (
-              <div
-                key={
-                  r.label
-                }
-                className="
+              (r) => (
+                <div
+                  key={
+                    r.label
+                  }
+                  className="
                   rounded-[5px]
                   bg-white
                   px-4
                   py-4
                   shadow-sm
                 "
-              >
-                <div className="flex gap-4">
-                  <span
-                    className="
+                >
+                  <div className="flex gap-4">
+                    <span
+                      className="
                       w-[58px]
                       shrink-0
                       pt-0.5
@@ -1620,44 +1619,44 @@ function Home() {
                       font-semibold
                       text-[#5F9D74]
                     "
-                  >
-                    {
-                      r.label
-                    }
-                  </span>
+                    >
+                      {
+                        r.label
+                      }
+                    </span>
 
-                  <div className="min-w-0 flex-1">
-                    <p
-                      className="
+                    <div className="min-w-0 flex-1">
+                      <p
+                        className="
                         break-keep
                         text-[12px]
                         font-bold
                         text-[#32B96F]
                       "
-                    >
-                      {
-                        r.heading
-                      }
-                    </p>
+                      >
+                        {
+                          r.heading
+                        }
+                      </p>
 
-                    <p
-                      className="
+                      <p
+                        className="
                         mt-1
                         break-keep
                         text-[10px]
                         leading-[16px]
                         text-gray-500
                       "
-                    >
-                      {
-                        r.body
-                      }
-                    </p>
+                      >
+                        {
+                          r.body
+                        }
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ),
-          )}
+              ),
+            )}
         </div>
       </section>
 
@@ -1671,9 +1670,9 @@ function Home() {
         loading={rewardLoading}
         hasNextReward={
           rewardType ===
-            'ATTENDANCE' &&
+          'ATTENDANCE' &&
           pendingRoutineMilestone !==
-            null
+          null
         }
         onPrimary={
           handleRewardPrimary

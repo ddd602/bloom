@@ -26,7 +26,6 @@ import {
 
 
 import loginLogoUrl from '../assets/brand/login-logo.svg'
-import profileUrl from '../assets/brand/profile-yellow.svg'
 
 import {
   pickGoalVariant,
@@ -134,11 +133,11 @@ function MyPage() {
   const avatarUrl =
     profile
       ? PROFILE_BY_GOAL[
-          pickGoalVariant(
-            profile.beautyGoals,
-          )
-        ]
-      : profileUrl
+      pickGoalVariant(
+        profile.beautyGoals,
+      )
+      ]
+      : null
 
   useEffect(() => {
     const loadPage =
@@ -307,25 +306,27 @@ function MyPage() {
           >
             <span
               className="
-                flex
-                h-[58px]
-                w-[58px]
-                items-center
-                justify-center
-                overflow-hidden
-                rounded-full
-                bg-[#F1F8F3]
-              "
+    flex
+    h-[58px]
+    w-[58px]
+    items-center
+    justify-center
+    overflow-hidden
+    rounded-full
+    bg-[#F1F8F3]
+  "
             >
-              <img
-                src={avatarUrl}
-                alt="프로필"
-                className="
-                  h-full
-                  w-full
-                  object-cover
-                "
-              />
+              {avatarUrl && (
+                <img
+                  src={avatarUrl}
+                  alt="프로필"
+                  className="
+        h-full
+        w-full
+        object-cover
+      "
+                />
+              )}
             </span>
 
             <span
