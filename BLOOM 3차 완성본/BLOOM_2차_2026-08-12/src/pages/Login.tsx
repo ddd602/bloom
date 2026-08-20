@@ -1,4 +1,3 @@
-
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -12,8 +11,6 @@ import {
 
 import {
   IconChevronLeft,
-  IconEye,
-  IconEyeOff,
 } from '../components/icons'
 
 export default function Login() {
@@ -156,11 +153,9 @@ export default function Login() {
               aria-label="비밀번호 표시"
               className="pl-2 text-gray-400"
             >
-              {showPw ? (
-                <IconEye className="h-5 w-5" />
-              ) : (
-                <IconEyeOff className="h-5 w-5" />
-              )}
+              {showPw
+                ? '🙈'
+                : '👁'}
             </button>
 
           </div>
