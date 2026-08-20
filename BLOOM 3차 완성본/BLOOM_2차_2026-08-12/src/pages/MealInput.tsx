@@ -18,6 +18,7 @@ import {
 import {
   analyzeNutritionImage,
   analyzeNutritionText,
+  getNutritionAnalysis,
   updateNutritionDraftFood,
   addNutritionDraftFood,
   deleteNutritionDraftFood,
@@ -75,6 +76,56 @@ const MEAL_TYPE_BY_KEY:
   dinner:
     'DINNER',
 }
+
+
+const waitForNutritionAnalysis =
+  async (
+    initialResult: Awaited<
+      ReturnType<
+        typeof analyzeNutritionText
+      >
+    >,
+  ) => {
+    if (
+      initialResult.status !==
+      'PROCESSING'
+    ) {
+      return initialResult
+    }
+
+    let latest =
+      initialResult
+
+    // 백엔드 AI 분석이 비동기인 경우를 대비해
+    // 최대 약 10초 동안 결과를 확인합니다.
+    for (
+      let attempt = 0;
+      attempt < 10;
+      attempt += 1
+    ) {
+      await new Promise<void>(
+        (resolve) =>
+          window.setTimeout(
+            resolve,
+            1000,
+          ),
+      )
+
+      latest =
+        await getNutritionAnalysis(
+          initialResult.analysisId,
+        )
+
+      if (
+        latest.status !==
+        'PROCESSING'
+      ) {
+        break
+      }
+    }
+
+    return latest
+  }
 
 type EditableMealItem =
   Omit<MealItem, 'kcal'> & {
@@ -633,10 +684,8 @@ export default function MealInput() {
 
           setAnalysisError('')
 
-          // 기존에 저장돼 있던 식사를 수정하는 경우에는
-          // 기존 saveMeal 흐름을 그대로 유지합니다.
-          // 새 직접입력 식사일 때만 저장 버튼에서
-          // 텍스트 영양 분석을 먼저 실행합니다.
+          // 이미 저장된 식사를 수정하는 경우에는
+          // 기존 saveMeal 동작을 그대로 유지합니다.
           const isEditingExistingMeal =
             cleaned.some(
               (item) =>
@@ -645,105 +694,8 @@ export default function MealInput() {
             )
 
           if (
-            !isEditingExistingMeal
+            isEditingExistingMeal
           ) {
-            try {
-              const textInput =
-                cleaned
-                  .map(
-                    (item) =>
-                      item.name.trim(),
-                  )
-                  .filter(
-                    Boolean,
-                  )
-                  .join(', ')
-
-              const result =
-                await analyzeNutritionText(
-                  selectedDate,
-                  MEAL_TYPE_BY_KEY[
-                    key
-                  ],
-                  textInput,
-                )
-
-              const hasAnalyzedFoods =
-                result.status !==
-                  'FAILED' &&
-                result.foods.length >
-                  0
-
-              if (
-                hasAnalyzedFoods
-              ) {
-                // AI가 계산한 kcal / 탄수화물 / 단백질 / 지방을
-                // 분석 기록으로 확정 저장합니다.
-                await recordNutritionAnalysis(
-                  result.analysisId,
-                )
-              } else {
-                // AI가 텍스트를 분석하지 못한 경우에도
-                // 기존 직접입력 저장 기능은 손상시키지 않습니다.
-                await saveMeal(
-                  selectedDate,
-                  key,
-                  {
-                    items:
-                      cleaned.map(
-                        (item) => ({
-                          mealId:
-                            item.mealId,
-                          name:
-                            item.name.trim(),
-                          kcal:
-                            item.kcal ??
-                            0,
-                          carbs:
-                            item.carbs,
-                          protein:
-                            item.protein,
-                          fat:
-                            item.fat,
-                        }),
-                      ),
-                  },
-                )
-              }
-            } catch (error) {
-              console.error(
-                '텍스트 영양 분석에 실패해 기존 방식으로 저장합니다.',
-                error,
-              )
-
-              // 분석 API 장애가 있어도 사용자가 입력한 식사는
-              // 기존 방식으로 정상 저장되게 유지합니다.
-              await saveMeal(
-                selectedDate,
-                key,
-                {
-                  items:
-                    cleaned.map(
-                      (item) => ({
-                        mealId:
-                          item.mealId,
-                        name:
-                          item.name.trim(),
-                        kcal:
-                          item.kcal ??
-                          0,
-                        carbs:
-                          item.carbs,
-                        protein:
-                          item.protein,
-                        fat:
-                          item.fat,
-                      }),
-                    ),
-                },
-              )
-            }
-          } else {
             await saveMeal(
               selectedDate,
               key,
@@ -768,6 +720,128 @@ export default function MealInput() {
                   ),
               },
             )
+          } else {
+            try {
+              const textInput =
+                cleaned
+                  .map(
+                    (item) =>
+                      item.name.trim(),
+                  )
+                  .filter(Boolean)
+                  .join(', ')
+
+              const initialResult =
+                await analyzeNutritionText(
+                  selectedDate,
+                  MEAL_TYPE_BY_KEY[
+                    key
+                  ],
+                  textInput,
+                )
+
+              const result =
+                await waitForNutritionAnalysis(
+                  initialResult,
+                )
+
+              const hasAnalyzedFoods =
+                result.status !==
+                  'FAILED' &&
+                result.status !==
+                  'CANCELLED' &&
+                result.foods.length >
+                  0
+
+              if (
+                !hasAnalyzedFoods
+              ) {
+                throw new Error(
+                  'AI 영양성분 분석 결과가 없습니다.',
+                )
+              }
+
+              // 핵심:
+              // kcal는 사용자가 입력한 값을 유지하고,
+              // 탄수화물/단백질/지방은 AI 분석값을 사용합니다.
+              //
+              // 텍스트 분석 결과는 draft이므로
+              // record 전에 draft food를 한 번 PATCH해야
+              // 사용자 kcal + AI 탄단지가 함께 저장됩니다.
+              await Promise.all(
+                result.foods.map(
+                  (
+                    food,
+                    index,
+                  ) => {
+                    const userItem =
+                      cleaned[
+                        index
+                      ] ??
+                      cleaned[0]
+
+                    return updateNutritionDraftFood(
+                      result.analysisId,
+                      food.draftFoodId,
+                      {
+                        foodName:
+                          userItem.name.trim(),
+                        kcal:
+                          userItem.kcal ??
+                          0,
+                        carbs:
+                          food.carbs,
+                        protein:
+                          food.protein,
+                        fat:
+                          food.fat,
+                      },
+                    )
+                  },
+                ),
+              )
+
+              await recordNutritionAnalysis(
+                result.analysisId,
+              )
+            } catch (error) {
+              console.error(
+                '텍스트 영양 분석에 실패했습니다.',
+                error,
+              )
+
+              // 분석이 실패해도 사용자가 입력한 음식과 kcal는
+              // 기존 방식대로 저장해서 기존 기능을 보존합니다.
+              // 이 경우 탄/단/지는 없을 수 있습니다.
+              await saveMeal(
+                selectedDate,
+                key,
+                {
+                  items:
+                    cleaned.map(
+                      (item) => ({
+                        mealId:
+                          item.mealId,
+                        name:
+                          item.name.trim(),
+                        kcal:
+                          item.kcal ??
+                          0,
+                        carbs:
+                          item.carbs,
+                        protein:
+                          item.protein,
+                        fat:
+                          item.fat,
+                      }),
+                    ),
+                },
+              )
+
+              setAnalysisError(
+                '식사는 저장했지만 영양성분 분석에 실패했어요.',
+              )
+            }
           }
         } else {
           await saveMeal(
