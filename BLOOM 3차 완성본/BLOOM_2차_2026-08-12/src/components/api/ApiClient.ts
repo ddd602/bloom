@@ -9,14 +9,74 @@ type ApiOptions = RequestInit & {
   auth?: boolean
 }
 
-let dataMutationVersion = 0
+const DATA_MUTATION_VERSION_KEY =
+  'bloom.dataMutationVersion'
+
+function readStoredMutationVersion() {
+  if (typeof window === 'undefined') {
+    return 0
+  }
+
+  try {
+    const stored =
+      window.sessionStorage.getItem(
+        DATA_MUTATION_VERSION_KEY,
+      )
+
+    const parsed = Number(stored)
+
+    return Number.isFinite(parsed) &&
+      parsed >= 0
+      ? parsed
+      : 0
+  } catch {
+    return 0
+  }
+}
+
+function writeStoredMutationVersion(
+  version: number,
+) {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  try {
+    window.sessionStorage.setItem(
+      DATA_MUTATION_VERSION_KEY,
+      String(version),
+    )
+  } catch {
+    // sessionStorage 사용이 막혀 있어도
+    // 메모리 버전만으로 기능은 계속 동작한다.
+  }
+}
+
+let dataMutationVersion =
+  readStoredMutationVersion()
 
 export function getDataMutationVersion() {
+  const storedVersion =
+    readStoredMutationVersion()
+
+  if (
+    storedVersion >
+    dataMutationVersion
+  ) {
+    dataMutationVersion =
+      storedVersion
+  }
+
   return dataMutationVersion
 }
 
 export function markDataMutation() {
-  dataMutationVersion += 1
+  dataMutationVersion =
+    getDataMutationVersion() + 1
+
+  writeStoredMutationVersion(
+    dataMutationVersion,
+  )
 }
 
 function isMutationMethod(

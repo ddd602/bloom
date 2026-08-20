@@ -24,6 +24,9 @@ import {
   getDataMutationVersion,
 } from '../api/ApiClient'
 import {
+  getAccessToken,
+} from '../api/AuthApi'
+import {
   getConditionByDate,
 } from '../api/ConditionApi'
 import {
@@ -164,20 +167,138 @@ type WeeklyReportCacheEntry = {
   cachedAt: number
 }
 
-// 상세 화면으로 이동했다가 뒤로 돌아와도
-// 같은 주 + 데이터 변경 없음이면 계산 결과를 재사용한다.
-// 서버/로컬 데이터가 변경되면 mutationVersion이 달라져
-// 자동으로 다시 조회한다.
+// 라우트 이동으로 WeeklyCalendar가 언마운트돼도
+// 같은 탭에서 같은 주의 계산 결과를 재사용한다.
+// 단, 실제 데이터가 변경되면 mutationVersion이 달라져
+// 캐시를 사용하지 않고 다시 서버에서 계산한다.
 const weeklyReportCache =
   new Map<
     string,
     WeeklyReportCacheEntry
   >()
 
-// 다른 탭/기기에서 데이터가 바뀌는 경우까지 고려해
-// 1분이 지나면 한 번은 서버에서 다시 확인한다.
+const WEEKLY_REPORT_CACHE_PREFIX =
+  'bloom.weeklyReport.v2'
+
+// 외부 기기/다른 탭에서 변경된 데이터까지 오래 숨기지 않도록
+// 짧게 유지한다. TTL이 지나면 기능 정확성을 위해 재조회한다.
 const WEEKLY_REPORT_CACHE_TTL =
   60_000
+
+function getTokenFingerprint() {
+  const token =
+    getAccessToken() ??
+    'anonymous'
+
+  let hash = 0
+
+  for (
+    let index = 0;
+    index < token.length;
+    index++
+  ) {
+    hash =
+      (hash * 31 +
+        token.charCodeAt(index)) >>>
+      0
+  }
+
+  return hash.toString(36)
+}
+
+function getWeeklyReportCacheKey(
+  reportWeekKey: string,
+) {
+  return `${getTokenFingerprint()}:${reportWeekKey}`
+}
+
+function getWeeklyReportStorageKey(
+  cacheKey: string,
+) {
+  return `${WEEKLY_REPORT_CACHE_PREFIX}:${cacheKey}`
+}
+
+function readWeeklyReportCache(
+  cacheKey: string,
+): WeeklyReportCacheEntry | null {
+  const memoryCached =
+    weeklyReportCache.get(
+      cacheKey,
+    )
+
+  if (memoryCached) {
+    return memoryCached
+  }
+
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  try {
+    const raw =
+      window.sessionStorage.getItem(
+        getWeeklyReportStorageKey(
+          cacheKey,
+        ),
+      )
+
+    if (!raw) {
+      return null
+    }
+
+    const parsed =
+      JSON.parse(
+        raw,
+      ) as WeeklyReportCacheEntry
+
+    if (
+      !parsed ||
+      typeof parsed.cachedAt !==
+        'number' ||
+      typeof parsed.mutationVersion !==
+        'number' ||
+      typeof parsed.analysisText !==
+        'string' ||
+      !parsed.report
+    ) {
+      return null
+    }
+
+    weeklyReportCache.set(
+      cacheKey,
+      parsed,
+    )
+
+    return parsed
+  } catch {
+    return null
+  }
+}
+
+function writeWeeklyReportCache(
+  cacheKey: string,
+  entry: WeeklyReportCacheEntry,
+) {
+  weeklyReportCache.set(
+    cacheKey,
+    entry,
+  )
+
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  try {
+    window.sessionStorage.setItem(
+      getWeeklyReportStorageKey(
+        cacheKey,
+      ),
+      JSON.stringify(entry),
+    )
+  } catch {
+    // 저장 공간 문제가 생겨도 기능은 서버 재조회로 유지된다.
+  }
+}
 
 export default function WeeklyCalendar() {
   const navigate =
@@ -608,9 +729,14 @@ export default function WeeklyCalendar() {
         const currentMutationVersion =
           getDataMutationVersion()
 
-        const cached =
-          weeklyReportCache.get(
+        const cacheKey =
+          getWeeklyReportCacheKey(
             reportWeekKey,
+          )
+
+        const cached =
+          readWeeklyReportCache(
+            cacheKey,
           )
 
         if (
@@ -1177,8 +1303,8 @@ export default function WeeklyCalendar() {
             nextWeeklyReport,
           )
 
-          weeklyReportCache.set(
-            reportWeekKey,
+          writeWeeklyReportCache(
+            cacheKey,
             {
               report:
                 nextWeeklyReport,
