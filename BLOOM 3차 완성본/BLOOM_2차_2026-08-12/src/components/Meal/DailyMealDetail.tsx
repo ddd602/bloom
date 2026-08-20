@@ -97,32 +97,44 @@ export default function DailyMealDetail() {
             rec.items,
           )
 
-        // 서버에서 받은 실제 탄수화물 합계
         const carbs =
-          rec.items.reduce(
-            (sum, item) =>
-              sum +
-              (item.carbs ?? 0),
-            0,
+          rec.items.some(
+            (item) =>
+              item.carbs == null,
           )
+            ? null
+            : rec.items.reduce(
+                (sum, item) =>
+                  sum +
+                  (item.carbs ?? 0),
+                0,
+              )
 
-        // 서버에서 받은 실제 단백질 합계
         const protein =
-          rec.items.reduce(
-            (sum, item) =>
-              sum +
-              (item.protein ?? 0),
-            0,
+          rec.items.some(
+            (item) =>
+              item.protein == null,
           )
+            ? null
+            : rec.items.reduce(
+                (sum, item) =>
+                  sum +
+                  (item.protein ?? 0),
+                0,
+              )
 
-        // 서버에서 받은 실제 지방 합계
         const fat =
-          rec.items.reduce(
-            (sum, item) =>
-              sum +
-              (item.fat ?? 0),
-            0,
+          rec.items.some(
+            (item) =>
+              item.fat == null,
           )
+            ? null
+            : rec.items.reduce(
+                (sum, item) =>
+                  sum +
+                  (item.fat ?? 0),
+                0,
+              )
 
         return {
           id: idx + 1,
@@ -130,7 +142,6 @@ export default function DailyMealDetail() {
           type:
             MEAL_LABELS[key],
 
-          // 현재 서버 응답에는 식사 시간이 없음
           time: "--:--",
 
           menu: recorded

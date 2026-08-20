@@ -4,7 +4,7 @@ export type Meal = {
   time: string;
   menu: string;
   calories: number | null;
-  carbs?: number;
-  protein?: number;
-  fat?: number;
+  carbs?: number | null;
+  protein?: number | null;
+  fat?: number | null;
 };
