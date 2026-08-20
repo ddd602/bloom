@@ -10,14 +10,11 @@ export default function MealDetail({ meal }: MealDetailProps) {
   const fat = meal.fat ?? 0;
 
   const hasMacros =
-    meal.carbs !== undefined ||
-    meal.protein !== undefined ||
-    meal.fat !== undefined;
+    meal.carbs != null ||
+    meal.protein != null ||
+    meal.fat != null;
 
-  const total =
-    carbs +
-    protein +
-    fat;
+  const total = carbs + protein + fat;
 
   const carbsPercent =
     total > 0
@@ -42,7 +39,9 @@ export default function MealDetail({ meal }: MealDetailProps) {
         </p>
 
         <p className="text-[14px] font-semibold text-gray-800">
-          {meal.calories ?? 0} kcal
+          {meal.calories != null
+            ? `${meal.calories} kcal`
+            : "정보 없음"}
         </p>
       </div>
 
@@ -78,7 +77,9 @@ export default function MealDetail({ meal }: MealDetailProps) {
                 탄수화물
               </p>
               <p className="mt-1 text-[14px] font-semibold text-gray-800">
-                {carbs}g
+                {meal.carbs != null
+                  ? `${meal.carbs}g`
+                  : "정보 없음"}
               </p>
             </div>
 
@@ -88,7 +89,9 @@ export default function MealDetail({ meal }: MealDetailProps) {
                 단백질
               </p>
               <p className="mt-1 text-[14px] font-semibold text-gray-800">
-                {protein}g
+                {meal.protein != null
+                  ? `${meal.protein}g`
+                  : "정보 없음"}
               </p>
             </div>
 
@@ -98,7 +101,9 @@ export default function MealDetail({ meal }: MealDetailProps) {
                 지방
               </p>
               <p className="mt-1 text-[14px] font-semibold text-gray-800">
-                {fat}g
+                {meal.fat != null
+                  ? `${meal.fat}g`
+                  : "정보 없음"}
               </p>
             </div>
           </div>
