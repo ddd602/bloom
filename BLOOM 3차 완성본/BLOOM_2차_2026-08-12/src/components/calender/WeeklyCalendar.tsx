@@ -189,6 +189,16 @@ export default function WeeklyCalendar() {
       selectedDateFromMonthly,
     )
 
+  // 주간 리포트는 같은 주 안에서 날짜만 바뀔 때 다시 불러올 필요가 없으므로
+  // 선택 날짜가 속한 주의 월요일을 리포트 기준 키로 사용
+  const reportWeekKey =
+    useMemo(() => {
+      return getWeekDateKeys(
+        selectedDate,
+        0,
+      )[0]
+    }, [selectedDate])
+
   // 선택한 날짜를 현재 히스토리 항목에도 반영
   // (생리 세부기록 등으로 이동했다가 뒤로가기로
   //  돌아왔을 때 선택 날짜가 유지되도록)
@@ -564,13 +574,13 @@ export default function WeeklyCalendar() {
         try {
           const lastWeekDates =
             getWeekDateKeys(
-              selectedDate,
+              reportWeekKey,
               -1,
             )
 
           const twoWeeksAgoDates =
             getWeekDateKeys(
-              selectedDate,
+              reportWeekKey,
               -2,
             )
 
@@ -1133,7 +1143,7 @@ export default function WeeklyCalendar() {
       }
 
     loadWeeklyReport()
-  }, [selectedDate])
+  }, [reportWeekKey])
 
   const summary = {
     mealTotal,
