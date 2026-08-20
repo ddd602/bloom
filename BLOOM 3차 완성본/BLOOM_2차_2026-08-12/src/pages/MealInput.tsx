@@ -17,6 +17,7 @@ import {
 
 import {
   analyzeNutritionImage,
+  analyzeNutritionText,
   updateNutritionDraftFood,
   addNutritionDraftFood,
   deleteNutritionDraftFood,
@@ -632,22 +633,142 @@ export default function MealInput() {
 
           setAnalysisError('')
 
-          await saveMeal(
-            selectedDate,
-            key,
-            {
-              items: cleaned.map(
-                (item) => ({
-                  mealId: item.mealId,
-                  name: item.name.trim(),
-                  kcal: item.kcal ?? 0,
-                  carbs: item.carbs,
-                  protein: item.protein,
-                  fat: item.fat,
-                }),
-              ),
-            },
-          )
+          // 기존에 저장돼 있던 식사를 수정하는 경우에는
+          // 기존 saveMeal 흐름을 그대로 유지합니다.
+          // 새 직접입력 식사일 때만 저장 버튼에서
+          // 텍스트 영양 분석을 먼저 실행합니다.
+          const isEditingExistingMeal =
+            cleaned.some(
+              (item) =>
+                item.mealId !==
+                undefined,
+            )
+
+          if (
+            !isEditingExistingMeal
+          ) {
+            try {
+              const textInput =
+                cleaned
+                  .map(
+                    (item) =>
+                      item.name.trim(),
+                  )
+                  .filter(
+                    Boolean,
+                  )
+                  .join(', ')
+
+              const result =
+                await analyzeNutritionText(
+                  selectedDate,
+                  MEAL_TYPE_BY_KEY[
+                    key
+                  ],
+                  textInput,
+                )
+
+              const hasAnalyzedFoods =
+                result.status !==
+                  'FAILED' &&
+                result.foods.length >
+                  0
+
+              if (
+                hasAnalyzedFoods
+              ) {
+                // AI가 계산한 kcal / 탄수화물 / 단백질 / 지방을
+                // 분석 기록으로 확정 저장합니다.
+                await recordNutritionAnalysis(
+                  result.analysisId,
+                )
+              } else {
+                // AI가 텍스트를 분석하지 못한 경우에도
+                // 기존 직접입력 저장 기능은 손상시키지 않습니다.
+                await saveMeal(
+                  selectedDate,
+                  key,
+                  {
+                    items:
+                      cleaned.map(
+                        (item) => ({
+                          mealId:
+                            item.mealId,
+                          name:
+                            item.name.trim(),
+                          kcal:
+                            item.kcal ??
+                            0,
+                          carbs:
+                            item.carbs,
+                          protein:
+                            item.protein,
+                          fat:
+                            item.fat,
+                        }),
+                      ),
+                  },
+                )
+              }
+            } catch (error) {
+              console.error(
+                '텍스트 영양 분석에 실패해 기존 방식으로 저장합니다.',
+                error,
+              )
+
+              // 분석 API 장애가 있어도 사용자가 입력한 식사는
+              // 기존 방식으로 정상 저장되게 유지합니다.
+              await saveMeal(
+                selectedDate,
+                key,
+                {
+                  items:
+                    cleaned.map(
+                      (item) => ({
+                        mealId:
+                          item.mealId,
+                        name:
+                          item.name.trim(),
+                        kcal:
+                          item.kcal ??
+                          0,
+                        carbs:
+                          item.carbs,
+                        protein:
+                          item.protein,
+                        fat:
+                          item.fat,
+                      }),
+                    ),
+                },
+              )
+            }
+          } else {
+            await saveMeal(
+              selectedDate,
+              key,
+              {
+                items:
+                  cleaned.map(
+                    (item) => ({
+                      mealId:
+                        item.mealId,
+                      name:
+                        item.name.trim(),
+                      kcal:
+                        item.kcal ??
+                        0,
+                      carbs:
+                        item.carbs,
+                      protein:
+                        item.protein,
+                      fat:
+                        item.fat,
+                    }),
+                  ),
+              },
+            )
+          }
         } else {
           await saveMeal(
             selectedDate,
