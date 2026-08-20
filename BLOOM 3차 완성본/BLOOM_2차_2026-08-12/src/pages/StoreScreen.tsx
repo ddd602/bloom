@@ -1,6 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { IconChevronLeft } from '../components/icons'
+
+import { getProfile } from '../components/api/ProfileApi'
+import { pickGoalVariant, type GoalId } from '../utils/characterVariant'
 
 // WIM Store 실제 카테고리
 const PRODUCT_CHIPS = [
@@ -110,6 +113,26 @@ const PRODUCTS = [
   },
 ]
 
+// 미용목표별 개별 상품 추천 (카테고리가 아니라 실제 상품 단위로 추천)
+const GOAL_TO_PRODUCT_ITEMS: Record<GoalId, string[]> = {
+  weight: [
+    '저당·저탄수·고단백 윔쉐이크 초코 800g',
+    '윔다이어트 5일 식단 감량 패키지',
+  ],
+  line: [
+    '지질 DOWN 패키지 (대용량 + 비포밀)',
+    '지질 DOWN 스타터 패키지 (파우치 + 비포밀)',
+  ],
+  health: [
+    '윔도시락 - 소불고기 곤드레밥 외 6종',
+    '마시는 식이섬유 비포밀 (30포)',
+  ],
+  skin: [
+    '마시는 식이섬유 비포밀 스위치 (30포)',
+    '저당·저탄수·고단백 윔쉐이크 말차 420g',
+  ],
+}
+
 // WIM Clinic 카테고리
 const PROCEDURE_CHIPS = [
   '비만대사 진료',
@@ -185,6 +208,26 @@ const PROCEDURES = [
     href: 'https://wimclinic.com',
   },
 ]
+
+// 미용목표별 개별 시술 추천 (카테고리가 아니라 실제 시술 단위로 추천)
+const GOAL_TO_PROCEDURE_ITEMS: Record<GoalId, string[]> = {
+  weight: [
+    '위고비(Wegovy) 정밀 관리',
+    '마운자로(Mounjaro) 정밀 관리',
+  ],
+  line: [
+    '체형 밸런스 교정',
+    '탄력 & 라인 케어',
+  ],
+  health: [
+    '비만대사 원인 진단 상담',
+    '체성분 정밀 분석',
+  ],
+  skin: [
+    '처짐 개선 탄력 케어',
+    '탄력 & 라인 케어',
+  ],
+}
 
 function ChipRow({
   chips,
@@ -334,10 +377,60 @@ export default function StoreScreen() {
       PROCEDURE_CHIPS[0],
   )
 
+  // 사용자가 칩을 직접 고른 적 있는지 (있으면 개별 추천 대신 카테고리 탐색으로 전환)
+  const [
+    manualProductChoice,
+    setManualProductChoice,
+  ] = useState(
+    () =>
+      sessionStorage.getItem(
+        PRODUCT_CHIP_KEY,
+      ) !== null,
+  )
+
+  const [
+    manualProcedureChoice,
+    setManualProcedureChoice,
+  ] = useState(
+    () =>
+      sessionStorage.getItem(
+        PROCEDURE_CHIP_KEY,
+      ) !== null,
+  )
+
+  // 미용목표에 맞춰 개별로 추천된 상품/시술 이름 목록
+  const [
+    goalProductNames,
+    setGoalProductNames,
+  ] = useState<string[]>([])
+
+  const [
+    goalProcedureNames,
+    setGoalProcedureNames,
+  ] = useState<string[]>([])
+
   const selectProductChip = (
     chip: string,
   ) => {
+    // 이미 선택된 칩을 다시 누르면 선택을 해제하고
+    // 미용목표 기반 추천으로 되돌아감
+    if (
+      !showProductRecommendation &&
+      productChip === chip
+    ) {
+      setManualProductChoice(
+        false,
+      )
+
+      sessionStorage.removeItem(
+        PRODUCT_CHIP_KEY,
+      )
+
+      return
+    }
+
     setProductChip(chip)
+    setManualProductChoice(true)
 
     sessionStorage.setItem(
       PRODUCT_CHIP_KEY,
@@ -348,7 +441,25 @@ export default function StoreScreen() {
   const selectProcedureChip = (
     chip: string,
   ) => {
+    // 이미 선택된 칩을 다시 누르면 선택을 해제하고
+    // 미용목표 기반 추천으로 되돌아감
+    if (
+      !showProcedureRecommendation &&
+      procedureChip === chip
+    ) {
+      setManualProcedureChoice(
+        false,
+      )
+
+      sessionStorage.removeItem(
+        PROCEDURE_CHIP_KEY,
+      )
+
+      return
+    }
+
     setProcedureChip(chip)
+    setManualProcedureChoice(true)
 
     sessionStorage.setItem(
       PROCEDURE_CHIP_KEY,
@@ -356,19 +467,97 @@ export default function StoreScreen() {
     )
   }
 
+  // 사용자가 직접 고른 적 없으면(세션 저장값 없음),
+  // 온보딩 미용목표에 맞는 상품/시술을 개별로 추천해줌
+  useEffect(() => {
+    const hasProductChoice =
+      sessionStorage.getItem(
+        PRODUCT_CHIP_KEY,
+      ) !== null
+
+    const hasProcedureChoice =
+      sessionStorage.getItem(
+        PROCEDURE_CHIP_KEY,
+      ) !== null
+
+    if (
+      hasProductChoice &&
+      hasProcedureChoice
+    ) {
+      return
+    }
+
+    getProfile()
+      .then((profile) => {
+        if (
+          !profile.beautyGoals
+            ?.length
+        ) {
+          return
+        }
+
+        const goal =
+          pickGoalVariant(
+            profile.beautyGoals,
+          )
+
+        if (!hasProductChoice) {
+          setGoalProductNames(
+            GOAL_TO_PRODUCT_ITEMS[
+              goal
+            ],
+          )
+        }
+
+        if (!hasProcedureChoice) {
+          setGoalProcedureNames(
+            GOAL_TO_PROCEDURE_ITEMS[
+              goal
+            ],
+          )
+        }
+      })
+      .catch((error) => {
+        console.error(
+          '미용목표 기반 추천을 불러오지 못했습니다.',
+          error,
+        )
+      })
+  }, [])
+
+  const showProductRecommendation =
+    !manualProductChoice &&
+    goalProductNames.length > 0
+
+  const showProcedureRecommendation =
+    !manualProcedureChoice &&
+    goalProcedureNames.length > 0
+
   const filteredProducts =
-    PRODUCTS.filter(
-      (item) =>
-        item.category ===
-        productChip,
-    )
+    showProductRecommendation
+      ? PRODUCTS.filter((item) =>
+          goalProductNames.includes(
+            item.name,
+          ),
+        )
+      : PRODUCTS.filter(
+          (item) =>
+            item.category ===
+            productChip,
+        )
 
   const filteredProcedures =
-    PROCEDURES.filter(
-      (item) =>
-        item.category ===
-        procedureChip,
-    )
+    showProcedureRecommendation
+      ? PROCEDURES.filter((item) =>
+          goalProcedureNames.includes(
+            item.name,
+          ),
+        )
+      : PROCEDURES.filter(
+          (item) =>
+            item.category ===
+            procedureChip,
+        )
 
   return (
     <div className="flex h-full flex-col bg-white">
@@ -401,7 +590,7 @@ export default function StoreScreen() {
         <section>
           <SectionHeader
             title="맞춤 제품 추천"
-            sub="WIM Store에서 미용 목표에 맞는 제품을 추천해드려요"
+            sub="BLOOM은 상품을 직접 판매하지 않으며, 상품 선택 시 외부 스토어(WIM Store)로 이동해요"
             href="https://wimstore.co.kr"
           />
 
@@ -410,7 +599,9 @@ export default function StoreScreen() {
               PRODUCT_CHIPS
             }
             selected={
-              productChip
+              showProductRecommendation
+                ? ''
+                : productChip
             }
             onSelect={
               selectProductChip
@@ -432,7 +623,7 @@ export default function StoreScreen() {
         <section className="mt-7">
           <SectionHeader
             title="맞춤 시술 추천"
-            sub="WIM Clinic에서 미용 목표에 맞는 시술을 추천해드려요"
+            sub="BLOOM은 시술을 직접 제공하지 않으며, 시술 선택 시 외부 사이트(WIM Clinic)로 이동해요"
             href="https://wimclinic.com"
           />
 
@@ -441,7 +632,9 @@ export default function StoreScreen() {
               PROCEDURE_CHIPS
             }
             selected={
-              procedureChip
+              showProcedureRecommendation
+                ? ''
+                : procedureChip
             }
             onSelect={
               selectProcedureChip

@@ -235,7 +235,7 @@ function ProfileSettings() {
             type="button"
             onClick={() =>
               navigate(
-                '/onboarding?mode=edit',
+                '/onboarding?mode=edit&section=goal',
               )
             }
             className="shrink-0 rounded-full bg-[#31C66B] px-4 py-1.5 text-[9px] font-semibold text-white"
@@ -252,7 +252,7 @@ function ProfileSettings() {
           type="button"
           onClick={() =>
             navigate(
-              '/onboarding?mode=edit',
+              '/onboarding?mode=edit&section=basic',
             )
           }
           className="mt-3 w-full rounded-[5px] border border-[#67DB97] bg-[#EAF8EC] px-4 py-3 text-left"

@@ -520,10 +520,27 @@ export default function Onboarding() {
       'mode',
     ) === 'edit'
 
+  // 내 정보 설정에서 "미용목표"만, 또는 "기본 건강정보"만
+  // 골라 수정할 때 그 단계들만 보여주기 위한 스코프
+  const editSection =
+    searchParams.get(
+      'section',
+    )
+
+  const ALLOWED_STEPS =
+    editSection === 'goal'
+      ? [3, 4, 5, 6, 7]
+      : editSection === 'basic'
+        ? [0, 1, 2, 9]
+        : null
+
   const [
     step,
     setStep,
-  ] = useState(0)
+  ] = useState(
+    () =>
+      ALLOWED_STEPS?.[0] ?? 0,
+  )
 
   const [
     year,
@@ -605,6 +622,11 @@ export default function Onboarding() {
   const [
     cameraOpen,
     setCameraOpen,
+  ] = useState(false)
+
+  const [
+    finishing,
+    setFinishing,
   ] = useState(false)
 
   const [
@@ -967,6 +989,10 @@ export default function Onboarding() {
 
   const finish =
     async () => {
+      setFinishing(
+        true,
+      )
+
       try {
         const profileData = {
           birthDate:
@@ -1007,54 +1033,74 @@ export default function Onboarding() {
             [],
         }
 
-        if (isEditMode) {
-          await updateOnboarding(
-            profileData,
-          )
-
-          try {
-            const {
-              from,
-              to,
-            } =
-              getRecentSevenDayRange()
-
-            await createAiReport({
-              from,
-              to,
-            })
-          } catch (error) {
-            console.error(
-              '수정된 프로필 기준 AI 리포트를 생성하지 못했습니다.',
-              error,
-            )
-          }
-        } else {
-          await saveOnboarding(
-            profileData,
-          )
-        }
-
         // 현재 배포 Swagger에는 이미지 파일 업로드 API가 없습니다.
         // pendingPhotoFile은 온보딩 중 미리보기 용도로만 유지하고,
         // 실제 https 이미지 URL을 얻기 전에는 body-check 서버 저장을 하지 않습니다.
         void pendingPhotoFile
 
-        if (
-          !isEditMode &&
-          pStart
-        ) {
-          await addPeriod({
-            start:
-              pStart,
+        if (isEditMode) {
+          // 서로 의존관계 없는 요청들이라 순서대로 기다리지 않고 동시에 보냄
+          const tasks: Promise<unknown>[] =
+            [
+              updateOnboarding(
+                profileData,
+              ),
+            ]
 
-            end:
-              pEnd ??
-              pStart,
-          })
-        }
+          if (pStart) {
+            tasks.push(
+              addPeriod({
+                start:
+                  pStart,
 
-        if (!isEditMode) {
+                end:
+                  pEnd ??
+                  pStart,
+              }),
+            )
+          }
+
+          tasks.push(
+            (async () => {
+              try {
+                const {
+                  from,
+                  to,
+                } =
+                  getRecentSevenDayRange()
+
+                await createAiReport({
+                  from,
+                  to,
+                })
+              } catch (error) {
+                console.error(
+                  '수정된 프로필 기준 AI 리포트를 생성하지 못했습니다.',
+                  error,
+                )
+              }
+            })(),
+          )
+
+          await Promise.all(
+            tasks,
+          )
+        } else {
+          await saveOnboarding(
+            profileData,
+          )
+
+          if (pStart) {
+            await addPeriod({
+              start:
+                pStart,
+
+              end:
+                pEnd ??
+                pStart,
+            })
+          }
+
           try {
             const {
               from,
@@ -1089,6 +1135,10 @@ export default function Onboarding() {
         console.error(
           '온보딩 정보를 저장하지 못했습니다.',
           error,
+        )
+      } finally {
+        setFinishing(
+          false,
         )
       }
     }
@@ -1149,8 +1199,32 @@ export default function Onboarding() {
 
   const next = () => {
     if (
-      !canNext
+      !canNext ||
+      finishing
     ) {
+      return
+    }
+
+    if (ALLOWED_STEPS) {
+      const index =
+        ALLOWED_STEPS.indexOf(
+          step,
+        )
+
+      if (
+        index <
+        ALLOWED_STEPS.length -
+          1
+      ) {
+        setStep(
+          ALLOWED_STEPS[
+            index + 1
+          ],
+        )
+      } else {
+        finish()
+      }
+
       return
     }
 
@@ -1167,6 +1241,25 @@ export default function Onboarding() {
   }
 
   const back = () => {
+    if (ALLOWED_STEPS) {
+      const index =
+        ALLOWED_STEPS.indexOf(
+          step,
+        )
+
+      if (index > 0) {
+        setStep(
+          ALLOWED_STEPS[
+            index - 1
+          ],
+        )
+      } else {
+        navigate(-1)
+      }
+
+      return
+    }
+
     if (
       step > 0
     ) {
@@ -1177,6 +1270,13 @@ export default function Onboarding() {
       navigate(-1)
     }
   }
+
+  const isLastAllowedStep =
+    ALLOWED_STEPS !== null &&
+    step ===
+      ALLOWED_STEPS[
+        ALLOWED_STEPS.length - 1
+      ]
 
   const NextButton = ({
     className = '',
@@ -1189,12 +1289,14 @@ export default function Onboarding() {
         next
       }
       disabled={
-        !canNext
+        !canNext ||
+        finishing
       }
       className={
         'h-[48px] w-full rounded-full text-[14px] font-semibold transition-colors ' +
         (
-          canNext
+          canNext &&
+          !finishing
             ? 'bg-[#31C66B] text-white'
             : 'bg-[#B7B7B7] text-white'
         ) +
@@ -1202,7 +1304,11 @@ export default function Onboarding() {
         className
       }
     >
-      다음
+      {finishing
+        ? '저장 중...'
+        : isLastAllowedStep
+          ? '완료'
+          : '다음'}
     </button>
   )
 
