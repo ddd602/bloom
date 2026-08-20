@@ -19,6 +19,10 @@ import {
 import {
   getActivityByDate,
 } from '../api/ActivityApi'
+
+import {
+  getDataMutationVersion,
+} from '../api/ApiClient'
 import {
   getConditionByDate,
 } from '../api/ConditionApi'
@@ -144,6 +148,36 @@ function isDiaryNotFound(
     )
   )
 }
+
+type WeeklyReportValue = {
+  routineRate: number
+  routineDifference: number | null
+  averageMeal: number
+  averageActivity: number
+  averageCondition: number
+}
+
+type WeeklyReportCacheEntry = {
+  report: WeeklyReportValue
+  analysisText: string
+  mutationVersion: number
+  cachedAt: number
+}
+
+// 상세 화면으로 이동했다가 뒤로 돌아와도
+// 같은 주 + 데이터 변경 없음이면 계산 결과를 재사용한다.
+// 서버/로컬 데이터가 변경되면 mutationVersion이 달라져
+// 자동으로 다시 조회한다.
+const weeklyReportCache =
+  new Map<
+    string,
+    WeeklyReportCacheEntry
+  >()
+
+// 다른 탭/기기에서 데이터가 바뀌는 경우까지 고려해
+// 1분이 지나면 한 번은 서버에서 다시 확인한다.
+const WEEKLY_REPORT_CACHE_TTL =
+  60_000
 
 export default function WeeklyCalendar() {
   const navigate =
@@ -571,6 +605,33 @@ export default function WeeklyCalendar() {
   useEffect(() => {
     const loadWeeklyReport =
       async () => {
+        const currentMutationVersion =
+          getDataMutationVersion()
+
+        const cached =
+          weeklyReportCache.get(
+            reportWeekKey,
+          )
+
+        if (
+          cached &&
+          cached.mutationVersion ===
+            currentMutationVersion &&
+          Date.now() -
+            cached.cachedAt <
+            WEEKLY_REPORT_CACHE_TTL
+        ) {
+          setWeeklyReport(
+            cached.report,
+          )
+
+          setAnalysisText(
+            cached.analysisText,
+          )
+
+          return
+        }
+
         try {
           const lastWeekDates =
             getWeekDateKeys(
@@ -1088,17 +1149,13 @@ export default function WeeklyCalendar() {
             }
           }
 
-          if (analysisParts.length > 0) {
-            setAnalysisText(
-              analysisParts.join(' '),
-            )
-          } else {
-            setAnalysisText(
-              '지난주와 2주 전 기록이 충분하지 않아 아직 비교 분석을 만들기 어려워요.',
-            )
-          }
+          const nextAnalysisText =
+            analysisParts.length > 0
+              ? analysisParts.join(' ')
+              : '지난주와 2주 전 기록이 충분하지 않아 아직 비교 분석을 만들기 어려워요.'
 
-          setWeeklyReport({
+          const nextWeeklyReport:
+            WeeklyReportValue = {
             routineRate,
 
             routineDifference:
@@ -1110,7 +1167,29 @@ export default function WeeklyCalendar() {
             averageActivity,
 
             averageCondition,
-          })
+          }
+
+          setAnalysisText(
+            nextAnalysisText,
+          )
+
+          setWeeklyReport(
+            nextWeeklyReport,
+          )
+
+          weeklyReportCache.set(
+            reportWeekKey,
+            {
+              report:
+                nextWeeklyReport,
+              analysisText:
+                nextAnalysisText,
+              mutationVersion:
+                getDataMutationVersion(),
+              cachedAt:
+                Date.now(),
+            },
+          )
         } catch (error) {
           if (
             !isDiaryNotFound(

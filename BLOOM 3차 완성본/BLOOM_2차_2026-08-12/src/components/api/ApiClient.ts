@@ -9,6 +9,31 @@ type ApiOptions = RequestInit & {
   auth?: boolean
 }
 
+let dataMutationVersion = 0
+
+export function getDataMutationVersion() {
+  return dataMutationVersion
+}
+
+export function markDataMutation() {
+  dataMutationVersion += 1
+}
+
+function isMutationMethod(
+  method?: string,
+) {
+  const normalized =
+    (method ?? 'GET')
+      .toUpperCase()
+
+  return (
+    normalized === 'POST' ||
+    normalized === 'PUT' ||
+    normalized === 'PATCH' ||
+    normalized === 'DELETE'
+  )
+}
+
 async function createHeaders(
   headers?: HeadersInit,
   auth = true,
@@ -118,6 +143,18 @@ async function request<T>(
       message ||
         `API 요청 실패 (${response.status})`,
     )
+  }
+
+  // 서버 데이터가 실제로 변경된 요청만
+  // 전역 데이터 버전을 올린다.
+  // WeeklyCalendar의 주간 리포트 캐시는
+  // 이 값이 바뀌면 자동으로 무효화된다.
+  if (
+    isMutationMethod(
+      rest.method,
+    )
+  ) {
+    markDataMutation()
   }
 
   if (response.status === 204) {

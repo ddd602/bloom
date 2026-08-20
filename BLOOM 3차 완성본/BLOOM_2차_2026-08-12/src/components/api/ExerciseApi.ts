@@ -4,6 +4,10 @@ import {
   createActivity,
 } from './ActivityApi'
 
+import {
+  markDataMutation,
+} from './ApiClient'
+
 export type DailyExerciseRecord = {
   date: string
   routines: Routine[]
@@ -372,6 +376,10 @@ export async function addCompletedExercise(
       next,
     )
 
+    // 주간 리포트가 localStorage의
+    // 완료 운동 기록도 사용하므로 캐시 무효화
+    markDataMutation()
+
     return updated
   }
 
@@ -394,6 +402,10 @@ export async function addCompletedExercise(
     ...records,
     created,
   ])
+
+  // 주간 리포트가 localStorage의
+  // 완료 운동 기록도 사용하므로 캐시 무효화
+  markDataMutation()
 
   return created
 }
